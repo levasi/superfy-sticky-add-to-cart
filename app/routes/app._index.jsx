@@ -78,8 +78,6 @@ export default function Index() {
     }
   }, [productId, shopify]);
 
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
-
   return (
     <Page>
       <Layout>
