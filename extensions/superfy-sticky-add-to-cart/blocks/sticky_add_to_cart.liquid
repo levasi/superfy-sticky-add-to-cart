@@ -1,0 +1,101 @@
+{% comment %}
+  Sticky Add to Cart Bar Block
+  Add this block to your product page template.
+{% endcomment %}
+{% assign bar_color = shop.metafields.superfy_sticky.bar_color.value %}
+{% assign bar_position = shop.metafields.superfy_sticky.bar_position.value %}
+
+{% if template contains 'product' and product %}
+  <div
+    id="sticky-add-to-cart-bar"
+    style="background:{{ bar_color | color_to_hex }};"
+    class="sticky-add-to-cart-bar"
+  >
+    <span class="sticky-add-to-cart-title">{{ product.title }}</span>
+    <button
+      id="sticky-add-to-cart-btn"
+      type="button"
+      class="sticky-add-to-cart-btn"
+      style="color:{{ block.settings.button_text_color | color_to_hex }};"
+    >
+      Add to Cart
+    </button>
+  </div>
+  <script>
+    console.log('{{ bar_color }}', 'bar_color')
+    console.log('{{ bar_position }}', 'bar_position')
+    document.getElementById('sticky-add-to-cart-btn').addEventListener('click', function() {
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: '{{ product.selected_or_first_available_variant.id }}',
+          quantity: 1
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        // Try to open the offcanvas cart if the theme supports it
+        if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && window.Shopify.theme.cart.open) {
+          window.Shopify.theme.cart.open();
+        }
+        // Or trigger a custom event for other themes
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
+      })
+      .catch(err => alert('Could not add to cart!'));
+    });
+  </script>
+  <style>
+    #sticky-add-to-cart-bar.sticky-add-to-cart-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+    }
+    .sticky-add-to-cart-title {
+      font-weight: 600;
+    }
+    .sticky-add-to-cart-btn {
+      padding: 0.5rem 1.5rem;
+      background: #008060;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    @media (max-width: 600px) {
+      #sticky-add-to-cart-bar.sticky-add-to-cart-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem;
+      }
+    }
+  </style>
+{% endif %}
+{% schema %}
+{
+  "name": "Sticky Add to Cart Bar",
+  "target": "section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "bar_color",
+      "label": "Bar background color",
+      "default": "#f1f1f1"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    }
+  ]
+}
+{% endschema %}

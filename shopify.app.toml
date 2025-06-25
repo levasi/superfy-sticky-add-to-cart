@@ -1,0 +1,32 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "4f015ff20f4e9ae4f092208276e2efef"
+name = "superfy-sticky-add-to-cart"
+handle = "superfy-sticky-add-to-cart"
+application_url = "https://fourth-rfc-train-subdivision.trycloudflare.com"
+embedded = true
+
+[build]
+include_config_on_deploy = true
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2025-04"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = ["https://fourth-rfc-train-subdivision.trycloudflare.com/auth/callback", "https://fourth-rfc-train-subdivision.trycloudflare.com/auth/shopify/callback", "https://fourth-rfc-train-subdivision.trycloudflare.com/api/auth/callback"]
+
+[pos]
+embedded = false
