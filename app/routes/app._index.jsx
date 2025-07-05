@@ -11,7 +11,11 @@ import {
   List,
   Link,
   InlineStack,
+  ProgressBar,
+  Badge,
+  Grid,
 } from "@shopify/polaris";
+
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { getSetting, upsertSetting } from "../models/settings.server";
@@ -81,6 +85,110 @@ export default function Index() {
   return (
     <Page>
       <Layout>
+        <Layout.Section>
+          {/* Task Progress */}
+          <Card>
+            <Text variant="headingMd">Get started</Text>
+            <ProgressBar progress={25} size="small" />
+            <BlockStack gap="200">
+              <InlineStack align="space-between">
+                <Text>Enable the app embed</Text>
+                <Badge status="success">Done</Badge>
+              </InlineStack>
+              <InlineStack align="space-between">
+                <Text>Customize the sticky bar</Text>
+                <Button>Open theme</Button>
+                <Button variant="plain">Setup guide</Button>
+              </InlineStack>
+              <InlineStack align="space-between">
+                <Text>Choose where it appears</Text>
+              </InlineStack>
+              <InlineStack align="space-between">
+                <Text>Preview and publish</Text>
+              </InlineStack>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+        <Layout.Section>
+          <BlockStack gap="200">
+            <Text variant="headingMd" as="h6">
+              Quick status
+            </Text>
+
+            {/* Quick Status */}
+            <Grid columns={{ xs: 2, sm: 2, md: 2, lg: 2, xl: 2 }}>
+              <Grid.Cell columnSpan={{ xs: 2, md: 1 }}>
+                <Card>
+                  <BlockStack gap="200">
+                    <BlockStack gap="100">
+                      <InlineStack gap="200">
+                        <Text variant="headingSm">App embed</Text>
+                        <Badge status="success">Active</Badge>
+                      </InlineStack>
+                      <Text>Controls whether the app can inject the sticky bar into your theme.</Text>
+                    </BlockStack>
+                    <InlineStack>
+                      <Button>Preview in theme</Button>
+                    </InlineStack>
+                  </BlockStack>
+                </Card>
+              </Grid.Cell>
+
+              <Grid.Cell columnSpan={{ xs: 2, md: 1 }}>
+                <Card>
+                  <BlockStack gap="200">
+                    <BlockStack gap="100">
+                      <InlineStack gap="200">
+                        <Text variant="headingSm">Sticky bar</Text>
+                        <Badge status="success">Paused</Badge>
+                      </InlineStack>
+                      <Text>Turn the sticky bar on or off without uninstalling the app.</Text>
+                    </BlockStack>
+                    <InlineStack>
+                      <Button>Activate</Button>
+                    </InlineStack>
+                  </BlockStack>
+                </Card>
+              </Grid.Cell>
+            </Grid>
+          </BlockStack>
+        </Layout.Section>
+        <Layout.Section>
+          <Card title="What's new" sectioned>
+            <List>
+              <List.Item>
+                <Text variant="bodyMd">
+                  <b>Enhanced features & fixes</b> • June 13 <Badge status="new">New</Badge>
+                  <br />
+                  New Heritage/Pitch themes, fixed collection/checkout issues, improved Okrestro.
+                </Text>
+              </List.Item>
+            </List>
+            <Button variant="plain">View changelog</Button>
+          </Card>
+        </Layout.Section>
+        <Layout.Section>
+          {/* Need Help */}
+          <Card sectioned>
+            <InlineStack gap="400">
+              <BlockStack>
+                <Text variant="headingSm">Contact support</Text>
+                <Text>Have a question or hit a snag? We usually reply within 24 hours.</Text>
+                <Button>Send email</Button>
+              </BlockStack>
+              <BlockStack>
+                <Text variant="headingSm">Live chat</Text>
+                <Text>Chat with us during business hours or leave a message.</Text>
+                <Button>Start chat</Button>
+              </BlockStack>
+              <BlockStack>
+                <Text variant="headingSm">Help center</Text>
+                <Text>All you need to get the sticky bar working on your store.</Text>
+                <Button>View docs</Button>
+              </BlockStack>
+            </InlineStack>
+          </Card>
+        </Layout.Section>
         <Layout.Section>
           <Card sectioned>
             <fetcher.Form method="post" data-save-bar>
