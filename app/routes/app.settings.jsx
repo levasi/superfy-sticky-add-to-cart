@@ -1,12 +1,12 @@
 import {
   Box,
-  Card,
-  Layout,
   Link,
   List,
   Page,
-  Text,
   BlockStack,
+  Layout,
+  Card,
+  Text
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 
@@ -17,6 +17,9 @@ export default function AdditionalPage() {
       <Layout>
         <Layout.Section>
           <Card>
+            <Text as="h2" variant="headingMd">
+              Additional Page
+            </Text>
             <BlockStack gap="300">
               <Text as="p" variant="bodyMd">
                 The app template comes with an additional page which
@@ -42,22 +45,20 @@ export default function AdditionalPage() {
         </Layout.Section>
         <Layout.Section variant="oneThird">
           <Card>
-            <BlockStack gap="200">
-              <Text as="h2" variant="headingMd">
-                Resources
-              </Text>
-              <List>
-                <List.Item>
-                  <Link
-                    url="https://shopify.dev/docs/apps/design-guidelines/navigation#app-nav"
-                    target="_blank"
-                    removeUnderline
-                  >
-                    App nav best practices
-                  </Link>
-                </List.Item>
-              </List>
-            </BlockStack>
+            <Text as="h2" variant="headingMd">
+              Resources
+            </Text>
+            <List>
+              <List.Item>
+                <Link
+                  url="https://shopify.dev/docs/apps/design-guidelines/navigation#app-nav"
+                  target="_blank"
+                  removeUnderline
+                >
+                  App nav best practices
+                </Link>
+              </List.Item>
+            </List>
           </Card>
         </Layout.Section>
       </Layout>

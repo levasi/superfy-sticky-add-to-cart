@@ -26,9 +26,9 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from '@remix-run/react';
 import { useAppBridge } from '@shopify/app-bridge-react';
 
-
 export default function Customize() {
     const [selectedTab, setSelectedTab] = useState(1);
+    const [editingViewTab, setEditingViewTab] = useState(1);
     const [visibility, setVisibility] = useState('all');
     const [trigger, setTrigger] = useState('after-summary');
     const [contentDisplay, setContentDisplay] = useState({
@@ -39,13 +39,13 @@ export default function Customize() {
     });
     const [canPublish] = useState(false); // Set to true if there are unpublished changes
     const [appearanceView, setAppearanceView] = useState('desktop');
-    const [barWidth, setBarWidth] = useState('full');
+    const [barWidth, setBarWidth] = useState('contained');
     const [maxWidth, setMaxWidth] = useState('');
     const [maxWidthUnit, setMaxWidthUnit] = useState('px');
     const [alignment, setAlignment] = useState('left');
     const [outerSpacing, setOuterSpacing] = useState('');
     const [outerSpacingUnit, setOuterSpacingUnit] = useState('px');
-    const [innerSpacing, setInnerSpacing] = useState('');
+    const [innerSpacing, setInnerSpacing] = useState('16');
     const [innerSpacingUnit, setInnerSpacingUnit] = useState('px');
     const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
     const [borderColor, setBorderColor] = useState('#000000');
@@ -61,6 +61,7 @@ export default function Customize() {
     const [customCss, setCustomCss] = useState('<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>');
 
     const handleTabChange = useCallback((selectedTabIndex) => setSelectedTab(selectedTabIndex), []);
+    const handleEditingViewTabChange = useCallback((selectedIndex) => setEditingViewTab(selectedIndex), []);
 
     const tabs = [
         {
@@ -75,6 +76,19 @@ export default function Customize() {
         },
     ];
 
+    const editingViewTabs = [
+        {
+            id: 'desktop',
+            content: 'Desktop',
+            panelID: 'desktop',
+        },
+        {
+            id: 'mobile',
+            content: 'Mobile',
+            panelID: 'mobile',
+        },
+    ];
+
     const navigate = useNavigate();
     const app = useAppBridge();
 
@@ -85,6 +99,29 @@ export default function Customize() {
     const handlePublish = useCallback(() => {
         // Implement your publish logic here
     }, []);
+
+    const handleSetMaxWidth = useCallback((e) => {
+        setMaxWidth(e.target.value)
+    })
+
+    let alignmentStyles = {};
+    if (alignment === 'left') {
+        alignmentStyles = {
+            left: 0,
+            right: 'auto',
+
+        };
+    } else if (alignment === 'center') {
+        alignmentStyles = {
+            left: '50%',
+            transform: 'translateX(-50%)'
+        };
+    } else if (alignment === 'right') {
+        alignmentStyles = {
+            left: 'auto',
+            right: 0
+        };
+    }
 
     function handleResetAppearance() {
         setBarWidth('full');
@@ -130,7 +167,7 @@ export default function Customize() {
                     {selectedTab === 0 && (
                         <Layout>
                             <Layout.Section>
-                                <BlockStack gap="200">
+                                <BlockStack gap="400">
                                     <Card>
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
                                             <Text variant="bodyMd" tone="success">Sticky Bar <span style={{ marginLeft: 8 }}><span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span></span></Text>
@@ -235,318 +272,350 @@ export default function Customize() {
                                     </ButtonGroup>
                                 </InlineStack>
                             </Card>
+                            {appearanceView === 'desktop' &&
+                                <div className="desktop-view">
+                                    <BlockStack gap="400">
+                                        <Card>
+                                            <BlockStack gap="100">
+                                                <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Bar</Text>
+                                                <Text variant="bodySm" tone="subdued">
+                                                    Manage layout, spacing, and visual design for the sticky bar container.
+                                                </Text>
+                                            </BlockStack>
+                                            <Box paddingBlock="400">
+                                                <Box style={{ marginBottom: '8px' }}>
+                                                    <ChoiceList
+                                                        title="Width"
+                                                        choices={[
+                                                            { label: 'Full', value: 'full' },
+                                                            { label: 'Contained', value: 'contained' },
+                                                        ]}
+                                                        selected={[barWidth]}
+                                                        onChange={([value]) => setBarWidth(value)}
+                                                        allowMultiple={false}
+                                                    />
+                                                </Box>
+
+                                                <Box style={{ marginBottom: '8px' }}>
+                                                    <BlockStack gap="100">
+                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
+                                                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+                                                            <input
+                                                                type="number"
+                                                                placeholder="e.g., 600"
+                                                                value={maxWidth}
+                                                                onChange={e => handleSetMaxWidth(e)}
+                                                                style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            />
+                                                            <select
+                                                                value={maxWidthUnit}
+                                                                onChange={e => setMaxWidthUnit(e.target.value)}
+                                                                style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            >
+                                                                <option value="px">px</option>
+                                                                <option value="%">%</option>
+                                                            </select>
+                                                        </div>
+                                                        <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
+                                                    </BlockStack>
+                                                </Box>
+                                                <Box style={{ marginBottom: "16px" }}>
+                                                    <BlockStack gap="100">
+                                                        <Text variant="bodySm" as="div">Alignment</Text>
+                                                        <select
+                                                            value={alignment}
+                                                            onChange={e => setAlignment(e.target.value)}
+                                                            style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                        >
+                                                            <option value="left">Left</option>
+                                                            <option value="center">Center</option>
+                                                            <option value="right">Right</option>
+                                                        </select>
+                                                    </BlockStack>
+                                                </Box>
+                                                <Box style={{ marginBottom: "16px" }}>
+                                                    <BlockStack gap="100">
+                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
+                                                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                            <input
+                                                                type="number"
+                                                                value={outerSpacing}
+                                                                placeholder="e.g., 600"
+                                                                onChange={e => setOuterSpacing(e.target.value)}
+                                                                style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            />
+                                                            <select
+                                                                value={outerSpacingUnit}
+                                                                onChange={e => setOuterSpacingUnit(e.target.value)}
+                                                                style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            >
+                                                                <option value="px">px</option>
+                                                                <option value="%">%</option>
+                                                            </select>
+                                                        </div>
+                                                        <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
+                                                    </BlockStack>
+                                                </Box>
+                                                <BlockStack gap="100">
+                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Inner spacing</Text>
+                                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+                                                        <input
+                                                            type="number"
+                                                            value={innerSpacing}
+                                                            onChange={e => setInnerSpacing(e.target.value)}
+                                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                        />
+                                                        <select
+                                                            value={innerSpacingUnit}
+                                                            onChange={e => setInnerSpacingUnit(e.target.value)}
+                                                            style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                        >
+                                                            <option value="px">px</option>
+                                                            <option value="%">%</option>
+                                                        </select>
+                                                    </div>
+                                                    <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
+                                                </BlockStack>
+                                            </Box>
+                                            <BlockStack gap="400">
+                                                <BlockStack gap="100">
+                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <input
+                                                            type="color"
+                                                            value={backgroundColor}
+                                                            onChange={e => setBackgroundColor(e.target.value)}
+                                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                        />
+                                                        <input
+                                                            type="text"
+                                                            value={backgroundColor}
+                                                            onChange={e => setBackgroundColor(e.target.value)}
+                                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                        />
+                                                    </div>
+                                                </BlockStack>
+                                                {/* Border color */}
+                                                <BlockStack gap="100">
+                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Border color</Text>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <input
+                                                            type="color"
+                                                            value={borderColor}
+                                                            onChange={e => setBorderColor(e.target.value)}
+                                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                        />
+                                                        <input
+                                                            type="text"
+                                                            value={borderColor}
+                                                            onChange={e => setBorderColor(e.target.value)}
+                                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                        />
+                                                    </div>
+                                                </BlockStack>
+                                            </BlockStack>
+                                        </Card>
+                                        <Card>
+                                            <Box padding="400">
+                                                <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Content</Text>
+                                                <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                                    Customize fonts, colors, and spacing for product content inside the sticky bar.
+                                                </Text>
+                                                {/* Product name section */}
+                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Product name</Text>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Color</Text>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                                                    <input
+                                                        type="color"
+                                                        value={productNameColor}
+                                                        onChange={e => setProductNameColor(e.target.value)}
+                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={productNameColor}
+                                                        onChange={e => setProductNameColor(e.target.value)}
+                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                    />
+                                                </div>
+                                                <Divider style={{ margin: '16px 0' }} />
+                                                {/* Image section */}
+                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
+                                                <select
+                                                    value={imageSize}
+                                                    onChange={e => setImageSize(e.target.value)}
+                                                    style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16, marginBottom: 16 }}
+                                                >
+                                                    <option value="small">Small</option>
+                                                    <option value="medium">Medium</option>
+                                                    <option value="large">Large</option>
+                                                </select>
+                                                <Divider style={{ margin: '16px 0' }} />
+                                                {/* Quantity section */}
+                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Quantity</Text>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Color</Text>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <input
+                                                        type="color"
+                                                        value={quantityColor}
+                                                        onChange={e => setQuantityColor(e.target.value)}
+                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={quantityColor}
+                                                        onChange={e => setQuantityColor(e.target.value)}
+                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                    />
+                                                </div>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <input
+                                                        type="color"
+                                                        value={quantityBorderColor}
+                                                        onChange={e => setQuantityBorderColor(e.target.value)}
+                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={quantityBorderColor}
+                                                        onChange={e => setQuantityBorderColor(e.target.value)}
+                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                    />
+                                                </div>
+                                            </Box>
+                                        </Card>
+                                        <Card>
+                                            <Box padding="400">
+                                                <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Button</Text>
+                                                <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                                    Customize the look and behavior of "Add to cart" button inside the sticky bar.
+                                                </Text>
+                                                {/* On click behavior */}
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>On click behavior</Text>
+                                                <select
+                                                    value={buttonBehavior}
+                                                    onChange={e => setButtonBehavior(e.target.value)}
+                                                    style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16, marginBottom: 16 }}
+                                                >
+                                                    <option value="add">Add to cart</option>
+                                                    <option value="buy">Buy now</option>
+                                                    <option value="custom">Custom action</option>
+                                                </select>
+                                                {/* Text */}
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text</Text>
+                                                <div style={{ position: 'relative', marginBottom: 4 }}>
+                                                    <input
+                                                        type="text"
+                                                        value={buttonText}
+                                                        maxLength={40}
+                                                        onChange={e => setButtonText(e.target.value)}
+                                                        style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                    />
+                                                    <span style={{ position: 'absolute', right: 12, top: 8, color: '#6D7175', fontSize: 14 }}>{buttonText.length}/40</span>
+                                                </div>
+                                                <Text variant="bodySm" tone="subdued">
+                                                    To add the price inline, use {'{price}'} token
+                                                </Text>
+                                                {/* Enable cart icon */}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={enableCartIcon}
+                                                        onChange={e => setEnableCartIcon(e.target.checked)}
+                                                        style={{ width: 20, height: 20 }}
+                                                    />
+                                                    <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Enable cart icon</Text>
+                                                </div>
+                                                <Text variant="bodySm" tone="subdued" style={{ marginLeft: 28 }}>
+                                                    Choose whether to display the icon or not
+                                                </Text>
+                                                {/* Text color */}
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text color</Text>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <input
+                                                        type="color"
+                                                        value={buttonTextColor}
+                                                        onChange={e => setButtonTextColor(e.target.value)}
+                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={buttonTextColor}
+                                                        onChange={e => setButtonTextColor(e.target.value)}
+                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                    />
+                                                </div>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Background color</Text>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <input
+                                                        type="color"
+                                                        value={buttonBgColor}
+                                                        onChange={e => setButtonBgColor(e.target.value)}
+                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={buttonBgColor}
+                                                        onChange={e => setButtonBgColor(e.target.value)}
+                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                    />
+                                                </div>
+                                                <Box background="bg-surface-secondary" padding="200" borderRadius="200">
+                                                    <Text variant="bodySm" tone="subdued">
+                                                        Hover styles apply a slight opacity to the background automatically.
+                                                    </Text>
+                                                </Box>
+                                            </Box>
+                                        </Card>
+                                        <Card>
+                                            <Box padding="400">
+                                                <Text as="h3" variant="headingMd">Custom CSS</Text>
+                                                <Text variant="bodySm" tone="subdued">
+                                                    Add your own CSS to override or extend the default bar styling.
+                                                </Text>
+                                                <div style={{ display: 'flex', border: '1px solid #DFDFDF', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
+                                                    <div style={{ background: '#F6F6F7', color: '#6D7175', fontFamily: 'monospace', fontSize: 14, padding: '8px 4px', textAlign: 'right', userSelect: 'none' }}>
+                                                        {Array.from({ length: customCss.split('\n').length || 1 }, (_, i) => (
+                                                            <div key={i} style={{ height: 20 }}>{i + 1}</div>
+                                                        ))}
+                                                    </div>
+                                                    <textarea
+                                                        value={customCss}
+                                                        onChange={e => setCustomCss(e.target.value)}
+                                                        rows={5}
+                                                        style={{
+                                                            width: '100%',
+                                                            border: 'none',
+                                                            outline: 'none',
+                                                            fontFamily: 'monospace',
+                                                            fontSize: 14,
+                                                            color: '#228B22',
+                                                            background: '#fff',
+                                                            padding: 8,
+                                                            resize: 'vertical',
+                                                            minHeight: 100,
+                                                        }}
+                                                        spellCheck={false}
+                                                    />
+                                                </div>
+                                            </Box>
+                                        </Card>
+                                    </BlockStack>
+                                </div>
+                            }
+                            {appearanceView === 'mobile' &&
+                                <div className="mobile-view">
+                                    <Card>
+                                        mobile soon
+                                    </Card>
+                                </div>
+                            }
                             <Card>
                                 <Box padding="400">
-                                    <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Bar</Text>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                        Manage layout, spacing, and visual design for the sticky bar container.
-                                    </Text>
-                                    {/* Width */}
-                                    <ChoiceList
-                                        title="Width"
-                                        choices={[
-                                            { label: 'Full', value: 'full' },
-                                            { label: 'Contained', value: 'contained' },
-                                        ]}
-                                        selected={[barWidth]}
-                                        onChange={([value]) => setBarWidth(value)}
-                                        allowMultiple={false}
-                                    />
-                                    {/* Max width */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-                                        <input
-                                            type="text"
-                                            placeholder="e.g., 600"
-                                            value={maxWidth}
-                                            onChange={e => setMaxWidth(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                        <select
-                                            value={maxWidthUnit}
-                                            onChange={e => setMaxWidthUnit(e.target.value)}
-                                            style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        >
-                                            <option value="px">px</option>
-                                            <option value="%">%</option>
-                                        </select>
-                                    </div>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 12 }}>Leave empty for auto</Text>
-                                    {/* Alignment */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Alignment</Text>
-                                    <select
-                                        value={alignment}
-                                        onChange={e => setAlignment(e.target.value)}
-                                        style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16, marginBottom: 12 }}
-                                    >
-                                        <option value="left">Left</option>
-                                        <option value="center">Center</option>
-                                        <option value="right">Right</option>
-                                    </select>
-                                    {/* Outer spacing */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Outer spacing</Text>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-                                        <input
-                                            type="number"
-                                            value={outerSpacing}
-                                            onChange={e => setOuterSpacing(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                        <select
-                                            value={outerSpacingUnit}
-                                            onChange={e => setOuterSpacingUnit(e.target.value)}
-                                            style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        >
-                                            <option value="px">px</option>
-                                            <option value="%">%</option>
-                                        </select>
-                                    </div>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 12 }}>Distance between the bar and the screen edges.</Text>
-                                    {/* Inner spacing */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Inner spacing</Text>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-                                        <input
-                                            type="number"
-                                            value={innerSpacing}
-                                            onChange={e => setInnerSpacing(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                        <select
-                                            value={innerSpacingUnit}
-                                            onChange={e => setInnerSpacingUnit(e.target.value)}
-                                            style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        >
-                                            <option value="px">px</option>
-                                            <option value="%">%</option>
-                                        </select>
-                                    </div>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 12 }}>Padding inside the sticky bar</Text>
-                                    {/* Background color */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Background color</Text>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                                        <input
-                                            type="color"
-                                            value={backgroundColor}
-                                            onChange={e => setBackgroundColor(e.target.value)}
-                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={backgroundColor}
-                                            onChange={e => setBackgroundColor(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                    </div>
-                                    {/* Border color */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <input
-                                            type="color"
-                                            value={borderColor}
-                                            onChange={e => setBorderColor(e.target.value)}
-                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={borderColor}
-                                            onChange={e => setBorderColor(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                    </div>
-                                </Box>
-                            </Card>
-                            <Card>
-                                <Box padding="400">
-                                    <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Content</Text>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                        Customize fonts, colors, and spacing for product content inside the sticky bar.
-                                    </Text>
-                                    {/* Product name section */}
-                                    <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Product name</Text>
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Color</Text>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                                        <input
-                                            type="color"
-                                            value={productNameColor}
-                                            onChange={e => setProductNameColor(e.target.value)}
-                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={productNameColor}
-                                            onChange={e => setProductNameColor(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                    </div>
-                                    <Divider style={{ margin: '16px 0' }} />
-                                    {/* Image section */}
-                                    <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
-                                    <select
-                                        value={imageSize}
-                                        onChange={e => setImageSize(e.target.value)}
-                                        style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16, marginBottom: 16 }}
-                                    >
-                                        <option value="small">Small</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="large">Large</option>
-                                    </select>
-                                    <Divider style={{ margin: '16px 0' }} />
-                                    {/* Quantity section */}
-                                    <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Quantity</Text>
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Color</Text>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                                        <input
-                                            type="color"
-                                            value={quantityColor}
-                                            onChange={e => setQuantityColor(e.target.value)}
-                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={quantityColor}
-                                            onChange={e => setQuantityColor(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                    </div>
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <input
-                                            type="color"
-                                            value={quantityBorderColor}
-                                            onChange={e => setQuantityBorderColor(e.target.value)}
-                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={quantityBorderColor}
-                                            onChange={e => setQuantityBorderColor(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                    </div>
-                                </Box>
-                            </Card>
-                            <Card>
-                                <Box padding="400">
-                                    <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Button</Text>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                        Customize the look and behavior of "Add to cart" button inside the sticky bar.
-                                    </Text>
-                                    {/* On click behavior */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>On click behavior</Text>
-                                    <select
-                                        value={buttonBehavior}
-                                        onChange={e => setButtonBehavior(e.target.value)}
-                                        style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16, marginBottom: 16 }}
-                                    >
-                                        <option value="add">Add to cart</option>
-                                        <option value="buy">Buy now</option>
-                                        <option value="custom">Custom action</option>
-                                    </select>
-                                    {/* Text */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text</Text>
-                                    <div style={{ position: 'relative', marginBottom: 4 }}>
-                                        <input
-                                            type="text"
-                                            value={buttonText}
-                                            maxLength={40}
-                                            onChange={e => setButtonText(e.target.value)}
-                                            style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                        <span style={{ position: 'absolute', right: 12, top: 8, color: '#6D7175', fontSize: 14 }}>{buttonText.length}/40</span>
-                                    </div>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 12 }}>
-                                        To add the price inline, use {'{price}'} token
-                                    </Text>
-                                    {/* Enable cart icon */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={enableCartIcon}
-                                            onChange={e => setEnableCartIcon(e.target.checked)}
-                                            style={{ width: 20, height: 20 }}
-                                        />
-                                        <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Enable cart icon</Text>
-                                    </div>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 12, marginLeft: 28 }}>
-                                        Choose whether to display the icon or not
-                                    </Text>
-                                    {/* Text color */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text color</Text>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                                        <input
-                                            type="color"
-                                            value={buttonTextColor}
-                                            onChange={e => setButtonTextColor(e.target.value)}
-                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={buttonTextColor}
-                                            onChange={e => setButtonTextColor(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                    </div>
-                                    {/* Background color */}
-                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Background color</Text>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                                        <input
-                                            type="color"
-                                            value={buttonBgColor}
-                                            onChange={e => setButtonBgColor(e.target.value)}
-                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={buttonBgColor}
-                                            onChange={e => setButtonBgColor(e.target.value)}
-                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                        />
-                                    </div>
-                                    <Box background="bg-surface-secondary" padding="200" borderRadius="200" marginBlockStart="400">
-                                        <Text variant="bodySm" tone="subdued">
-                                            Hover styles apply a slight opacity to the background automatically.
-                                        </Text>
-                                    </Box>
-                                </Box>
-                            </Card>
-                            <Card>
-                                <Box padding="400">
-                                    <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Custom CSS</Text>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                        Add your own CSS to override or extend the default bar styling.
-                                    </Text>
-                                    <div style={{ display: 'flex', border: '1px solid #DFDFDF', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
-                                        <div style={{ background: '#F6F6F7', color: '#6D7175', fontFamily: 'monospace', fontSize: 14, padding: '8px 4px', textAlign: 'right', userSelect: 'none' }}>
-                                            {Array.from({ length: customCss.split('\n').length || 1 }, (_, i) => (
-                                                <div key={i} style={{ height: 20 }}>{i + 1}</div>
-                                            ))}
-                                        </div>
-                                        <textarea
-                                            value={customCss}
-                                            onChange={e => setCustomCss(e.target.value)}
-                                            rows={5}
-                                            style={{
-                                                width: '100%',
-                                                border: 'none',
-                                                outline: 'none',
-                                                fontFamily: 'monospace',
-                                                fontSize: 14,
-                                                color: '#228B22',
-                                                background: '#fff',
-                                                padding: 8,
-                                                resize: 'vertical',
-                                                minHeight: 100,
-                                            }}
-                                            spellCheck={false}
-                                        />
-                                    </div>
-                                </Box>
-                            </Card>
-                            <Card>
-                                <Box padding="400">
-                                    <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Reset appearance settings</Text>
-                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                    <Text as="h3" variant="headingMd">Reset appearance settings</Text>
+                                    <Text variant="bodySm" tone="subdued">
                                         Revert appearance settings to their original defaults.<br />This action cannot be undone.
                                     </Text>
                                     <Button onClick={handleResetAppearance} >
@@ -554,6 +623,7 @@ export default function Customize() {
                                     </Button>
                                 </Box>
                             </Card>
+
                         </BlockStack>
                     )}
                 </Tabs>
@@ -564,15 +634,28 @@ export default function Customize() {
                     <Card title="Live preview">
                         <div style={{
                             minHeight: 300,
-                            display: 'flex',
-                            alignItems: 'flex-end',
-                            justifyContent: 'flex-end'
+                            position: 'relative'
                         }}>
-                            <Card>
-                                <InlineStack gap="400" align="center">
+                            <div
+                                className='sy-sticky-add-to-cart-preview'
+                                style={{
+                                    position: 'absolute',
+                                    bottom: '0',
+                                    ...alignmentStyles,
+                                    borderRadius: 4,
+                                    border: '1px solid' + borderColor,
+                                    backgroundColor: backgroundColor,
+                                    padding: innerSpacing + innerSpacingUnit,
+                                    width: barWidth === 'full' ? '100%' : 'auto',
+                                    maxWidth: maxWidth === '' ? 'none' : `${maxWidth}${maxWidthUnit}`,
+                                    margin: outerSpacing === '' ? 'unset' : `${outerSpacing}${outerSpacingUnit}`,
+                                }}>
+
+                                <InlineStack gap="400" style={{ whiteSpace: 'nowrap' }}>
                                     {contentDisplay.image && (
                                         <img src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png" alt="Product" style={{ width: 60, height: 60, objectFit: 'cover', border: '3px solid #9B51E0', borderRadius: 8, boxSizing: 'border-box' }} />
                                     )}
+
                                     <BlockStack gap="100">
                                         {contentDisplay.title && <Text variant="bodyMd">Taupe One Loafers</Text>}
                                         {contentDisplay.price && (
@@ -590,7 +673,7 @@ export default function Customize() {
                                     )}
                                     <Button primary>Add to cart</Button>
                                 </InlineStack>
-                            </Card>
+                            </div>
                         </div>
                     </Card>
                 </div>

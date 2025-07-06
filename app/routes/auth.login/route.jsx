@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import {
-  AppProvider as PolarisAppProvider,
-  Button,
-  Card,
-  FormLayout,
-  Page,
-  Text,
-  TextField,
-} from "@shopify/polaris";
+import * as Polaris from "@shopify/polaris";
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { login } from "../../shopify.server";
@@ -37,15 +29,15 @@ export default function Auth() {
   const { errors } = actionData || loaderData;
 
   return (
-    <PolarisAppProvider i18n={loaderData.polarisTranslations}>
-      <Page>
-        <Card>
+    <Polaris.AppProvider i18n={loaderData.polarisTranslations}>
+      <Polaris.Page>
+        <Polaris.Card>
+          <Polaris.Text as="h2" variant="headingMd">
+            Log in
+          </Polaris.Text>
           <Form method="post">
-            <FormLayout>
-              <Text variant="headingMd" as="h2">
-                Log in
-              </Text>
-              <TextField
+            <Polaris.FormLayout>
+              <Polaris.TextField
                 type="text"
                 name="shop"
                 label="Shop domain"
@@ -55,11 +47,11 @@ export default function Auth() {
                 autoComplete="on"
                 error={errors.shop}
               />
-              <Button submit>Log in</Button>
-            </FormLayout>
+              <Polaris.Button submit>Log in</Polaris.Button>
+            </Polaris.FormLayout>
           </Form>
-        </Card>
-      </Page>
-    </PolarisAppProvider>
+        </Polaris.Card>
+      </Polaris.Page>
+    </Polaris.AppProvider>
   );
 }
