@@ -83,7 +83,7 @@ export default function Index() {
   }, [productId, shopify]);
 
   return (
-    <Page>
+    <Page fullWidth>
       <Layout>
         <Layout.Section>
           {/* Task Progress */}
