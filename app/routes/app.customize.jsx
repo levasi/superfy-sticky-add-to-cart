@@ -172,8 +172,8 @@ export default function Customize() {
                                 <BlockStack gap="400">
                                     <Card>
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
-                                            <Text variant="bodyMd" tone="success">Sticky Bar <span style={{ marginLeft: 8 }}><span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span></span></Text>
-                                            <Button tone="critical" variant="tertiary">Pause</Button>
+                                            <Text variant="headingSm" tone="success">Sticky Bar <span style={{ marginLeft: 8 }}><span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span></span></Text>
+                                            <Button tone="critical">Pause</Button>
                                         </InlineStack>
                                     </Card>
                                     <Card>
