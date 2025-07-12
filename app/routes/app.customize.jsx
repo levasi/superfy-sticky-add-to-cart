@@ -15,7 +15,9 @@ import {
     Box,
     Icon,
     InlineGrid,
-    ButtonGroup
+    ButtonGroup,
+    TextField,
+    ColorPicker
 } from '@shopify/polaris';
 import {
     ArrowLeftIcon,
@@ -101,7 +103,7 @@ export default function Customize() {
     }, []);
 
     const handleSetMaxWidth = useCallback((e) => {
-        setMaxWidth(e.target.value)
+        setMaxWidth(e)
     })
 
     let alignmentStyles = {};
@@ -219,33 +221,6 @@ export default function Customize() {
                                         <Box style={{ margin: '16px 0' }}>
                                             <Divider />
                                         </Box>
-                                        <BlockStack>
-                                            <Box style={{ marginBottom: '16px' }}>
-                                                <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
-                                            </Box>
-                                            <BlockStack gap="0">
-                                                <Checkbox
-                                                    label="Show image"
-                                                    checked={contentDisplay.image}
-                                                    onChange={val => setContentDisplay(cd => ({ ...cd, image: val }))}
-                                                />
-                                                <Checkbox
-                                                    label="Show title"
-                                                    checked={contentDisplay.title}
-                                                    onChange={val => setContentDisplay(cd => ({ ...cd, title: val }))}
-                                                />
-                                                <Checkbox
-                                                    label="Show price"
-                                                    checked={contentDisplay.price}
-                                                    onChange={val => setContentDisplay(cd => ({ ...cd, price: val }))}
-                                                />
-                                                <Checkbox
-                                                    label="Show quantity selector"
-                                                    checked={contentDisplay.quantity}
-                                                    onChange={val => setContentDisplay(cd => ({ ...cd, quantity: val }))}
-                                                />
-                                            </BlockStack>
-                                        </BlockStack>
                                     </Card>
                                 </BlockStack>
                             </Layout.Section>
@@ -276,6 +251,34 @@ export default function Customize() {
                                 <div className="desktop-view">
                                     <BlockStack gap="400">
                                         <Card>
+                                            <Box style={{ marginBottom: '16px' }}>
+                                                <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
+                                            </Box>
+                                            <BlockStack gap="0">
+                                                <Checkbox
+                                                    label="Show image"
+                                                    checked={contentDisplay.image}
+                                                    onChange={val => setContentDisplay(cd => ({ ...cd, image: val }))}
+                                                />
+                                                <Checkbox
+                                                    label="Show title"
+                                                    checked={contentDisplay.title}
+                                                    onChange={val => setContentDisplay(cd => ({ ...cd, title: val }))}
+                                                />
+                                                <Checkbox
+                                                    label="Show price"
+                                                    checked={contentDisplay.price}
+                                                    onChange={val => setContentDisplay(cd => ({ ...cd, price: val }))}
+                                                />
+                                                <Checkbox
+                                                    label="Show quantity selector"
+                                                    checked={contentDisplay.quantity}
+                                                    onChange={val => setContentDisplay(cd => ({ ...cd, quantity: val }))}
+                                                />
+                                            </BlockStack>
+                                        </Card>
+
+                                        <Card>
                                             <BlockStack gap="100">
                                                 <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Bar</Text>
                                                 <Text variant="bodySm" tone="subdued">
@@ -300,21 +303,29 @@ export default function Customize() {
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
                                                         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-                                                            <input
+
+                                                            <TextField
                                                                 type="number"
                                                                 placeholder="e.g., 600"
                                                                 value={maxWidth}
-                                                                onChange={e => handleSetMaxWidth(e)}
+                                                                onChange={handleSetMaxWidth}
                                                                 style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                             />
-                                                            <select
+                                                            <Select
+                                                                options={[
+                                                                    {
+                                                                        label: 'px',
+                                                                        value: 'px'
+                                                                    },
+                                                                    {
+                                                                        label: '%',
+                                                                        value: '%'
+                                                                    }
+                                                                ]}
+                                                                onChange={setMaxWidthUnit}
                                                                 value={maxWidthUnit}
-                                                                onChange={e => setMaxWidthUnit(e.target.value)}
                                                                 style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                            >
-                                                                <option value="px">px</option>
-                                                                <option value="%">%</option>
-                                                            </select>
+                                                            />
                                                         </div>
                                                         <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
                                                     </BlockStack>
@@ -322,15 +333,25 @@ export default function Customize() {
                                                 <Box style={{ marginBottom: "16px" }}>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div">Alignment</Text>
-                                                        <select
+                                                        <Select
+                                                            options={[
+                                                                {
+                                                                    label: 'Left',
+                                                                    value: 'left'
+                                                                },
+                                                                {
+                                                                    label: 'Center',
+                                                                    value: 'center'
+                                                                },
+                                                                {
+                                                                    label: 'Right',
+                                                                    value: 'right'
+                                                                }
+                                                            ]}
+                                                            onChange={setAlignment}
                                                             value={alignment}
-                                                            onChange={e => setAlignment(e.target.value)}
                                                             style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                        >
-                                                            <option value="left">Left</option>
-                                                            <option value="center">Center</option>
-                                                            <option value="right">Right</option>
-                                                        </select>
+                                                        />
                                                     </BlockStack>
                                                 </Box>
                                                 <Box style={{ marginBottom: "16px" }}>
@@ -395,7 +416,6 @@ export default function Customize() {
                                                         />
                                                     </div>
                                                 </BlockStack>
-                                                {/* Border color */}
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Border color</Text>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -416,14 +436,22 @@ export default function Customize() {
                                             </BlockStack>
                                         </Card>
                                         <Card>
-                                            <Box padding="400">
-                                                <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Content</Text>
+                                            <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <Text as="h3" variant="headingMd">Content</Text>
                                                 <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
                                                     Customize fonts, colors, and spacing for product content inside the sticky bar.
                                                 </Text>
-                                                {/* Product name section */}
-                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Product name</Text>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Color</Text>
+                                            </Box>
+                                            <Box style={{ margin: '16px 0' }}>
+                                                <Divider />
+                                            </Box>
+                                            <Box>
+                                                <Box style={{ marginBottom: '8px' }}>
+                                                    <Text as="h4" variant="headingSm">Product name</Text>
+                                                </Box>
+                                                <Box style={{ marginBottom: '4px' }}>
+                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Color</Text>
+                                                </Box>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                                                     <input
                                                         type="color"
@@ -438,136 +466,166 @@ export default function Customize() {
                                                         style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                     />
                                                 </div>
-                                                <Divider style={{ margin: '16px 0' }} />
-                                                {/* Image section */}
+                                            </Box>
+                                            <Box style={{ margin: '16px 0' }}>
+                                                <Divider />
+                                            </Box>
+                                            <Box style={{ marginBottom: 8 }}>
                                                 <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
+                                            </Box>
+                                            <Box style={{ marginBottom: 4 }}>
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
-                                                <select
-                                                    value={imageSize}
-                                                    onChange={e => setImageSize(e.target.value)}
-                                                    style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16, marginBottom: 16 }}
-                                                >
-                                                    <option value="small">Small</option>
-                                                    <option value="medium">Medium</option>
-                                                    <option value="large">Large</option>
-                                                </select>
-                                                <Divider style={{ margin: '16px 0' }} />
-                                                {/* Quantity section */}
+                                            </Box>
+                                            <select
+                                                value={imageSize}
+                                                onChange={e => setImageSize(e.target.value)}
+                                                style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                            >
+                                                <option value="small">Small</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="large">Large</option>
+                                            </select>
+                                            <Box style={{ margin: '16px 0' }}>
+                                                <Divider />
+                                            </Box>
+                                            <Box style={{ marginBottom: 8 }}>
                                                 <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Quantity</Text>
+                                            </Box>
+                                            <Box style={{ marginBottom: 4 }}>
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Color</Text>
+                                            </Box>
+                                            <Box style={{ marginBottom: 8 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                                     <input
                                                         type="color"
                                                         value={quantityColor}
                                                         onChange={e => setQuantityColor(e.target.value)}
-                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                        style={{ width: 32, height: 32, s: '1px solid #DFDFDF', borderRadius: 8 }}
                                                     />
                                                     <input
                                                         type="text"
                                                         value={quantityColor}
                                                         onChange={e => setQuantityColor(e.target.value)}
-                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                    />
-                                                </div>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                    <input
-                                                        type="color"
-                                                        value={quantityBorderColor}
-                                                        onChange={e => setQuantityBorderColor(e.target.value)}
-                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        value={quantityBorderColor}
-                                                        onChange={e => setQuantityBorderColor(e.target.value)}
                                                         style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                     />
                                                 </div>
                                             </Box>
+                                            <Box style={{ marginBottom: 4 }}>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
+                                            </Box>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <input
+                                                    type="color"
+                                                    value={quantityBorderColor}
+                                                    onChange={e => setQuantityBorderColor(e.target.value)}
+                                                    style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={quantityBorderColor}
+                                                    onChange={e => setQuantityBorderColor(e.target.value)}
+                                                    style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                />
+                                            </div>
                                         </Card>
                                         <Card>
-                                            <Box padding="400">
-                                                <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Button</Text>
-                                                <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                                    Customize the look and behavior of "Add to cart" button inside the sticky bar.
-                                                </Text>
-                                                {/* On click behavior */}
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>On click behavior</Text>
-                                                <select
-                                                    value={buttonBehavior}
-                                                    onChange={e => setButtonBehavior(e.target.value)}
-                                                    style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16, marginBottom: 16 }}
-                                                >
-                                                    <option value="add">Add to cart</option>
-                                                    <option value="buy">Buy now</option>
-                                                    <option value="custom">Custom action</option>
-                                                </select>
-                                                {/* Text */}
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text</Text>
-                                                <div style={{ position: 'relative', marginBottom: 4 }}>
-                                                    <input
-                                                        type="text"
-                                                        value={buttonText}
-                                                        maxLength={40}
-                                                        onChange={e => setButtonText(e.target.value)}
+                                            <BlockStack gap="400">
+                                                <Box>
+                                                    <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Button</Text>
+                                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                                        Customize the look and behavior of "Add to cart" button inside the sticky bar.
+                                                    </Text>
+                                                </Box>
+                                                <Box>
+                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>On click behavior</Text>
+
+                                                    <select
+                                                        value={buttonBehavior}
+                                                        onChange={e => setButtonBehavior(e.target.value)}
                                                         style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                    />
-                                                    <span style={{ position: 'absolute', right: 12, top: 8, color: '#6D7175', fontSize: 14 }}>{buttonText.length}/40</span>
-                                                </div>
-                                                <Text variant="bodySm" tone="subdued">
-                                                    To add the price inline, use {'{price}'} token
-                                                </Text>
-                                                {/* Enable cart icon */}
+                                                    >
+                                                        <option value="add">Add to cart</option>
+                                                        <option value="buy">Buy now</option>
+                                                        <option value="custom">Custom action</option>
+                                                    </select>
+                                                </Box>
+                                                <Box>
+                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text</Text>
+                                                    <div style={{ position: 'relative', marginBottom: 4 }}>
+                                                        <input
+                                                            type="text"
+                                                            value={buttonText}
+                                                            maxLength={40}
+                                                            onChange={e => setButtonText(e.target.value)}
+                                                            style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                        />
+                                                        <span style={{ position: 'absolute', right: 12, top: 8, color: '#6D7175', fontSize: 14 }}>{buttonText.length}/40</span>
+                                                    </div>
+                                                    <Text variant="bodySm" tone="subdued">
+                                                        To add the price inline, use {'{price}'} token
+                                                    </Text>
+                                                </Box>
+
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={enableCartIcon}
-                                                        onChange={e => setEnableCartIcon(e.target.checked)}
-                                                        style={{ width: 20, height: 20 }}
-                                                    />
-                                                    <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Enable cart icon</Text>
+                                                    <InlineStack wrap={false} gap="150">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={enableCartIcon}
+                                                            onChange={e => setEnableCartIcon(e.target.checked)}
+                                                            style={{ width: 20, height: 20 }}
+                                                        />
+                                                        <Box>
+                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
+                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 28 }}>
+                                                                Choose whether to display the icon or not
+                                                            </Text>
+                                                        </Box>
+                                                    </InlineStack>
                                                 </div>
-                                                <Text variant="bodySm" tone="subdued" style={{ marginLeft: 28 }}>
-                                                    Choose whether to display the icon or not
-                                                </Text>
-                                                {/* Text color */}
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text color</Text>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                    <input
-                                                        type="color"
-                                                        value={buttonTextColor}
-                                                        onChange={e => setButtonTextColor(e.target.value)}
-                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        value={buttonTextColor}
-                                                        onChange={e => setButtonTextColor(e.target.value)}
-                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                    />
-                                                </div>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Background color</Text>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                    <input
-                                                        type="color"
-                                                        value={buttonBgColor}
-                                                        onChange={e => setButtonBgColor(e.target.value)}
-                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        value={buttonBgColor}
-                                                        onChange={e => setButtonBgColor(e.target.value)}
-                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                    />
-                                                </div>
+                                                <Box>
+                                                    <BlockStack gap="100">
+                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text color</Text>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                            <input
+                                                                type="color"
+                                                                value={buttonTextColor}
+                                                                onChange={e => setButtonTextColor(e.target.value)}
+                                                                style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                value={buttonTextColor}
+                                                                onChange={e => setButtonTextColor(e.target.value)}
+                                                                style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            />
+                                                        </div>
+                                                    </BlockStack>
+                                                </Box>
+                                                <Box>
+                                                    <BlockStack gap="100">
+                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                            <input
+                                                                type="color"
+                                                                value={buttonBgColor}
+                                                                onChange={e => setButtonBgColor(e.target.value)}
+                                                                style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                value={buttonBgColor}
+                                                                onChange={e => setButtonBgColor(e.target.value)}
+                                                                style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            />
+                                                        </div>
+                                                    </BlockStack>
+                                                </Box>
                                                 <Box background="bg-surface-secondary" padding="200" borderRadius="200">
                                                     <Text variant="bodySm" tone="subdued">
                                                         Hover styles apply a slight opacity to the background automatically.
                                                     </Text>
                                                 </Box>
-                                            </Box>
+                                            </BlockStack>
                                         </Card>
                                         <Card>
                                             <Box padding="400">
@@ -649,6 +707,7 @@ export default function Customize() {
                                     width: barWidth === 'full' ? '100%' : 'auto',
                                     maxWidth: maxWidth === '' ? 'none' : `${maxWidth}${maxWidthUnit}`,
                                     margin: outerSpacing === '' ? 'unset' : `${outerSpacing}${outerSpacingUnit}`,
+                                    flexWrap: 'nowrap'
                                 }}>
 
                                 <InlineStack gap="400" style={{ whiteSpace: 'nowrap' }}>
@@ -665,7 +724,7 @@ export default function Customize() {
                                         )}
                                     </BlockStack>
                                     {contentDisplay.quantity && (
-                                        <InlineStack gap="100" align="center">
+                                        <InlineStack gap="100" blockAlign="center" wrap={false}>
                                             <Button variant="tertiary">-</Button>
                                             <Text>1</Text>
                                             <Button variant="tertiary">+</Button>
@@ -677,7 +736,7 @@ export default function Customize() {
                         </div>
                     </Card>
                 </div>
-            </InlineGrid>
+            </InlineGrid >
         </Page >
     );
 }

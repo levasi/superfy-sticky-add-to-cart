@@ -169,11 +169,6 @@ export default function Index() {
                 <Polaris.Button>Send email</Polaris.Button>
               </Polaris.BlockStack>
               <Polaris.BlockStack>
-                <Polaris.Text variant="headingSm">Live chat</Polaris.Text>
-                <Polaris.Text>Chat with us during business hours or leave a message.</Polaris.Text>
-                <Polaris.Button>Start chat</Polaris.Button>
-              </Polaris.BlockStack>
-              <Polaris.BlockStack>
                 <Polaris.Text variant="headingSm">Help center</Polaris.Text>
                 <Polaris.Text>All you need to get the sticky bar working on your store.</Polaris.Text>
                 <Polaris.Button>View docs</Polaris.Button>
