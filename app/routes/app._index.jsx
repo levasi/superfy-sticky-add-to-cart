@@ -7,8 +7,6 @@ import { authenticate } from "../shopify.server";
 import { getSetting, upsertSetting } from "../models/settings.server";
 import { setShopMetafields } from "../utils/metafields.server";
 
-// Sticky Add to Cart bar: When a product is generated, a sticky bar appears at the bottom of the page showing product info and an Add to Cart button with a local cart count.
-
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
   // Fetch sticky bar color and position from settings
@@ -21,6 +19,7 @@ export const loader = async ({ request }) => {
 };
 
 export const action = async ({ request }) => {
+
   const { admin } = await authenticate.admin(request);
   const formData = await request.formData();
   const color = formData.get("stickyColor");
@@ -41,32 +40,20 @@ export const action = async ({ request }) => {
 
 export default function Index() {
   const fetcher = useFetcher();
-  const loaderData = fetcher.data || useLoaderData();
+  const loaderData = useLoaderData();
   const shopify = useAppBridge();
   const [cartCount, setCartCount] = useState(0);
   const [stickyColor, setStickyColor] = useState(loaderData.stickyBarColor || "#fff");
   const [stickyPosition, setStickyPosition] = useState(loaderData.stickyBarPosition || "bottom");
-  const isLoading =
-    ["loading", "submitting"].includes(fetcher.state) &&
-    fetcher.formMethod === "POST";
-  const productId = fetcher.data?.product?.id?.replace(
-    "gid://shopify/Product/",
-    "",
-  );
+
   const product = fetcher.data?.product;
   const variant = fetcher.data?.variant?.[0];
 
   useEffect(() => {
     if (fetcher.data?.ok) {
-      shopify.toast.show("Sticky bar color saved!");
+      shopify.toast.show("Sticky bar settings saved!");
     }
   }, [fetcher.data, shopify]);
-
-  useEffect(() => {
-    if (productId) {
-      shopify.toast.show("Product created");
-    }
-  }, [productId, shopify]);
 
   return (
     <Polaris.Page fullWidth>
