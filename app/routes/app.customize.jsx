@@ -66,10 +66,10 @@ export const loader = async ({ request }) => {
         sticky_bar_color: barColorSetting?.value || '#fff',
         sticky_visibility: visibilitySetting?.value || 'all',
         sticky_trigger: triggerSetting?.value || 'after-summary',
-        sticky_content_display_image: imageSetting?.value === undefined ? true : imageSetting?.value === 'true',
-        sticky_content_display_title: titleSetting?.value === undefined ? true : titleSetting?.value === 'true',
-        sticky_content_display_price: priceSetting?.value === undefined ? true : priceSetting?.value === 'true',
-        sticky_content_display_quantity: quantitySetting?.value === undefined ? true : quantitySetting?.value === 'true',
+        sticky_content_display_image: imageSetting?.value === 'true',
+        sticky_content_display_title: titleSetting?.value === 'true',
+        sticky_content_display_price: priceSetting?.value === 'true',
+        sticky_content_display_quantity: quantitySetting?.value === 'true',
         sticky_bar_width: barWidthSetting?.value || 'contained',
         sticky_max_width: maxWidthSetting?.value || '',
         sticky_max_width_unit: maxWidthUnitSetting?.value || 'px',
@@ -130,23 +130,15 @@ export const action = async ({ request }) => {
 
 export default function Customize() {
     const savedSettings = useLoaderData();
-    console.log(savedSettings)
+
     const [selectedTab, setSelectedTab] = useState(1);
     const [editingViewTab, setEditingViewTab] = useState(1);
     const [visibility, setVisibility] = useState(savedSettings.sticky_visibility);
     const [trigger, setTrigger] = useState(savedSettings.sticky_trigger);
-    const [imageDisplay, setImageDisplay] = useState(
-        savedSettings.sticky_content_display_image === undefined ? true : savedSettings.sticky_content_display_image
-    );
-    const [titleDisplay, setTitleDisplay] = useState(
-        savedSettings.sticky_content_display_title === undefined ? true : savedSettings.sticky_content_display_title
-    );
-    const [priceDisplay, setPriceDisplay] = useState(
-        savedSettings.sticky_content_display_price === undefined ? true : savedSettings.sticky_content_display_price
-    );
-    const [quantityDisplay, setQuantityDisplay] = useState(
-        savedSettings.sticky_content_display_quantity === undefined ? true : savedSettings.sticky_content_display_quantity
-    );
+    const [imageDisplay, setImageDisplay] = useState(savedSettings.sticky_content_display_image);
+    const [titleDisplay, setTitleDisplay] = useState(savedSettings.sticky_content_display_title);
+    const [priceDisplay, setPriceDisplay] = useState(savedSettings.sticky_content_display_price);
+    const [quantityDisplay, setQuantityDisplay] = useState(savedSettings.sticky_content_display_quantity);
     const [canPublish] = useState(false); // Set to true if there are unpublished changes
     const [appearanceView, setAppearanceView] = useState('desktop');
     const [barWidth, setBarWidth] = useState(savedSettings.sticky_bar_width);
@@ -376,30 +368,48 @@ export default function Customize() {
                                                 <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
                                             </Box>
                                             <BlockStack gap="0">
-                                                <Checkbox
-                                                    label="Show image"
+                                                <input
+                                                    type="checkbox"
                                                     name="sticky_content_display_image"
+                                                    value="on"
                                                     checked={imageDisplay}
-                                                    onChange={val => setImageDisplay(val)}
+                                                    onChange={e => setImageDisplay(e.target.checked)}
+                                                    style={{ width: 20, height: 20 }}
                                                 />
-                                                <Checkbox
-                                                    label="Show title"
+                                                <label htmlFor="sticky_content_display_image">Show image</label>
+
+                                                <input
+                                                    type="checkbox"
+                                                    id="sticky_content_display_title"
                                                     name="sticky_content_display_title"
+                                                    value="on"
                                                     checked={titleDisplay}
-                                                    onChange={val => setTitleDisplay(val)}
+                                                    onChange={e => setTitleDisplay(e.target.checked)}
+                                                    style={{ width: 20, height: 20 }}
                                                 />
-                                                <Checkbox
-                                                    label="Show price"
+                                                <label htmlFor="sticky_content_display_title">Show title</label>
+
+                                                <input
+                                                    type="checkbox"
+                                                    id="sticky_content_display_price"
                                                     name="sticky_content_display_price"
+                                                    value="on"
                                                     checked={priceDisplay}
-                                                    onChange={val => setPriceDisplay(val)}
+                                                    onChange={e => setPriceDisplay(e.target.checked)}
+                                                    style={{ width: 20, height: 20 }}
                                                 />
-                                                <Checkbox
-                                                    label="Show quantity selector"
+                                                <label htmlFor="sticky_content_display_price">Show price</label>
+
+                                                <input
+                                                    type="checkbox"
+                                                    id="sticky_content_display_quantity"
                                                     name="sticky_content_display_quantity"
+                                                    value="on"
                                                     checked={quantityDisplay}
-                                                    onChange={val => setQuantityDisplay(val)}
+                                                    onChange={e => setQuantityDisplay(e.target.checked)}
+                                                    style={{ width: 20, height: 20 }}
                                                 />
+                                                <label htmlFor="sticky_content_display_quantity">Show quantity selector</label>
                                             </BlockStack>
                                         </Card>
                                         <Card>
