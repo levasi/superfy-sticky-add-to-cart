@@ -1,12 +1,18 @@
-# fly.toml app configuration file generated for superfy-sticky-add-to-cart-silent-pond-6873 on 2025-07-17T00:08:43+03:00
+# fly.toml app configuration file generated for superfy-sticky-add-to-cart on 2025-07-17T09:17:06+03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'superfy-sticky-add-to-cart-silent-pond-6873'
+app = 'superfy-sticky-add-to-cart'
 primary_region = 'otp'
 
 [build]
+
+[env]
+  PORT = '3000'
+  SCOPES = 'write_products'
+  SHOPIFY_API_KEY = '038389d96f31e6eb643501cd0e5ed6d'
+  SHOPIFY_APP_URL = 'superfy-sticky-add-to-cart'
 
 [http_service]
   internal_port = 3000
