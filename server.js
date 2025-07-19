@@ -17,6 +17,8 @@ const app = express();
 
 app.use(compression());
 app.use(express.static("public"));
+// Serve built assets from build/client
+app.use(express.static("build/client"));
 
 app.all(
     "*",
