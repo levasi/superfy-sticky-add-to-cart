@@ -26,11 +26,7 @@ api_version = "2025-04"
 scopes = "write_products"
 
 [auth]
-redirect_urls = [
-  "https://superfy-sticky-add-to-cart.fly.dev/auth/callback",
-  "https://superfy-sticky-add-to-cart.fly.dev/auth/shopify/callback",
-  "https://superfy-sticky-add-to-cart.fly.dev/api/auth/callback"
-]
+redirect_urls = ["https://superfy-sticky-add-to-cart.fly.dev/auth/callback", "https://superfy-sticky-add-to-cart.fly.dev/auth/shopify/callback", "https://superfy-sticky-add-to-cart.fly.dev/api/auth/callback"]
 
 [pos]
 embedded = false
