@@ -82,10 +82,34 @@ async function railwaySetup() {
             console.log('ℹ️ Error checking migrations, proceeding with fresh setup...', error.message);
         }
 
-        // Run migrations
+        // Run migrations with error handling for DATETIME issue
         console.log('🔄 Running database migrations...');
-        execSync('npx prisma migrate deploy --schema=./prisma/schema.prisma', { stdio: 'inherit' });
-        console.log('✅ Database migrations completed');
+        try {
+            execSync('npx prisma migrate deploy --schema=./prisma/schema.prisma', { stdio: 'inherit' });
+            console.log('✅ Database migrations completed');
+        } catch (migrationError) {
+            console.log('⚠️ Migration failed, checking if it\'s a DATETIME issue...');
+
+            // If it's a DATETIME error, clear migration state and try again
+            if (migrationError.message.includes('DATETIME') || migrationError.message.includes('type "datetime" does not exist')) {
+                console.log('🔧 Detected DATETIME error, clearing migration state and retrying...');
+
+                try {
+                    // Clear the migration table to start fresh
+                    await prisma.$executeRaw`DROP TABLE IF EXISTS "_prisma_migrations"`;
+                    console.log('✅ Cleared migration table');
+
+                    // Try migration again
+                    execSync('npx prisma migrate deploy --schema=./prisma/schema.prisma', { stdio: 'inherit' });
+                    console.log('✅ Database migrations completed after retry');
+                } catch (retryError) {
+                    console.error('❌ Migration retry failed:', retryError);
+                    throw retryError;
+                }
+            } else {
+                throw migrationError;
+            }
+        }
 
         console.log('🎉 Railway setup completed successfully!');
     } catch (error) {
