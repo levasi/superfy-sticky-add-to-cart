@@ -13,15 +13,15 @@ async function railwaySetup() {
         await prisma.$connect();
         console.log('✅ Database connection successful');
 
+        // Generate Prisma client first
+        console.log('🔧 Generating Prisma client...');
+        execSync('npx prisma generate --schema=./prisma/schema.prisma', { stdio: 'inherit' });
+        console.log('✅ Prisma client generated');
+
         // Run migrations
         console.log('🔄 Running database migrations...');
-        execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+        execSync('npx prisma migrate deploy --schema=./prisma/schema.prisma', { stdio: 'inherit' });
         console.log('✅ Database migrations completed');
-
-        // Generate Prisma client
-        console.log('🔧 Generating Prisma client...');
-        execSync('npx prisma generate', { stdio: 'inherit' });
-        console.log('✅ Prisma client generated');
 
         console.log('🎉 Railway setup completed successfully!');
     } catch (error) {
