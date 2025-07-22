@@ -365,56 +365,62 @@ export default function Customize() {
                                     <BlockStack gap="400">
                                         <Card>
                                             <Box style={{ marginBottom: '16px' }}>
-                                                <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
+                                                <BlockStack gap="100">
+                                                    <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
+                                                    <Text variant="bodySm" tone="subdued">
+                                                        Control which product elements are displayed.
+                                                    </Text>
+                                                </BlockStack>
                                             </Box>
                                             <BlockStack gap="0">
                                                 <input
-                                                    type="checkbox"
+                                                    type="hidden"
                                                     name="sticky_content_display_image"
-                                                    value="on"
+                                                    value={imageDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show image"
                                                     checked={imageDisplay}
-                                                    onChange={e => setImageDisplay(e.target.checked)}
-                                                    style={{ width: 20, height: 20 }}
+                                                    onChange={(checked) => setImageDisplay(checked)}
                                                 />
-                                                <label htmlFor="sticky_content_display_image">Show image</label>
 
                                                 <input
-                                                    type="checkbox"
-                                                    id="sticky_content_display_title"
+                                                    type="hidden"
                                                     name="sticky_content_display_title"
-                                                    value="on"
+                                                    value={titleDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show title"
                                                     checked={titleDisplay}
-                                                    onChange={e => setTitleDisplay(e.target.checked)}
-                                                    style={{ width: 20, height: 20 }}
+                                                    onChange={(checked) => setTitleDisplay(checked)}
                                                 />
-                                                <label htmlFor="sticky_content_display_title">Show title</label>
 
                                                 <input
-                                                    type="checkbox"
-                                                    id="sticky_content_display_price"
+                                                    type="hidden"
                                                     name="sticky_content_display_price"
-                                                    value="on"
-                                                    checked={priceDisplay}
-                                                    onChange={e => setPriceDisplay(e.target.checked)}
-                                                    style={{ width: 20, height: 20 }}
+                                                    value={priceDisplay ? 'on' : 'off'}
                                                 />
-                                                <label htmlFor="sticky_content_display_price">Show price</label>
+                                                <Checkbox
+                                                    label="Show price"
+                                                    checked={priceDisplay}
+                                                    onChange={(checked) => setPriceDisplay(checked)}
+                                                />
 
                                                 <input
-                                                    type="checkbox"
-                                                    id="sticky_content_display_quantity"
+                                                    type="hidden"
                                                     name="sticky_content_display_quantity"
-                                                    value="on"
-                                                    checked={quantityDisplay}
-                                                    onChange={e => setQuantityDisplay(e.target.checked)}
-                                                    style={{ width: 20, height: 20 }}
+                                                    value={quantityDisplay ? 'on' : 'off'}
                                                 />
-                                                <label htmlFor="sticky_content_display_quantity">Show quantity selector</label>
+                                                <Checkbox
+                                                    label="Show quantity selector"
+                                                    checked={quantityDisplay}
+                                                    onChange={(checked) => setQuantityDisplay(checked)}
+                                                />
                                             </BlockStack>
                                         </Card>
                                         <Card>
                                             <BlockStack gap="100">
-                                                <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Bar</Text>
+                                                <Text as="h3" variant="headingMd">Bar</Text>
                                                 <Text variant="bodySm" tone="subdued">
                                                     Manage layout, spacing, and visual design for the sticky bar container.
                                                 </Text>
