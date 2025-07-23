@@ -96,35 +96,89 @@ export const loader = async ({ request }) => {
 export const action = async ({ request }) => {
     await authenticate.admin(request);
     const formData = await request.formData();
+
+    // Debug: Log all form data
+    console.log('=== FORM DATA RECEIVED ===');
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
+    console.log('=== END FORM DATA ===');
+
     const { upsertSetting } = await import("../models/settings.server");
-    // Save all settings
-    await upsertSetting("sticky_bar_color", formData.get("sticky_bar_color") || "#fff");
-    await upsertSetting("sticky_visibility", formData.get("sticky_visibility") || "all");
-    await upsertSetting("sticky_trigger", formData.get("sticky_trigger") || "after-summary");
-    await upsertSetting("sticky_content_display_image", formData.get("sticky_content_display_image") === 'on' ? 'true' : 'false');
-    await upsertSetting("sticky_content_display_title", formData.get("sticky_content_display_title") === 'on' ? 'true' : 'false');
-    await upsertSetting("sticky_content_display_price", formData.get("sticky_content_display_price") === 'on' ? 'true' : 'false');
-    await upsertSetting("sticky_content_display_quantity", formData.get("sticky_content_display_quantity") === 'on' ? 'true' : 'false');
-    await upsertSetting("sticky_bar_width", formData.get("sticky_bar_width") || "contained");
-    await upsertSetting("sticky_max_width", formData.get("sticky_max_width") || "");
-    await upsertSetting("sticky_max_width_unit", formData.get("sticky_max_width_unit") || "px");
-    await upsertSetting("sticky_alignment", formData.get("sticky_alignment") || "left");
-    await upsertSetting("sticky_outer_spacing", formData.get("sticky_outer_spacing") || "");
-    await upsertSetting("sticky_outer_spacing_unit", formData.get("sticky_outer_spacing_unit") || "px");
-    await upsertSetting("sticky_inner_spacing", formData.get("sticky_inner_spacing") || "16");
-    await upsertSetting("sticky_inner_spacing_unit", formData.get("sticky_inner_spacing_unit") || "px");
-    await upsertSetting("sticky_background_color", formData.get("sticky_background_color") || "#FFFFFF");
-    await upsertSetting("sticky_border_color", formData.get("sticky_border_color") || "#000000");
-    await upsertSetting("sticky_product_name_color", formData.get("sticky_product_name_color") || "#141414");
-    await upsertSetting("sticky_image_size", formData.get("sticky_image_size") || "medium");
-    await upsertSetting("sticky_quantity_color", formData.get("sticky_quantity_color") || "#141414");
-    await upsertSetting("sticky_quantity_border_color", formData.get("sticky_quantity_border_color") || "#DFDFDF");
-    await upsertSetting("sticky_button_behavior", formData.get("sticky_button_behavior") || "add");
-    await upsertSetting("sticky_button_text", formData.get("sticky_button_text") || "Add to cart");
-    await upsertSetting("sticky_enable_cart_icon", formData.get("sticky_enable_cart_icon") === 'on' ? 'true' : 'false');
-    await upsertSetting("sticky_button_text_color", formData.get("sticky_button_text_color") || "#FFFFFF");
-    await upsertSetting("sticky_button_bg_color", formData.get("sticky_button_bg_color") || "#141414");
-    await upsertSetting("sticky_custom_css", formData.get("sticky_custom_css") || '');
+    const { setShopMetafields } = await import("../utils/metafields.server");
+
+    // Get the shop GID
+    const { admin } = await authenticate.admin(request);
+    const shopIdResponse = await admin.graphql(`query { shop { id } }`);
+    const { data: { shop: { id: shopId } } } = await shopIdResponse.json();
+
+    // Prepare settings object
+    const settings = {
+        sticky_bar_color: formData.get("sticky_bar_color") || "#fff",
+        sticky_visibility: formData.get("sticky_visibility") || "all",
+        sticky_trigger: formData.get("sticky_trigger") || "after-summary",
+        sticky_content_display_image: formData.get("sticky_content_display_image") === 'on' ? 'true' : 'false',
+        sticky_content_display_title: formData.get("sticky_content_display_title") === 'on' ? 'true' : 'false',
+        sticky_content_display_price: formData.get("sticky_content_display_price") === 'on' ? 'true' : 'false',
+        sticky_content_display_quantity: formData.get("sticky_content_display_quantity") === 'on' ? 'true' : 'false',
+        sticky_bar_width: formData.get("sticky_bar_width") || "contained",
+        sticky_max_width: formData.get("sticky_max_width") || "",
+        sticky_max_width_unit: formData.get("sticky_max_width_unit") || "px",
+        sticky_alignment: formData.get("sticky_alignment") || "left",
+        sticky_outer_spacing: formData.get("sticky_outer_spacing") || "",
+        sticky_outer_spacing_unit: formData.get("sticky_outer_spacing_unit") || "px",
+        sticky_inner_spacing: formData.get("sticky_inner_spacing") || "16",
+        sticky_inner_spacing_unit: formData.get("sticky_inner_spacing_unit") || "px",
+        sticky_background_color: formData.get("sticky_background_color") || "#FFFFFF",
+        sticky_border_color: formData.get("sticky_border_color") || "#000000",
+        sticky_product_name_color: formData.get("sticky_product_name_color") || "#141414",
+        sticky_image_size: formData.get("sticky_image_size") || "medium",
+        sticky_quantity_color: formData.get("sticky_quantity_color") || "#141414",
+        sticky_quantity_border_color: formData.get("sticky_quantity_border_color") || "#DFDFDF",
+        sticky_button_behavior: formData.get("sticky_button_behavior") || "add",
+        sticky_button_text: formData.get("sticky_button_text") || "Add to cart",
+        sticky_enable_cart_icon: formData.get("sticky_enable_cart_icon") === 'on' ? 'true' : 'false',
+        sticky_button_text_color: formData.get("sticky_button_text_color") || "#FFFFFF",
+        sticky_button_bg_color: formData.get("sticky_button_bg_color") || "#141414",
+        sticky_custom_css: formData.get("sticky_custom_css") || '',
+    };
+
+    console.log('=== SETTINGS TO SAVE ===');
+    console.log(JSON.stringify(settings, null, 2));
+    console.log('=== END SETTINGS ===');
+
+    // Save to database
+    await upsertSetting("sticky_bar_color", settings.sticky_bar_color);
+    await upsertSetting("sticky_visibility", settings.sticky_visibility);
+    await upsertSetting("sticky_trigger", settings.sticky_trigger);
+    await upsertSetting("sticky_content_display_image", settings.sticky_content_display_image);
+    await upsertSetting("sticky_content_display_title", settings.sticky_content_display_title);
+    await upsertSetting("sticky_content_display_price", settings.sticky_content_display_price);
+    await upsertSetting("sticky_content_display_quantity", settings.sticky_content_display_quantity);
+    await upsertSetting("sticky_bar_width", settings.sticky_bar_width);
+    await upsertSetting("sticky_max_width", settings.sticky_max_width);
+    await upsertSetting("sticky_max_width_unit", settings.sticky_max_width_unit);
+    await upsertSetting("sticky_alignment", settings.sticky_alignment);
+    await upsertSetting("sticky_outer_spacing", settings.sticky_outer_spacing);
+    await upsertSetting("sticky_outer_spacing_unit", settings.sticky_outer_spacing_unit);
+    await upsertSetting("sticky_inner_spacing", settings.sticky_inner_spacing);
+    await upsertSetting("sticky_inner_spacing_unit", settings.sticky_inner_spacing_unit);
+    await upsertSetting("sticky_background_color", settings.sticky_background_color);
+    await upsertSetting("sticky_border_color", settings.sticky_border_color);
+    await upsertSetting("sticky_product_name_color", settings.sticky_product_name_color);
+    await upsertSetting("sticky_image_size", settings.sticky_image_size);
+    await upsertSetting("sticky_quantity_color", settings.sticky_quantity_color);
+    await upsertSetting("sticky_quantity_border_color", settings.sticky_quantity_border_color);
+    await upsertSetting("sticky_button_behavior", settings.sticky_button_behavior);
+    await upsertSetting("sticky_button_text", settings.sticky_button_text);
+    await upsertSetting("sticky_enable_cart_icon", settings.sticky_enable_cart_icon);
+    await upsertSetting("sticky_button_text_color", settings.sticky_button_text_color);
+    await upsertSetting("sticky_button_bg_color", settings.sticky_button_bg_color);
+    await upsertSetting("sticky_custom_css", settings.sticky_custom_css);
+
+    // Save to metafields for backward compatibility
+    await setShopMetafields(admin, shopId, settings);
+
     return Response.json({ ok: true });
 };
 

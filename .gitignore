@@ -25,3 +25,4 @@ database.sqlite
 .shopify.lock
 shopify.app.toml
 shopify.app.toml
+shopify.app.sticky-add-to-cart-develop.toml

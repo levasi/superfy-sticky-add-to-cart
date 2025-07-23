@@ -4,6 +4,7 @@
   "scripts": {
     "build": "remix vite:build",
     "dev": "shopify app dev",
+    "develop": "shopify app dev --config=shopify.app.sticky-add-to-cart-develop.toml",
     "dev:default": "cp .env.default .env && shopify app dev",
     "dev:sticky": "cp .env.sticky-add-to-cart-develop .env && shopify app dev --config=shopify.app.sticky-add-to-cart-develop.toml",
     "config:link": "shopify app config link",

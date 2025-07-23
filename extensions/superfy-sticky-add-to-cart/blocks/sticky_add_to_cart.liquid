@@ -1,80 +1,230 @@
 {% comment %}
   Sticky Add to Cart Bar Block
   Add this block to your product page template.
+  Uses app proxy to fetch dynamic settings from the backend.
 {% endcomment %}
-{% assign bar_color = shop.metafields.superfy_sticky.bar_color.value %}
-{% assign bar_position = shop.metafields.superfy_sticky.bar_position.value %}
 
 {% if template contains 'product' and product %}
-  <div
-    id="sticky-add-to-cart-bar"
-    style="background:{{ bar_color | color_to_hex }};"
-    class="sticky-add-to-cart-bar"
-  >
-    <span class="sticky-add-to-cart-title">{{ product.title }}</span>
-    <button
-      id="sticky-add-to-cart-btn"
-      type="button"
-      class="sticky-add-to-cart-btn"
-      style="color:{{ block.settings.button_text_color | color_to_hex }};"
-    >
-      Add to Cart
-    </button>
+  {% assign current_product = product %}
+  {% assign current_variant = product.selected_or_first_available_variant %}
+
+  <div class="sticky-add-to-cart-block"
+       data-product-id="{{ current_product.id }}"
+       data-variant-id="{{ current_variant.id }}"
+       style="display: none;">
+    
+    <div class="sticky-bar-content">
+      <!-- Product Image -->
+      <div class="sticky-product-image">
+        <img src="{{ current_product.featured_image | img_url: '60x60', crop: 'center' }}" 
+             alt="{{ current_product.title }}" 
+             style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+      </div>
+      
+      <!-- Product Info -->
+      <div class="sticky-product-info">
+        <div class="sticky-product-title">{{ current_product.title }}</div>
+        <div class="sticky-product-price">
+          {% if current_variant.compare_at_price > current_variant.price %}
+            <span class="sticky-price-compare">{{ current_variant.compare_at_price | money }}</span>
+          {% endif %}
+          <span class="sticky-price-current">{{ current_variant.price | money }}</span>
+        </div>
+      </div>
+      
+      <!-- Quantity Selector -->
+      <div class="sticky-quantity-selector">
+        <button type="button" class="sticky-quantity-btn" data-action="decrease">-</button>
+        <input type="number" class="sticky-quantity-input" value="1" min="1" max="99">
+        <button type="button" class="sticky-quantity-btn" data-action="increase">+</button>
+      </div>
+      
+      <!-- Add to Cart Button -->
+      <button type="button" class="sticky-add-to-cart-btn">
+        Add to cart
+      </button>
+    </div>
   </div>
+
+  <!-- Load settings from app proxy -->
+  <script src="{{ 'sticky-settings.js' | asset_url }}?v={{ 'now' | date: '%s' }}" defer></script>
+
   <script>
-    console.log('{{ bar_color }}', 'bar_color')
-    console.log('{{ bar_position }}', 'bar_position')
-    document.getElementById('sticky-add-to-cart-btn').addEventListener('click', function() {
-      fetch('/cart/add.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: '{{ product.selected_or_first_available_variant.id }}',
-          quantity: 1
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        // Try to open the offcanvas cart if the theme supports it
-        if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && window.Shopify.theme.cart.open) {
-          window.Shopify.theme.cart.open();
+    document.addEventListener('DOMContentLoaded', function() {
+      const productId = {{ current_product.id }};
+      const variantId = {{ current_variant.id }};
+      const block = document.querySelector('.sticky-add-to-cart-block');
+      
+      console.log('Sticky bar block found:', block);
+      console.log('Product ID:', productId);
+      console.log('Variant ID:', variantId);
+      
+      if (!block) {
+        console.error('Sticky bar block not found!');
+        return;
+      }
+
+      // Wait for settings to load from app proxy
+      window.StickyBarSettings.onLoad(function(settings) {
+        console.log('Settings loaded from app proxy:', settings);
+        
+        // Show the sticky bar if enabled
+        if (window.StickyBarSettings.isEnabled()) {
+          block.style.display = 'block';
+          window.StickyBarSettings.applySettings();
         }
-        // Or trigger a custom event for other themes
-        document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
-      })
-      .catch(err => alert('Could not add to cart!'));
+        
+        // Set up quantity selector
+        const quantityInput = block.querySelector('.sticky-quantity-input');
+        const decreaseBtn = block.querySelector('[data-action="decrease"]');
+        const increaseBtn = block.querySelector('[data-action="increase"]');
+        
+        if (decreaseBtn && increaseBtn && quantityInput) {
+          decreaseBtn.addEventListener('click', () => {
+            const currentValue = parseInt(quantityInput.value);
+            if (currentValue > 1) {
+              quantityInput.value = currentValue - 1;
+            }
+          });
+          
+          increaseBtn.addEventListener('click', () => {
+            const currentValue = parseInt(quantityInput.value);
+            if (currentValue < 99) {
+              quantityInput.value = currentValue + 1;
+            }
+          });
+        }
+        
+        // Set up add to cart functionality
+        const addToCartBtn = block.querySelector('.sticky-add-to-cart-btn');
+        if (addToCartBtn) {
+          addToCartBtn.addEventListener('click', function() {
+            const quantity = parseInt(quantityInput?.value || 1);
+            
+            fetch('/cart/add.js', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: variantId,
+                quantity: quantity
+              })
+            })
+            .then(res => res.json())
+            .then(data => {
+              console.log('Added to cart:', data);
+              
+              // Try to open the offcanvas cart if the theme supports it
+              if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && window.Shopify.theme.cart.open) {
+                window.Shopify.theme.cart.open();
+              }
+              
+              // Or trigger a custom event for other themes
+              document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
+              
+              // Show success message
+              addToCartBtn.textContent = 'Added!';
+              setTimeout(() => {
+                addToCartBtn.textContent = settings.sticky_button_text || 'Add to cart';
+              }, 2000);
+            })
+            .catch(err => {
+              console.error('Could not add to cart:', err);
+              alert('Could not add to cart!');
+            });
+          });
+        }
+      });
     });
   </script>
+
   <style>
-    #sticky-add-to-cart-bar.sticky-add-to-cart-bar {
+    .sticky-add-to-cart-block {
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
       z-index: 9999;
-      padding: 1rem;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      padding: 16px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+      justify-content: space-between;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
     }
-    .sticky-add-to-cart-title {
+    
+    .sticky-bar-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .sticky-product-info {
+      flex: 1;
+    }
+    
+    .sticky-product-title {
       font-weight: 600;
+      margin-bottom: 4px;
     }
+    
+    .sticky-product-price {
+      font-size: 14px;
+    }
+    
+    .sticky-price-compare {
+      text-decoration: line-through;
+      color: #999;
+      margin-right: 8px;
+    }
+    
+    .sticky-quantity-selector {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .sticky-quantity-btn {
+      padding: 8px 12px;
+      border: none;
+      background: #f5f5f5;
+      cursor: pointer;
+    }
+    
+    .sticky-quantity-input {
+      width: 50px;
+      text-align: center;
+      border: none;
+      padding: 8px;
+    }
+    
     .sticky-add-to-cart-btn {
-      padding: 0.5rem 1.5rem;
+      padding: 12px 24px;
       background: #008060;
       color: #fff;
       border: none;
       border-radius: 4px;
       font-weight: 600;
       cursor: pointer;
+      white-space: nowrap;
     }
-    @media (max-width: 600px) {
-      #sticky-add-to-cart-bar.sticky-add-to-cart-bar {
+    
+    .sticky-add-to-cart-btn:hover {
+      background: #006b4f;
+    }
+    
+    @media (max-width: 768px) {
+      .sticky-bar-content {
         flex-direction: column;
-        gap: 0.5rem;
-        padding: 0.75rem;
+        gap: 12px;
+      }
+      
+      .sticky-add-to-cart-block {
+        padding: 12px;
       }
     }
   </style>
