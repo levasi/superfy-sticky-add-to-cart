@@ -12,6 +12,7 @@
     "deploy": "shopify app deploy",
     "deploy:main": "shopify app deploy --config=shopify.app.toml",
     "deploy:develop": "shopify app deploy --config=shopify.app.sticky-add-to-cart-develop.toml",
+    "deploy:danny": "shopify app deploy --config=shopify.app.superfy-danny-store.toml",
     "config:use": "shopify app config use",
     "env": "shopify app env",
     "start": "node railway-setup.js && node server.js",
