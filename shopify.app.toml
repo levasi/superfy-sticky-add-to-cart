@@ -3,27 +3,27 @@
 client_id = "4f015ff20f4e9ae4f092208276e2efef"
 name = "superfy-sticky-add-to-cart"
 handle = "superfy-sticky-add-to-cart"
-application_url = "https://setup-matched-blah-repository.trycloudflare.com"
+application_url = "https://superfy-sticky-add-to-cart-production.up.railway.app"
 embedded = true
-dev_store = "sticky-add-to-cart-develop.myshopify.com"
+dev_store = "superfy-bogdan-development.myshopify.com"
 
 [webhooks]
 api_version = "2025-04"
 
   [[webhooks.subscriptions]]
   topics = [ "app/scopes_update" ]
-  uri = "https://setup-matched-blah-repository.trycloudflare.com/webhooks/app/scopes_update"
+  uri = "https://superfy-sticky-add-to-cart-production.up.railway.app/webhooks/app/scopes_update"
 
   [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
-  uri = "https://setup-matched-blah-repository.trycloudflare.com/webhooks/app/uninstalled"
+  uri = "https://superfy-sticky-add-to-cart-production.up.railway.app/webhooks/app/uninstalled"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_products,write_app_proxy"
 
 [auth]
-redirect_urls = ["https://setup-matched-blah-repository.trycloudflare.com/auth/callback", "https://setup-matched-blah-repository.trycloudflare.com/auth/shopify/callback", "https://setup-matched-blah-repository.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://superfy-sticky-add-to-cart-production.up.railway.app/auth/callback", "https://superfy-sticky-add-to-cart-production.up.railway.app/auth/shopify/callback", "https://superfy-sticky-add-to-cart-production.up.railway.app/api/auth/callback"]
 
 [pos]
 embedded = false
@@ -32,6 +32,6 @@ embedded = false
 automatically_update_urls_on_dev = true
 
 [app_proxy]
-url = "https://setup-matched-blah-repository.trycloudflare.com"
+url = "https://superfy-sticky-add-to-cart-production.up.railway.app"
 prefix = "apps"
 subpath = "proxy"
