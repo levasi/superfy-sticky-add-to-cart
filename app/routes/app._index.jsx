@@ -163,41 +163,8 @@ export default function Index() {
             </Polaris.InlineStack>
           </Polaris.Card>
         </Polaris.Layout.Section>
-        <Polaris.Layout.Section>
-          <Polaris.Card>
-            <Polaris.Text as="h2" variant="headingMd">
-              Sticky Bar Color
-            </Polaris.Text>
-            <fetcher.Form method="post" data-save-bar>
-              <Polaris.Text as="label" variant="bodyMd" htmlFor="sticky-color-picker">
-                Sticky Bar Color
-              </Polaris.Text>
-              <input
-                id="sticky-color-picker"
-                type="color"
-                name="stickyColor"
-                value={stickyColor}
-                onChange={e => setStickyColor(e.target.value)}
-                style={{ marginLeft: 12, verticalAlign: "middle", width: 40, height: 32, border: "none", background: "none" }}
-              />
-              <Polaris.Text as="label" variant="bodyMd" htmlFor="sticky-position-select" style={{ marginLeft: 24 }}>
-                Sticky Bar Position
-              </Polaris.Text>
-              <select
-                id="sticky-position-select"
-                name="stickyPosition"
-                value={stickyPosition}
-                onChange={e => setStickyPosition(e.target.value)}
-                style={{ marginLeft: 12, verticalAlign: "middle", width: 120, height: 32 }}
-              >
-                <option value="top">Top</option>
-                <option value="middle">Middle</option>
-                <option value="bottom">Bottom</option>
-              </select>
-            </fetcher.Form>
-          </Polaris.Card>
-        </Polaris.Layout.Section>
       </Polaris.Layout>
+
 
       {product && (
         <div

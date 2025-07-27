@@ -17,12 +17,14 @@ import {
     InlineGrid,
     ButtonGroup,
     TextField,
-    ColorPicker
+    ColorPicker,
+    Modal
 } from '@shopify/polaris';
 import {
     ArrowLeftIcon,
     DesktopIcon,
-    MobileIcon
+    MobileIcon,
+    CartIcon
 } from '@shopify/polaris-icons';
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLoaderData } from '@remix-run/react';
@@ -73,10 +75,10 @@ export const loader = async ({ request }) => {
         sticky_bar_width: barWidthSetting?.value || 'contained',
         sticky_max_width: maxWidthSetting?.value || '',
         sticky_max_width_unit: maxWidthUnitSetting?.value || 'px',
-        sticky_alignment: alignmentSetting?.value || 'left',
+        sticky_alignment: alignmentSetting?.value || 'right',
         sticky_outer_spacing: outerSpacingSetting?.value || '',
         sticky_outer_spacing_unit: outerSpacingUnitSetting?.value || 'px',
-        sticky_inner_spacing: innerSpacingSetting?.value || '16',
+        sticky_inner_spacing: innerSpacingSetting?.value || '12',
         sticky_inner_spacing_unit: innerSpacingUnitSetting?.value || 'px',
         sticky_background_color: backgroundColorSetting?.value || '#FFFFFF',
         sticky_border_color: borderColorSetting?.value || '#000000',
@@ -124,7 +126,7 @@ export const action = async ({ request }) => {
         sticky_bar_width: formData.get("sticky_bar_width") || "contained",
         sticky_max_width: formData.get("sticky_max_width") || "",
         sticky_max_width_unit: formData.get("sticky_max_width_unit") || "px",
-        sticky_alignment: formData.get("sticky_alignment") || "left",
+        sticky_alignment: formData.get("sticky_alignment") || "right",
         sticky_outer_spacing: formData.get("sticky_outer_spacing") || "",
         sticky_outer_spacing_unit: formData.get("sticky_outer_spacing_unit") || "px",
         sticky_inner_spacing: formData.get("sticky_inner_spacing") || "16",
@@ -216,6 +218,12 @@ export default function Customize() {
     const [buttonBgColor, setButtonBgColor] = useState(savedSettings.sticky_button_bg_color);
     const [customCss, setCustomCss] = useState(savedSettings.sticky_custom_css);
 
+    // Modal state
+    const [showResetModal, setShowResetModal] = useState(false);
+
+    // Preview quantity state
+    const [previewQuantity, setPreviewQuantity] = useState(1);
+
     const handleTabChange = useCallback((selectedTabIndex) => setSelectedTab(selectedTabIndex), []);
     const handleEditingViewTabChange = useCallback((selectedIndex) => setEditingViewTab(selectedIndex), []);
     const shopify = useAppBridge();
@@ -227,6 +235,136 @@ export default function Customize() {
             shopify.toast.show("Sticky bar settings saved!");
         }
     }, [fetcher.data, shopify]);
+
+
+
+    // Default settings for desktop and mobile
+    const getDefaultSettings = (view) => {
+        if (view === 'mobile') {
+            return {
+                barWidth: 'full',
+                maxWidth: '',
+                maxWidthUnit: 'px',
+                alignment: 'center',
+                outerSpacing: '',
+                outerSpacingUnit: 'px',
+                innerSpacing: '12',
+                innerSpacingUnit: 'px',
+                backgroundColor: '#FFFFFF',
+                borderColor: '#E1E3E5',
+                productNameColor: '#141414',
+                imageSize: 'small',
+                quantityColor: '#141414',
+                quantityBorderColor: '#DFDFDF',
+                buttonBehavior: 'add',
+                buttonText: 'Add to cart',
+                enableCartIcon: true,
+                buttonTextColor: '#FFFFFF',
+                buttonBgColor: '#141414',
+                customCss: ''
+            };
+        } else {
+            // Desktop defaults
+            return {
+                barWidth: 'contained',
+                maxWidth: '',
+                maxWidthUnit: 'px',
+                alignment: 'right',
+                outerSpacing: '',
+                outerSpacingUnit: 'px',
+                innerSpacing: '12',
+                innerSpacingUnit: 'px',
+                backgroundColor: '#FFFFFF',
+                borderColor: '#000000',
+                productNameColor: '#141414',
+                imageSize: 'medium',
+                quantityColor: '#141414',
+                quantityBorderColor: '#DFDFDF',
+                buttonBehavior: 'add',
+                buttonText: 'Add to cart',
+                enableCartIcon: false,
+                buttonTextColor: '#FFFFFF',
+                buttonBgColor: '#141414',
+                customCss: ''
+            };
+        }
+    };
+
+    const handleResetAppearance = useCallback(() => {
+        const defaults = getDefaultSettings(appearanceView);
+
+        setBarWidth(defaults.barWidth);
+        setMaxWidth(defaults.maxWidth);
+        setMaxWidthUnit(defaults.maxWidthUnit);
+        setAlignment(defaults.alignment);
+        setOuterSpacing(defaults.outerSpacing);
+        setOuterSpacingUnit(defaults.outerSpacingUnit);
+        setInnerSpacing(defaults.innerSpacing);
+        setInnerSpacingUnit(defaults.innerSpacingUnit);
+        setBackgroundColor(defaults.backgroundColor);
+        setBorderColor(defaults.borderColor);
+        setProductNameColor(defaults.productNameColor);
+        setImageSize(defaults.imageSize);
+        setQuantityColor(defaults.quantityColor);
+        setQuantityBorderColor(defaults.quantityBorderColor);
+        setButtonBehavior(defaults.buttonBehavior);
+        setButtonText(defaults.buttonText);
+        setEnableCartIcon(defaults.enableCartIcon);
+        setButtonTextColor(defaults.buttonTextColor);
+        setButtonBgColor(defaults.buttonBgColor);
+        setCustomCss(defaults.customCss);
+
+        setShowResetModal(false);
+        shopify.toast.show(`Appearance settings reset to ${appearanceView} defaults!`);
+
+        // Create a FormData object with the reset values and submit
+        const formData = new FormData();
+        formData.append('sticky_visibility', visibility);
+        formData.append('sticky_trigger', trigger);
+        formData.append('sticky_content_display_image', imageDisplay ? 'on' : '');
+        formData.append('sticky_content_display_title', titleDisplay ? 'on' : '');
+        formData.append('sticky_content_display_price', priceDisplay ? 'on' : '');
+        formData.append('sticky_content_display_quantity', quantityDisplay ? 'on' : '');
+        formData.append('sticky_bar_width', defaults.barWidth);
+        formData.append('sticky_max_width', defaults.maxWidth);
+        formData.append('sticky_max_width_unit', defaults.maxWidthUnit);
+        formData.append('sticky_alignment', defaults.alignment);
+        formData.append('sticky_outer_spacing', defaults.outerSpacing);
+        formData.append('sticky_outer_spacing_unit', defaults.outerSpacingUnit);
+        formData.append('sticky_inner_spacing', defaults.innerSpacing);
+        formData.append('sticky_inner_spacing_unit', defaults.innerSpacingUnit);
+        formData.append('sticky_background_color', defaults.backgroundColor);
+        formData.append('sticky_border_color', defaults.borderColor);
+        formData.append('sticky_product_name_color', defaults.productNameColor);
+        formData.append('sticky_image_size', defaults.imageSize);
+        formData.append('sticky_quantity_color', defaults.quantityColor);
+        formData.append('sticky_quantity_border_color', defaults.quantityBorderColor);
+        formData.append('sticky_button_behavior', defaults.buttonBehavior);
+        formData.append('sticky_button_text', defaults.buttonText);
+        formData.append('sticky_enable_cart_icon', defaults.enableCartIcon ? 'on' : '');
+        formData.append('sticky_button_text_color', defaults.buttonTextColor);
+        formData.append('sticky_button_bg_color', defaults.buttonBgColor);
+        formData.append('sticky_custom_css', defaults.customCss);
+
+        // Submit the form data to save the reset settings
+        fetcher.submit(formData, { method: 'post' });
+    }, [appearanceView, shopify, fetcher, visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay]);
+
+    const handleResetClick = useCallback(() => {
+        setShowResetModal(true);
+    }, []);
+
+    const handleCloseModal = useCallback(() => {
+        setShowResetModal(false);
+    }, []);
+
+    const handleQuantityIncrease = useCallback(() => {
+        setPreviewQuantity(prev => Math.min(prev + 1, 99));
+    }, []);
+
+    const handleQuantityDecrease = useCallback(() => {
+        setPreviewQuantity(prev => Math.max(prev - 1, 1));
+    }, []);
 
     const tabs = [
         {
@@ -292,28 +430,7 @@ export default function Customize() {
         };
     }
 
-    function handleResetAppearance() {
-        setBarWidth('full');
-        setMaxWidth('');
-        setMaxWidthUnit('px');
-        setAlignment('left');
-        setOuterSpacing('');
-        setOuterSpacingUnit('px');
-        setInnerSpacing('');
-        setInnerSpacingUnit('px');
-        setBackgroundColor('#FFFFFF');
-        setBorderColor('#000000');
-        setProductNameColor('#141414');
-        setImageSize('medium');
-        setQuantityColor('#141414');
-        setQuantityBorderColor('#DFDFDF');
-        setButtonBehavior('add');
-        setButtonText('Add to cart');
-        setEnableCartIcon(true);
-        setButtonTextColor('#FFFFFF');
-        setButtonBgColor('#141414');
-        setCustomCss('<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>');
-    }
+
 
     return (
         <Page fullWidth>
@@ -843,7 +960,6 @@ export default function Customize() {
                                                 </Box>
                                             </BlockStack>
                                         </Card>
-                                        <Button submit primary>Save</Button>
                                     </BlockStack>
                                 </fetcher.Form>
                             )}
@@ -859,7 +975,7 @@ export default function Customize() {
                                 <Text variant="bodySm" tone="subdued">
                                     Revert appearance settings to their original defaults.<br />This action cannot be undone.
                                 </Text>
-                                <Button onClick={handleResetAppearance} >
+                                <Button onClick={handleResetClick} >
                                     Reset to defaults
                                 </Button>
                             </Card>
@@ -909,90 +1025,190 @@ export default function Customize() {
                     position: 'sticky',
                     top: '16px'
                 }}>
-                    <Card title="Live preview">
+                    <Card title={appearanceView === 'mobile' ? "Live preview (375px)" : "Live preview"}>
                         <div style={{
                             minHeight: 300,
-                            position: 'relative'
+                            position: 'relative',
+                            borderRadius: '8px',
+                            background: '#f8f9fa',
+                            padding: '20px',
+                            width: appearanceView === 'mobile' ? '375px' : '100%',
+                            margin: appearanceView === 'mobile' ? '0 auto' : '0'
                         }}>
                             <div
                                 className='sy-sticky-add-to-cart-preview'
                                 style={{
                                     position: 'absolute',
-                                    bottom: '0',
-                                    ...alignmentStyles,
-                                    borderRadius: 4,
-                                    border: '1px solid' + borderColor,
+                                    bottom: '20px',
+                                    right: barWidth === 'contained' ?
+                                        (alignment === 'left' ? 'auto' : alignment === 'center' ? 'auto' : '20px') : '20px',
+                                    left: barWidth === 'contained' ?
+                                        (alignment === 'left' ? '20px' : alignment === 'center' ? '50%' : 'auto') : '20px',
+                                    transform: barWidth === 'contained' && alignment === 'center' ? 'translateX(-50%)' : 'none',
+                                    borderRadius: '12px',
+                                    border: `1px solid ${borderColor}`,
                                     backgroundColor: backgroundColor,
-                                    padding: innerSpacing + innerSpacingUnit,
-                                    width: barWidth === 'full' ? '100%' : 'auto',
-                                    maxWidth: maxWidth === '' ? 'none' : `${maxWidth}${maxWidthUnit}`,
+                                    padding: `${innerSpacing}${innerSpacingUnit}`,
+                                    width: barWidth === 'full' ? 'calc(100% - 40px)' : 'auto',
+                                    maxWidth: barWidth === 'contained' ? (maxWidth === '' ? '600px' : `${maxWidth}${maxWidthUnit}`) : 'none',
                                     margin: outerSpacing === '' ? 'unset' : `${outerSpacing}${outerSpacingUnit}`,
-                                    flexWrap: 'nowrap'
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px'
                                 }}>
 
-                                <InlineStack gap="400" blockAlign="center" style={{ whiteSpace: 'nowrap' }}>
-                                    {imageDisplay && (
-                                        <img src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png" alt="Product" style={{ width: 60, height: 60, objectFit: 'cover', border: '3px solid #9B51E0', borderRadius: 8, boxSizing: 'border-box' }} />
-                                    )}
-                                    <BlockStack gap="100">
-                                        {titleDisplay && <p style={{ color: productNameColor, fontWeight: 700 }}>Taupe One Loafers</p>}
-                                        {priceDisplay && (
-                                            <p>
-                                                <s>$296</s> $189
-                                            </p>
-                                        )}
-                                    </BlockStack>
-                                    {quantityDisplay && (
-                                        <div className='sy-quantity-wrapper'
-                                            style={{
-                                                display: 'flex',
-                                                flexWrap: 'nowrap',
-                                                alignItems: 'center',
-                                                color: quantityColor,
-                                                border: `1px solid ${quantityBorderColor}`,
-                                                borderRadius: 8
-                                            }}
-                                        >
-                                            <Button variant="tertiary">
-                                                <span style={{
-                                                    color: quantityColor
-                                                }}>
-                                                    -
-                                                </span>
-                                            </Button>
-                                            <Text>
-                                                <span style={{
-                                                    color: quantityColor
-                                                }}>
-                                                    1
-                                                </span>
-                                            </Text>
-                                            <Button variant="tertiary">
-                                                <span style={{
-                                                    color: quantityColor
-                                                }}>
-                                                    -
-                                                </span>
-                                            </Button>
+                                {imageDisplay && (
+                                    <img
+                                        src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
+                                        alt="Product"
+                                        style={{
+                                            width: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                            height: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                            objectFit: 'cover',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e1e3e5'
+                                        }}
+                                    />
+                                )}
+
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    {titleDisplay && (
+                                        <div style={{
+                                            color: productNameColor,
+                                            fontWeight: 600,
+                                            fontSize: '14px',
+                                            marginBottom: '2px',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }}>
+                                            Taupe One Loafers
                                         </div>
                                     )}
-                                    <button style={{
-                                        color: buttonTextColor,
-                                        backgroundColor: buttonBgColor,
-                                        borderRadius: 8,
-                                        border: 'none',
-                                        cursor: 'pointer'
-                                    }}>
-                                        {buttonText}
-                                    </button>
-                                </InlineStack>
+                                    {priceDisplay && (
+                                        <div style={{ fontSize: '13px', color: '#6d7175' }}>
+                                            <span style={{ textDecoration: 'line-through', marginRight: '8px' }}>$296</span>
+                                            <span style={{ fontWeight: 600, color: '#141414' }}>$100</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {quantityDisplay && (
+                                    <div className='sy-quantity-wrapper'
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            color: quantityColor,
+                                            border: `1px solid ${quantityBorderColor}`,
+                                            borderRadius: '20px',
+                                            overflow: 'hidden',
+                                            background: '#fff',
+                                            height: '36px',
+                                            minWidth: '120px'
+                                        }}
+                                    >
+                                        <button style={{
+                                            border: 'none',
+                                            background: 'transparent',
+                                            padding: '0 16px',
+                                            cursor: 'pointer',
+                                            color: '#6d7175',
+                                            fontSize: '16px',
+                                            fontWeight: '600',
+                                            height: '100%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            minWidth: '40px',
+                                            transition: 'background-color 0.2s'
+                                        }} onClick={handleQuantityDecrease}>
+                                            −
+                                        </button>
+                                        <span style={{
+                                            padding: '0 16px',
+                                            fontSize: '14px',
+                                            fontWeight: '600',
+                                            color: '#141414',
+                                            background: '#fff',
+                                            height: '100%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            minWidth: '40px',
+                                            flex: 1
+                                        }}>
+                                            {previewQuantity}
+                                        </span>
+                                        <button style={{
+                                            border: 'none',
+                                            background: 'transparent',
+                                            padding: '0 16px',
+                                            cursor: 'pointer',
+                                            color: '#6d7175',
+                                            fontSize: '16px',
+                                            fontWeight: '600',
+                                            height: '100%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            minWidth: '40px',
+                                            transition: 'background-color 0.2s'
+                                        }} onClick={handleQuantityIncrease}>
+                                            +
+                                        </button>
+                                    </div>
+                                )}
+
+                                <button style={{
+                                    color: buttonTextColor,
+                                    backgroundColor: buttonBgColor,
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '10px 16px',
+                                    fontSize: '13px',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    whiteSpace: 'nowrap'
+                                }}>
+                                    {enableCartIcon && (
+                                        <Icon source={CartIcon} color="base" />
+                                    )}
+                                    {buttonText}
+                                </button>
                             </div>
                         </div>
                     </Card>
                 </div>
-            </InlineGrid >
+            </InlineGrid>
 
-
-        </Page >
+            {showResetModal && (
+                <Modal
+                    open={showResetModal}
+                    onClose={handleCloseModal}
+                    title={`Reset ${appearanceView} appearance settings?`}
+                    primaryAction={{
+                        content: "Reset",
+                        onAction: handleResetAppearance,
+                        destructive: true,
+                    }}
+                    secondaryActions={[
+                        {
+                            content: "Cancel",
+                            onAction: handleCloseModal,
+                        },
+                    ]}
+                >
+                    <Modal.Section>
+                        <Text>
+                            This will reset all appearance settings for the {appearanceView.charAt(0).toUpperCase() + appearanceView.slice(1)} view. This action cannot be undone.
+                        </Text>
+                    </Modal.Section>
+                </Modal>
+            )}
+        </Page>
     );
 }
