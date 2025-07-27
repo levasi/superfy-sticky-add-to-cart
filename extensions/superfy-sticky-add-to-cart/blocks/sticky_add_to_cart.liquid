@@ -18,29 +18,29 @@
       <div class="sticky-product-image">
         <img src="{{ current_product.featured_image | img_url: '60x60', crop: 'center' }}" 
              alt="{{ current_product.title }}" 
-             style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+             style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #e1e3e5;">
       </div>
       
       <!-- Product Info -->
-      <div class="sticky-product-info">
-        <div class="sticky-product-title">{{ current_product.title }}</div>
-        <div class="sticky-product-price">
+      <div class="sticky-product-info" style="flex: 1; min-width: 0;">
+        <div class="sticky-product-title" style="font-weight: 600; font-size: 14px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ current_product.title }}</div>
+        <div class="sticky-product-price" style="font-size: 13px; color: #6d7175;">
           {% if current_variant.compare_at_price > current_variant.price %}
-            <span class="sticky-price-compare">{{ current_variant.compare_at_price | money }}</span>
+            <span class="sticky-price-compare" style="text-decoration: line-through; margin-right: 8px;">{{ current_variant.compare_at_price | money }}</span>
           {% endif %}
-          <span class="sticky-price-current">{{ current_variant.price | money }}</span>
+          <span class="sticky-price-current" style="font-weight: 600; color: #141414;">{{ current_variant.price | money }}</span>
         </div>
       </div>
       
       <!-- Quantity Selector -->
-      <div class="sticky-quantity-selector">
-        <button type="button" class="sticky-quantity-btn" data-action="decrease">-</button>
-        <input type="number" class="sticky-quantity-input" value="1" min="1" max="99">
-        <button type="button" class="sticky-quantity-btn" data-action="increase">+</button>
+      <div class="sticky-quantity-selector" style="display: flex; align-items: center; border: 1px solid #DFDFDF; border-radius: 20px; overflow: hidden; background: #fff; height: 36px; min-width: 120px;">
+        <button type="button" class="sticky-quantity-btn" data-action="decrease" style="border: none; background: transparent; padding: 0 16px; cursor: pointer; color: #6d7175; font-size: 16px; font-weight: 600; height: 100%; display: flex; align-items: center; justify-content: center; min-width: 40px; transition: background-color 0.2s;">−</button>
+        <input type="number" class="sticky-quantity-input" value="1" min="1" max="99" style="padding: 0 16px; font-size: 14px; font-weight: 600; color: #141414; background: #fff; height: 100%; display: flex; align-items: center; justify-content: center; min-width: 40px; flex: 1; border: none; outline: none; text-align: center;">
+        <button type="button" class="sticky-quantity-btn" data-action="increase" style="border: none; background: transparent; padding: 0 16px; cursor: pointer; color: #6d7175; font-size: 16px; font-weight: 600; height: 100%; display: flex; align-items: center; justify-content: center; min-width: 40px; transition: background-color 0.2s;">+</button>
       </div>
       
       <!-- Add to Cart Button -->
-      <button type="button" class="sticky-add-to-cart-btn">
+      <button type="button" class="sticky-add-to-cart-btn" style="border-radius: 8px; border: none; cursor: pointer; padding: 10px 16px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
         Add to cart
       </button>
     </div>

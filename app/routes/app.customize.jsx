@@ -610,88 +610,77 @@ export default function Customize() {
                                                         name="sticky_bar_width"
                                                     />
                                                 </Box>
-                                                <Box style={{ marginBottom: '8px' }}>
-                                                    <BlockStack gap="100">
-                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
-                                                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-                                                            <TextField
-                                                                type="number"
-                                                                placeholder="e.g., 600"
-                                                                value={maxWidth}
-                                                                onChange={handleSetMaxWidth}
-                                                                name="sticky_max_width"
-                                                                style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                            />
-                                                            <Select
-                                                                options={[
-                                                                    {
-                                                                        label: 'px',
-                                                                        value: 'px'
-                                                                    },
-                                                                    {
-                                                                        label: '%',
-                                                                        value: '%'
-                                                                    }
-                                                                ]}
-                                                                onChange={setMaxWidthUnit}
-                                                                value={maxWidthUnit}
-                                                                name="sticky_max_width_unit"
-                                                                style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                            />
-                                                        </div>
-                                                        <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
-                                                    </BlockStack>
-                                                </Box>
-                                                <Box style={{ marginBottom: "16px" }}>
-                                                    <BlockStack gap="100">
-                                                        <Text variant="bodySm" as="div">Alignment</Text>
-                                                        <Select
-                                                            options={[
-                                                                {
-                                                                    label: 'Left',
-                                                                    value: 'left'
-                                                                },
-                                                                {
-                                                                    label: 'Center',
-                                                                    value: 'center'
-                                                                },
-                                                                {
-                                                                    label: 'Right',
-                                                                    value: 'right'
-                                                                }
-                                                            ]}
-                                                            onChange={setAlignment}
-                                                            value={alignment}
-                                                            name="sticky_alignment"
-                                                            style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                        />
-                                                    </BlockStack>
-                                                </Box>
-                                                <Box style={{ marginBottom: "16px" }}>
-                                                    <BlockStack gap="100">
-                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
-                                                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                                            <input
-                                                                type="number"
-                                                                value={outerSpacing}
-                                                                placeholder="e.g., 600"
-                                                                onChange={e => setOuterSpacing(e.target.value)}
-                                                                name="sticky_outer_spacing"
-                                                                style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                            />
-                                                            <select
-                                                                value={outerSpacingUnit}
-                                                                onChange={e => setOuterSpacingUnit(e.target.value)}
-                                                                name="sticky_outer_spacing_unit"
-                                                                style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                            >
-                                                                <option value="px">px</option>
-                                                                <option value="%">%</option>
-                                                            </select>
-                                                        </div>
-                                                        <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
-                                                    </BlockStack>
-                                                </Box>
+                                                {barWidth === 'contained' && (
+                                                    <>
+                                                        <Box style={{ marginBottom: '8px' }}>
+                                                            <BlockStack gap="100">
+                                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
+                                                                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+                                                                    <input
+                                                                        type="number"
+                                                                        placeholder="e.g., 600"
+                                                                        value={maxWidth}
+                                                                        onChange={e => setMaxWidth(e.target.value)}
+                                                                        name="sticky_max_width"
+                                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                    />
+                                                                    <Select
+                                                                        options={[
+                                                                            { label: 'px', value: 'px' },
+                                                                            { label: '%', value: '%' }
+                                                                        ]}
+                                                                        onChange={setMaxWidthUnit}
+                                                                        value={maxWidthUnit}
+                                                                        name="sticky_max_width_unit"
+                                                                        style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                    />
+                                                                </div>
+                                                                <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
+                                                            </BlockStack>
+                                                        </Box>
+                                                        <Box style={{ marginBottom: "16px" }}>
+                                                            <BlockStack gap="100">
+                                                                <Text variant="bodySm" as="div">Alignment</Text>
+                                                                <Select
+                                                                    options={[
+                                                                        { label: 'Left', value: 'left' },
+                                                                        { label: 'Center', value: 'center' },
+                                                                        { label: 'Right', value: 'right' }
+                                                                    ]}
+                                                                    onChange={setAlignment}
+                                                                    value={alignment}
+                                                                    name="sticky_alignment"
+                                                                    style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                />
+                                                            </BlockStack>
+                                                        </Box>
+                                                        <Box style={{ marginBottom: "16px" }}>
+                                                            <BlockStack gap="100">
+                                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
+                                                                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                                    <input
+                                                                        type="number"
+                                                                        value={outerSpacing}
+                                                                        placeholder="e.g., 600"
+                                                                        onChange={e => setOuterSpacing(e.target.value)}
+                                                                        name="sticky_outer_spacing"
+                                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                    />
+                                                                    <select
+                                                                        value={outerSpacingUnit}
+                                                                        onChange={e => setOuterSpacingUnit(e.target.value)}
+                                                                        name="sticky_outer_spacing_unit"
+                                                                        style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                    >
+                                                                        <option value="px">px</option>
+                                                                        <option value="%">%</option>
+                                                                    </select>
+                                                                </div>
+                                                                <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
+                                                            </BlockStack>
+                                                        </Box>
+                                                    </>
+                                                )}
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Inner spacing</Text>
                                                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>

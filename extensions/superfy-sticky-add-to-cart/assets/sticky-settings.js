@@ -87,17 +87,58 @@ class StickyBarSettings {
     // Get CSS styles based on settings
     getStyles() {
         const settings = this.getAll();
+
+        // Calculate width and positioning based on bar width setting
+        let width, maxWidth, left, right, transform;
+
+        if (settings.sticky_bar_width === 'full') {
+            // Full width: spans the entire width with margins
+            width = 'calc(100% - 40px)'; // Account for outer spacing
+            maxWidth = 'none';
+            left = '20px';
+            right = '20px';
+            transform = 'none';
+        } else {
+            // Contained width: respects max width and alignment
+            width = 'auto';
+            maxWidth = settings.sticky_max_width ? `${settings.sticky_max_width}${settings.sticky_max_width_unit}` : '600px';
+
+            // Handle alignment for contained width
+            if (settings.sticky_alignment === 'left') {
+                left = '20px';
+                right = 'auto';
+                transform = 'none';
+            } else if (settings.sticky_alignment === 'center') {
+                left = '50%';
+                right = 'auto';
+                transform = 'translateX(-50%)';
+            } else if (settings.sticky_alignment === 'right') {
+                left = 'auto';
+                right = '20px';
+                transform = 'none';
+            }
+        }
+
         const styles = {
             backgroundColor: settings.sticky_background_color,
             borderColor: settings.sticky_border_color,
             color: settings.sticky_product_name_color,
-            width: settings.sticky_bar_width === 'full' ? '100%' : 'auto',
-            maxWidth: settings.sticky_max_width ? `${settings.sticky_max_width}${settings.sticky_max_width_unit}` : 'none',
+            width: width,
+            maxWidth: maxWidth,
+            left: left,
+            right: right,
+            transform: transform,
             margin: settings.sticky_outer_spacing ? `${settings.sticky_outer_spacing}${settings.sticky_outer_spacing_unit}` : 'unset',
             padding: `${settings.sticky_inner_spacing}${settings.sticky_inner_spacing_unit}`,
-            textAlign: settings.sticky_alignment,
             border: `1px solid ${settings.sticky_border_color}`,
-            borderRadius: '4px'
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            position: 'fixed',
+            bottom: '20px',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
         };
 
         console.log('Generated styles:', styles);
@@ -229,7 +270,7 @@ class StickyBarSettings {
 
         console.log('Found sticky bar element:', stickyBar);
 
-        // Apply styles
+        // Apply styles to the main sticky bar container
         console.log('Applying styles to sticky bar:', styles);
         Object.assign(stickyBar.style, styles);
 
@@ -266,7 +307,48 @@ class StickyBarSettings {
             button.textContent = settings.sticky_button_text;
             button.style.backgroundColor = settings.sticky_button_bg_color;
             button.style.color = settings.sticky_button_text_color;
+
+            // Add cart icon if enabled
+            if (settings.sticky_enable_cart_icon) {
+                // Create cart icon if it doesn't exist
+                let cartIcon = button.querySelector('.cart-icon');
+                if (!cartIcon) {
+                    cartIcon = document.createElement('span');
+                    cartIcon.className = 'cart-icon';
+                    cartIcon.innerHTML = '🛒'; // Simple cart emoji as fallback
+                    cartIcon.style.marginRight = '6px';
+                    button.insertBefore(cartIcon, button.firstChild);
+                }
+                cartIcon.style.display = 'inline';
+            } else {
+                // Remove cart icon if disabled
+                const cartIcon = button.querySelector('.cart-icon');
+                if (cartIcon) {
+                    cartIcon.style.display = 'none';
+                }
+            }
+
             console.log(`Button updated: text="${settings.sticky_button_text}", bg="${settings.sticky_button_bg_color}", color="${settings.sticky_button_text_color}"`);
+        }
+
+        // Apply custom CSS if provided
+        if (settings.sticky_custom_css && settings.sticky_custom_css.trim()) {
+            try {
+                // Remove any existing custom CSS
+                const existingStyle = document.getElementById('sticky-custom-css');
+                if (existingStyle) {
+                    existingStyle.remove();
+                }
+
+                // Add new custom CSS
+                const styleElement = document.createElement('style');
+                styleElement.id = 'sticky-custom-css';
+                styleElement.textContent = settings.sticky_custom_css;
+                document.head.appendChild(styleElement);
+                console.log('Custom CSS applied');
+            } catch (error) {
+                console.error('Error applying custom CSS:', error);
+            }
         }
 
         console.log('=== SETTINGS APPLIED SUCCESSFULLY ===');
