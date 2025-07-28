@@ -55,7 +55,6 @@
     align-items: center;
     justify-content: center;
     gap: 4px;
-    margin-top: 8px;
     border: 1px solid #DFDFDF;
     border-radius: 12px;
     padding: 8px 12px;
@@ -123,5 +122,17 @@
         width: 20px;
         height: 20px;
         cursor: pointer;
+    }
+}
+
+.input-and-unit-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 4px;
+
+    &>div:first-of-type {
+        width: 100%;
     }
 }

@@ -251,6 +251,46 @@ export default function Customize() {
         }
     }, [maxWidth]);
 
+    // Trigger form change detection when outerSpacing updates
+    useEffect(() => {
+        const hiddenInput = document.querySelector('input[name="sticky_outer_spacing"]');
+        if (hiddenInput) {
+            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, [outerSpacing]);
+
+    // Trigger form change detection when innerSpacing updates
+    useEffect(() => {
+        const hiddenInput = document.querySelector('input[name="sticky_inner_spacing"]');
+        if (hiddenInput) {
+            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, [innerSpacing]);
+
+    // Trigger form change detection when buttonBehavior updates
+    useEffect(() => {
+        const hiddenInput = document.querySelector('input[name="sticky_button_behavior"]');
+        if (hiddenInput) {
+            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, [buttonBehavior]);
+
+    // Trigger form change detection when imageSize updates
+    useEffect(() => {
+        const hiddenInput = document.querySelector('input[name="sticky_image_size"]');
+        if (hiddenInput) {
+            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, [imageSize]);
+
+    // Trigger form change detection when buttonText updates
+    useEffect(() => {
+        const hiddenInput = document.querySelector('input[name="sticky_button_text"]');
+        if (hiddenInput) {
+            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, [buttonText]);
+
     // Default settings for desktop and mobile
     const getDefaultSettings = (view) => {
         if (view === 'mobile') {
@@ -632,7 +672,7 @@ export default function Customize() {
                                                         <Box style={{ marginBottom: '8px' }}>
                                                             <BlockStack gap="100">
                                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
-                                                                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+                                                                <div className='input-and-unit-wrapper'>
                                                                     <input
                                                                         type="hidden"
                                                                         name="sticky_max_width"
@@ -640,6 +680,7 @@ export default function Customize() {
                                                                         onInput={(e) => e.target.value = maxWidth}
                                                                     />
                                                                     <TextField
+                                                                        className='max-width-input-type-number'
                                                                         type="number"
                                                                         placeholder="e.g., 600"
                                                                         value={maxWidth}
@@ -679,14 +720,19 @@ export default function Customize() {
                                                         <Box style={{ marginBottom: "16px" }}>
                                                             <BlockStack gap="100">
                                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
-                                                                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                                <div className='input-and-unit-wrapper'>
                                                                     <input
-                                                                        type="number"
-                                                                        value={outerSpacing}
-                                                                        placeholder="e.g., 600"
-                                                                        onChange={e => setOuterSpacing(e.target.value)}
+                                                                        type="hidden"
                                                                         name="sticky_outer_spacing"
-                                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                        value={outerSpacing}
+                                                                        onInput={(e) => e.target.value = outerSpacing}
+                                                                    />
+                                                                    <TextField
+                                                                        className='outer-spacing-input-type-number'
+                                                                        type="number"
+                                                                        placeholder="e.g., 20"
+                                                                        value={outerSpacing}
+                                                                        onChange={value => setOuterSpacing(value)}
                                                                     />
                                                                     <select
                                                                         value={outerSpacingUnit}
@@ -705,13 +751,19 @@ export default function Customize() {
                                                 )}
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Inner spacing</Text>
-                                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+                                                    <div className='input-and-unit-wrapper'>
                                                         <input
-                                                            type="number"
-                                                            value={innerSpacing}
-                                                            onChange={e => setInnerSpacing(e.target.value)}
+                                                            type="hidden"
                                                             name="sticky_inner_spacing"
-                                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            value={innerSpacing}
+                                                            onInput={(e) => e.target.value = innerSpacing}
+                                                        />
+                                                        <TextField
+                                                            className='inner-spacing-input-type-number'
+                                                            type="number"
+                                                            placeholder="e.g., 16"
+                                                            value={innerSpacing}
+                                                            onChange={value => setInnerSpacing(value)}
                                                         />
                                                         <select
                                                             value={innerSpacingUnit}
@@ -771,7 +823,9 @@ export default function Customize() {
                                                 </BlockStack>
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Corner radius</Text>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <div
+                                                        className='sy-range-slider-wrapper'
+                                                    >
                                                         <RangeSlider
                                                             label="Corner radius"
                                                             labelHidden
@@ -844,16 +898,21 @@ export default function Customize() {
                                             <Box style={{ marginBottom: 4 }}>
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
                                             </Box>
-                                            <select
-                                                value={imageSize}
-                                                onChange={e => setImageSize(e.target.value)}
+                                            <input
+                                                type="hidden"
                                                 name="sticky_image_size"
-                                                style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                            >
-                                                <option value="small">Small</option>
-                                                <option value="medium">Medium</option>
-                                                <option value="large">Large</option>
-                                            </select>
+                                                value={imageSize}
+                                                onInput={(e) => e.target.value = imageSize}
+                                            />
+                                            <Select
+                                                options={[
+                                                    { label: 'Small', value: 'small' },
+                                                    { label: 'Medium', value: 'medium' },
+                                                    { label: 'Large', value: 'large' }
+                                                ]}
+                                                onChange={setImageSize}
+                                                value={imageSize}
+                                            />
                                             <Box style={{ margin: '16px 0' }}>
                                                 <Divider />
                                             </Box>
@@ -916,27 +975,37 @@ export default function Customize() {
                                                 </Box>
                                                 <Box>
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>On click behavior</Text>
-                                                    <select
-                                                        value={buttonBehavior}
-                                                        onChange={e => setButtonBehavior(e.target.value)}
+                                                    <input
+                                                        type="hidden"
                                                         name="sticky_button_behavior"
-                                                        style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                    >
-                                                        <option value="add">Add to cart</option>
-                                                        <option value="buy">Buy now</option>
-                                                        <option value="custom">Custom action</option>
-                                                    </select>
+                                                        value={buttonBehavior}
+                                                        onInput={(e) => e.target.value = buttonBehavior}
+                                                    />
+                                                    <Select
+                                                        options={[
+                                                            { label: 'Add to cart', value: 'add' },
+                                                            { label: 'Buy now', value: 'buy' },
+                                                            { label: 'Custom action', value: 'custom' }
+                                                        ]}
+                                                        onChange={setButtonBehavior}
+                                                        value={buttonBehavior}
+                                                    />
                                                 </Box>
                                                 <Box>
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text</Text>
+                                                    <input
+                                                        type="hidden"
+                                                        name="sticky_button_text"
+                                                        value={buttonText}
+                                                        onInput={(e) => e.target.value = buttonText}
+                                                    />
                                                     <div style={{ position: 'relative', marginBottom: 4 }}>
-                                                        <input
+                                                        <TextField
                                                             type="text"
                                                             value={buttonText}
+                                                            onChange={value => setButtonText(value)}
                                                             maxLength={40}
-                                                            onChange={e => setButtonText(e.target.value)}
-                                                            name="sticky_button_text"
-                                                            style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            placeholder="Add to cart"
                                                         />
                                                         <span style={{ position: 'absolute', right: 12, top: 8, color: '#6D7175', fontSize: 14 }}>{buttonText.length}/40</span>
                                                     </div>
