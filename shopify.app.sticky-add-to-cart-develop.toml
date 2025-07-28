@@ -3,7 +3,7 @@
 client_id = "e14eab145dbfee056d2e38e3e2ab9d73"
 name = "sticky-add-to-cart-develop"
 handle = "sticky-add-to-cart-develop"
-application_url = "https://imaging-cfr-removing-seat.trycloudflare.com"
+application_url = "https://resort-cds-cb-off.trycloudflare.com"
 embedded = true
 
 [build]
@@ -18,12 +18,12 @@ api_version = "2025-07"
 scopes = "write_products,write_app_proxy"
 
 [auth]
-redirect_urls = ["https://imaging-cfr-removing-seat.trycloudflare.com/auth/callback", "https://imaging-cfr-removing-seat.trycloudflare.com/auth/shopify/callback", "https://imaging-cfr-removing-seat.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://resort-cds-cb-off.trycloudflare.com/auth/callback", "https://resort-cds-cb-off.trycloudflare.com/auth/shopify/callback", "https://resort-cds-cb-off.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
 
 [app_proxy]
-url = "https://imaging-cfr-removing-seat.trycloudflare.com"
+url = "https://resort-cds-cb-off.trycloudflare.com"
 prefix = "apps"
 subpath = "proxy"

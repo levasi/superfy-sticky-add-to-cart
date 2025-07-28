@@ -251,6 +251,113 @@ export default function Customize() {
         setShowResetModal(false);
     }, []);
 
+    const handleResetAppearance = useCallback(() => {
+        const getDefaultSettings = (view) => {
+            if (view === 'mobile') {
+                return {
+                    sticky_content_display_image: true,
+                    sticky_content_display_title: true,
+                    sticky_content_display_price: true,
+                    sticky_content_display_quantity: true,
+                    sticky_bar_width: 'full',
+                    sticky_max_width: '',
+                    sticky_max_width_unit: 'px',
+                    sticky_alignment: 'right',
+                    sticky_outer_spacing: '',
+                    sticky_outer_spacing_unit: 'px',
+                    sticky_inner_spacing: '12',
+                    sticky_inner_spacing_unit: 'px',
+                    sticky_background_color: '#FFFFFF',
+                    sticky_border_color: '#000000',
+                    sticky_border_radius: '12',
+                    sticky_product_name_color: '#141414',
+                    sticky_image_size: 'medium',
+                    sticky_quantity_color: '#141414',
+                    sticky_quantity_border_color: '#DFDFDF',
+                    sticky_button_behavior: 'add',
+                    sticky_button_text: 'Add to cart',
+                    sticky_enable_cart_icon: true,
+                    sticky_button_text_color: '#FFFFFF',
+                    sticky_button_bg_color: '#141414'
+                };
+            } else {
+                return {
+                    sticky_content_display_image: true,
+                    sticky_content_display_title: true,
+                    sticky_content_display_price: true,
+                    sticky_content_display_quantity: true,
+                    sticky_bar_width: 'contained',
+                    sticky_max_width: '600',
+                    sticky_max_width_unit: 'px',
+                    sticky_alignment: 'right',
+                    sticky_outer_spacing: '0',
+                    sticky_outer_spacing_unit: 'px',
+                    sticky_inner_spacing: '16',
+                    sticky_inner_spacing_unit: 'px',
+                    sticky_background_color: '#FFFFFF',
+                    sticky_border_color: '#000000',
+                    sticky_border_radius: '12',
+                    sticky_product_name_color: '#141414',
+                    sticky_image_size: 'medium',
+                    sticky_quantity_color: '#141414',
+                    sticky_quantity_border_color: '#DFDFDF',
+                    sticky_button_behavior: 'add',
+                    sticky_button_text: 'Add to cart',
+                    sticky_enable_cart_icon: true,
+                    sticky_button_text_color: '#FFFFFF',
+                    sticky_button_bg_color: '#141414'
+                };
+            }
+        };
+
+        const defaultSettings = getDefaultSettings(appearanceView);
+
+        // Update local state immediately
+        setImageDisplay(defaultSettings.sticky_content_display_image);
+        setTitleDisplay(defaultSettings.sticky_content_display_title);
+        setPriceDisplay(defaultSettings.sticky_content_display_price);
+        setQuantityDisplay(defaultSettings.sticky_content_display_quantity);
+        setBarWidth(defaultSettings.sticky_bar_width);
+        setMaxWidth(defaultSettings.sticky_max_width);
+        setMaxWidthUnit(defaultSettings.sticky_max_width_unit);
+        setAlignment(defaultSettings.sticky_alignment);
+        setOuterSpacing(defaultSettings.sticky_outer_spacing);
+        setOuterSpacingUnit(defaultSettings.sticky_outer_spacing_unit);
+        setInnerSpacing(defaultSettings.sticky_inner_spacing);
+        setInnerSpacingUnit(defaultSettings.sticky_inner_spacing_unit);
+        setBackgroundColor(defaultSettings.sticky_background_color);
+        setBorderColor(defaultSettings.sticky_border_color);
+        setBorderRadius(defaultSettings.sticky_border_radius);
+        setProductNameColor(defaultSettings.sticky_product_name_color);
+        setImageSize(defaultSettings.sticky_image_size);
+        setQuantityColor(defaultSettings.sticky_quantity_color);
+        setQuantityBorderColor(defaultSettings.sticky_quantity_border_color);
+        setButtonBehavior(defaultSettings.sticky_button_behavior);
+        setButtonText(defaultSettings.sticky_button_text);
+        setEnableCartIcon(defaultSettings.sticky_enable_cart_icon);
+        setButtonTextColor(defaultSettings.sticky_button_text_color);
+        setButtonBgColor(defaultSettings.sticky_button_bg_color);
+
+        // Create FormData with all default settings
+        const formData = new FormData();
+        Object.entries(defaultSettings).forEach(([key, value]) => {
+            if (typeof value === 'boolean') {
+                formData.append(key, value ? 'on' : 'off');
+            } else {
+                formData.append(key, value);
+            }
+        });
+
+        console.log('Resetting to defaults for:', appearanceView);
+        console.log('Default settings:', defaultSettings);
+
+        // Submit the form data to trigger save bar
+        fetcher.submit(formData, { method: 'post' });
+
+        // Close the modal
+        setShowResetModal(false);
+    }, [appearanceView, fetcher]);
+
     const handleBack = useCallback(() => {
         navigate(-1);
     }, [navigate]);
