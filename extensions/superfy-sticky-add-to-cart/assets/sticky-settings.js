@@ -296,7 +296,7 @@ class StickyBarSettings {
             console.log(`Price element display set to: ${display}`);
         }
         if (quantityElement) {
-            const display = settings.sticky_content_display_quantity ? 'block' : 'none';
+            const display = settings.sticky_content_display_quantity ? 'flex' : 'none';
             quantityElement.style.display = display;
             console.log(`Quantity element display set to: ${display}`);
         }

@@ -35,7 +35,7 @@
       <!-- Quantity Selector -->
       <div class="sticky-quantity-selector" style="display: flex; align-items: center; border: 1px solid #DFDFDF; border-radius: 20px; overflow: hidden; background: #fff; height: 36px; min-width: 120px;">
         <button type="button" class="sticky-quantity-btn" data-action="decrease" style="border: none; background: transparent; padding: 0 16px; cursor: pointer; color: #6d7175; font-size: 16px; font-weight: 600; height: 100%; display: flex; align-items: center; justify-content: center; min-width: 40px; transition: background-color 0.2s;">−</button>
-        <input type="number" class="sticky-quantity-input" value="1" min="1" max="99" style="padding: 0 16px; font-size: 14px; font-weight: 600; color: #141414; background: #fff; height: 100%; display: flex; align-items: center; justify-content: center; min-width: 40px; flex: 1; border: none; outline: none; text-align: center;">
+        <input type="number" class="sticky-quantity-input" value="1" min="1" max="99">
         <button type="button" class="sticky-quantity-btn" data-action="increase" style="border: none; background: transparent; padding: 0 16px; cursor: pointer; color: #6d7175; font-size: 16px; font-weight: 600; height: 100%; display: flex; align-items: center; justify-content: center; min-width: 40px; transition: background-color 0.2s;">+</button>
       </div>
       
@@ -54,10 +54,6 @@
       const productId = {{ current_product.id }};
       const variantId = {{ current_variant.id }};
       const block = document.querySelector('.sticky-add-to-cart-block');
-      
-      console.log('Sticky bar block found:', block);
-      console.log('Product ID:', productId);
-      console.log('Variant ID:', variantId);
       
       if (!block) {
         console.error('Sticky bar block not found!');
@@ -199,9 +195,18 @@
       width: 50px;
       text-align: center;
       border: none;
-      padding: 8px;
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      appearance: textfield;
     }
-    
+    input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
     .sticky-add-to-cart-btn {
       padding: 12px 24px;
       background: #008060;
