@@ -62,7 +62,6 @@
 
       // Wait for settings to load from app proxy
       window.StickyBarSettings.onLoad(function(settings) {
-        console.log('Settings loaded from app proxy:', settings);
         
         // Show the sticky bar if enabled
         if (window.StickyBarSettings.isEnabled()) {
@@ -107,7 +106,6 @@
             })
             .then(res => res.json())
             .then(data => {
-              console.log('Added to cart:', data);
               
               // Try to open the offcanvas cart if the theme supports it
               if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && window.Shopify.theme.cart.open) {

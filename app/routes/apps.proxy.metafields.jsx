@@ -92,6 +92,7 @@ export const loader = async ({ request }) => {
             sticky_inner_spacing_unit: settings.sticky_inner_spacing_unit || 'px',
             sticky_background_color: settings.sticky_background_color || '#FFFFFF',
             sticky_border_color: settings.sticky_border_color || '#000000',
+            sticky_border_radius: settings.sticky_border_radius || '12',
             sticky_product_name_color: settings.sticky_product_name_color || '#141414',
             sticky_image_size: settings.sticky_image_size || 'medium',
             sticky_quantity_color: settings.sticky_quantity_color || '#141414',

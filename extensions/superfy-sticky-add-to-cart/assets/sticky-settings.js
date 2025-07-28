@@ -10,12 +10,10 @@ class StickyBarSettings {
         this.callbacks = [];
         this.proxyUrl = '/apps/proxy/settings';
         this.metafieldsUrl = '/apps/proxy/metafields';
-        console.log('StickyBarSettings initialized with proxy URL:', this.proxyUrl);
     }
 
     // Default settings fallback
     getDefaultSettings() {
-        console.log('Using default settings');
         return {
             sticky_bar_color: '#fff',
             sticky_visibility: 'all',
@@ -43,32 +41,28 @@ class StickyBarSettings {
             sticky_enable_cart_icon: false,
             sticky_button_text_color: '#FFFFFF',
             sticky_button_bg_color: '#141414',
-            sticky_custom_css: ''
+            sticky_custom_css: '',
+            sticky_border_radius: 12 // Added for border radius
         };
     }
 
     // Get a specific setting
     get(key) {
         const value = this.settings?.[key] || this.getDefaultSettings()[key];
-        console.log(`Getting setting "${key}":`, value);
         return value;
     }
 
     // Get all settings
     getAll() {
         const settings = this.settings || this.getDefaultSettings();
-        console.log('Getting all settings:', settings);
         return settings;
     }
 
     // Register a callback to be called when settings are loaded
     onLoad(callback) {
-        console.log('Registering onLoad callback');
         if (this.loaded) {
-            console.log('Settings already loaded, executing callback immediately');
             callback(this.settings);
         } else {
-            console.log('Settings not loaded yet, adding callback to queue');
             this.callbacks.push(callback);
         }
     }
@@ -80,7 +74,6 @@ class StickyBarSettings {
             (visibility === 'mobile' && window.innerWidth <= 768) ||
             (visibility === 'desktop' && window.innerWidth > 768);
 
-        console.log(`Sticky bar visibility check: ${visibility}, enabled: ${isEnabled}, window width: ${window.innerWidth}`);
         return isEnabled;
     }
 
@@ -131,7 +124,7 @@ class StickyBarSettings {
             margin: settings.sticky_outer_spacing ? `${settings.sticky_outer_spacing}${settings.sticky_outer_spacing_unit}` : 'unset',
             padding: `${settings.sticky_inner_spacing}${settings.sticky_inner_spacing_unit}`,
             border: `1px solid ${settings.sticky_border_color}`,
-            borderRadius: '12px',
+            borderRadius: `${settings.sticky_border_radius || '12'}px`,
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             position: 'fixed',
             bottom: '20px',
@@ -141,15 +134,12 @@ class StickyBarSettings {
             gap: '12px'
         };
 
-        console.log('Generated styles:', styles);
         return styles;
     }
 
     // Try to load settings from metafields as fallback
     async loadFromMetafields() {
         try {
-            console.log('=== TRYING METAFIELDS FALLBACK ===');
-
             // Try to get settings from metafields
             const metafieldsResponse = await fetch('/apps/proxy/metafields', {
                 method: 'GET',
@@ -161,11 +151,9 @@ class StickyBarSettings {
 
             if (metafieldsResponse.ok) {
                 const metafieldsSettings = await metafieldsResponse.json();
-                console.log('Settings loaded from metafields:', metafieldsSettings);
                 return metafieldsSettings;
             }
 
-            console.log('Metafields fallback failed, response status:', metafieldsResponse.status);
             return null;
         } catch (error) {
             console.error('Metafields fallback error:', error);
@@ -176,14 +164,10 @@ class StickyBarSettings {
     // Load settings from app proxy
     async load() {
         if (this.loaded) {
-            console.log('Settings already loaded, returning cached settings');
             return this.settings;
         }
 
         try {
-            console.log('=== LOADING SETTINGS FROM APP PROXY ===');
-            console.log('Fetching from URL:', this.proxyUrl);
-
             const response = await fetch(this.proxyUrl, {
                 method: 'GET',
                 headers: {
@@ -192,56 +176,40 @@ class StickyBarSettings {
                 cache: 'no-cache'
             });
 
-            console.log('Response status:', response.status);
-            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const settings = await response.json();
-            console.log('=== SETTINGS LOADED FROM APP PROXY ===');
-            console.log(JSON.stringify(settings, null, 2));
-            console.log('=== END SETTINGS LOAD ===');
 
             this.settings = settings;
             this.loaded = true;
 
             // Execute any pending callbacks
-            console.log(`Executing ${this.callbacks.length} pending callbacks`);
             this.callbacks.forEach(callback => callback(this.settings));
             this.callbacks = [];
 
             return this.settings;
         } catch (error) {
-            console.error('=== FAILED TO LOAD SETTINGS FROM APP PROXY ===');
-            console.error('Error:', error);
-            console.error('Error message:', error.message);
-            console.error('Trying metafields fallback...');
 
             // Try metafields fallback
             const metafieldsSettings = await this.loadFromMetafields();
             if (metafieldsSettings) {
-                console.log('Using settings from metafields fallback');
                 this.settings = metafieldsSettings;
                 this.loaded = true;
 
                 // Execute any pending callbacks
-                console.log(`Executing ${this.callbacks.length} pending callbacks with metafields settings`);
                 this.callbacks.forEach(callback => callback(this.settings));
                 this.callbacks = [];
 
                 return this.settings;
             }
 
-            console.log('All fallbacks failed, using default settings');
-
             // Return default settings if all methods fail
             this.settings = this.getDefaultSettings();
             this.loaded = true;
 
             // Execute any pending callbacks
-            console.log(`Executing ${this.callbacks.length} pending callbacks with default settings`);
             this.callbacks.forEach(callback => callback(this.settings));
             this.callbacks = [];
 
@@ -251,10 +219,7 @@ class StickyBarSettings {
 
     // Apply settings to the sticky bar
     applySettings() {
-        console.log('=== APPLYING SETTINGS TO STICKY BAR ===');
-
         if (!this.isEnabled()) {
-            console.log('Sticky bar disabled for current view');
             return;
         }
 
@@ -268,10 +233,7 @@ class StickyBarSettings {
             return;
         }
 
-        console.log('Found sticky bar element:', stickyBar);
-
         // Apply styles to the main sticky bar container
-        console.log('Applying styles to sticky bar:', styles);
         Object.assign(stickyBar.style, styles);
 
         // Apply content display settings
@@ -283,22 +245,18 @@ class StickyBarSettings {
         if (imageElement) {
             const display = settings.sticky_content_display_image ? 'block' : 'none';
             imageElement.style.display = display;
-            console.log(`Image element display set to: ${display}`);
         }
         if (titleElement) {
             const display = settings.sticky_content_display_title ? 'block' : 'none';
             titleElement.style.display = display;
-            console.log(`Title element display set to: ${display}`);
         }
         if (priceElement) {
             const display = settings.sticky_content_display_price ? 'block' : 'none';
             priceElement.style.display = display;
-            console.log(`Price element display set to: ${display}`);
         }
         if (quantityElement) {
             const display = settings.sticky_content_display_quantity ? 'flex' : 'none';
             quantityElement.style.display = display;
-            console.log(`Quantity element display set to: ${display}`);
         }
 
         // Apply button settings
@@ -328,7 +286,6 @@ class StickyBarSettings {
                 }
             }
 
-            console.log(`Button updated: text="${settings.sticky_button_text}", bg="${settings.sticky_button_bg_color}", color="${settings.sticky_button_text_color}"`);
         }
 
         // Apply custom CSS if provided
@@ -345,25 +302,18 @@ class StickyBarSettings {
                 styleElement.id = 'sticky-custom-css';
                 styleElement.textContent = settings.sticky_custom_css;
                 document.head.appendChild(styleElement);
-                console.log('Custom CSS applied');
             } catch (error) {
-                console.error('Error applying custom CSS:', error);
             }
         }
-
-        console.log('=== SETTINGS APPLIED SUCCESSFULLY ===');
     }
 }
 
 // Create global instance
-console.log('Creating global StickyBarSettings instance');
 window.StickyBarSettings = new StickyBarSettings();
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing StickyBarSettings');
     window.StickyBarSettings.load().then(() => {
-        console.log('Settings loaded, applying to sticky bar');
         window.StickyBarSettings.applySettings();
     });
 });
@@ -371,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // Re-apply settings on window resize (for responsive visibility)
 window.addEventListener('resize', () => {
     if (window.StickyBarSettings.loaded) {
-        console.log('Window resized, re-applying settings');
         window.StickyBarSettings.applySettings();
     }
 }); 

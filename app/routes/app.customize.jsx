@@ -64,6 +64,7 @@ export const loader = async ({ request }) => {
     const buttonTextColorSetting = await getSetting("sticky_button_text_color");
     const buttonBgColorSetting = await getSetting("sticky_button_bg_color");
     const customCssSetting = await getSetting("sticky_custom_css");
+    const borderRadiusSetting = await getSetting("sticky_border_radius");
     return json({
         sticky_bar_color: barColorSetting?.value || '#fff',
         sticky_visibility: visibilitySetting?.value || 'all',
@@ -82,6 +83,7 @@ export const loader = async ({ request }) => {
         sticky_inner_spacing_unit: innerSpacingUnitSetting?.value || 'px',
         sticky_background_color: backgroundColorSetting?.value || '#FFFFFF',
         sticky_border_color: borderColorSetting?.value || '#000000',
+        sticky_border_radius: borderRadiusSetting?.value || '12',
         sticky_product_name_color: productNameColorSetting?.value || '#141414',
         sticky_image_size: imageSizeSetting?.value || 'medium',
         sticky_quantity_color: quantityColorSetting?.value || '#141414',
@@ -133,6 +135,7 @@ export const action = async ({ request }) => {
         sticky_inner_spacing_unit: formData.get("sticky_inner_spacing_unit") || "px",
         sticky_background_color: formData.get("sticky_background_color") || "#FFFFFF",
         sticky_border_color: formData.get("sticky_border_color") || "#000000",
+        sticky_border_radius: formData.get("sticky_border_radius") || "12",
         sticky_product_name_color: formData.get("sticky_product_name_color") || "#141414",
         sticky_image_size: formData.get("sticky_image_size") || "medium",
         sticky_quantity_color: formData.get("sticky_quantity_color") || "#141414",
@@ -167,6 +170,7 @@ export const action = async ({ request }) => {
     await upsertSetting("sticky_inner_spacing_unit", settings.sticky_inner_spacing_unit);
     await upsertSetting("sticky_background_color", settings.sticky_background_color);
     await upsertSetting("sticky_border_color", settings.sticky_border_color);
+    await upsertSetting("sticky_border_radius", settings.sticky_border_radius);
     await upsertSetting("sticky_product_name_color", settings.sticky_product_name_color);
     await upsertSetting("sticky_image_size", settings.sticky_image_size);
     await upsertSetting("sticky_quantity_color", settings.sticky_quantity_color);
@@ -207,6 +211,7 @@ export default function Customize() {
     const [innerSpacingUnit, setInnerSpacingUnit] = useState(savedSettings.sticky_inner_spacing_unit);
     const [backgroundColor, setBackgroundColor] = useState(savedSettings.sticky_background_color);
     const [borderColor, setBorderColor] = useState(savedSettings.sticky_border_color);
+    const [borderRadius, setBorderRadius] = useState(savedSettings.sticky_border_radius);
     const [productNameColor, setProductNameColor] = useState(savedSettings.sticky_product_name_color);
     const [imageSize, setImageSize] = useState(savedSettings.sticky_image_size);
     const [quantityColor, setQuantityColor] = useState(savedSettings.sticky_quantity_color);
@@ -252,6 +257,7 @@ export default function Customize() {
                 innerSpacingUnit: 'px',
                 backgroundColor: '#FFFFFF',
                 borderColor: '#E1E3E5',
+                borderRadius: '12',
                 productNameColor: '#141414',
                 imageSize: 'small',
                 quantityColor: '#141414',
@@ -276,6 +282,7 @@ export default function Customize() {
                 innerSpacingUnit: 'px',
                 backgroundColor: '#FFFFFF',
                 borderColor: '#000000',
+                borderRadius: '12',
                 productNameColor: '#141414',
                 imageSize: 'medium',
                 quantityColor: '#141414',
@@ -303,6 +310,7 @@ export default function Customize() {
         setInnerSpacingUnit(defaults.innerSpacingUnit);
         setBackgroundColor(defaults.backgroundColor);
         setBorderColor(defaults.borderColor);
+        setBorderRadius(defaults.borderRadius);
         setProductNameColor(defaults.productNameColor);
         setImageSize(defaults.imageSize);
         setQuantityColor(defaults.quantityColor);
@@ -335,6 +343,7 @@ export default function Customize() {
         formData.append('sticky_inner_spacing_unit', defaults.innerSpacingUnit);
         formData.append('sticky_background_color', defaults.backgroundColor);
         formData.append('sticky_border_color', defaults.borderColor);
+        formData.append('sticky_border_radius', defaults.borderRadius);
         formData.append('sticky_product_name_color', defaults.productNameColor);
         formData.append('sticky_image_size', defaults.imageSize);
         formData.append('sticky_quantity_color', defaults.quantityColor);
@@ -742,6 +751,22 @@ export default function Customize() {
                                                             style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                         />
                                                     </div>
+                                                </BlockStack>
+                                                <BlockStack gap="100">
+                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Corner radius</Text>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max="24"
+                                                            value={borderRadius || '12'}
+                                                            onChange={e => setBorderRadius(e.target.value)}
+                                                            name="sticky_border_radius"
+                                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                        />
+                                                        <span style={{ color: '#6D7175', fontSize: 14 }}>px</span>
+                                                    </div>
+                                                    <Text variant="bodySm" tone="subdued">Border corner radius</Text>
                                                 </BlockStack>
                                             </BlockStack>
                                         </Card>
