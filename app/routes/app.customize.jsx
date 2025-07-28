@@ -243,7 +243,13 @@ export default function Customize() {
         }
     }, [fetcher.data, shopify]);
 
-
+    // Trigger form change detection when maxWidth updates
+    useEffect(() => {
+        const hiddenInput = document.querySelector('input[name="sticky_max_width"]');
+        if (hiddenInput) {
+            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, [maxWidth]);
 
     // Default settings for desktop and mobile
     const getDefaultSettings = (view) => {
@@ -628,12 +634,17 @@ export default function Customize() {
                                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
                                                                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
                                                                     <input
+                                                                        type="hidden"
+                                                                        name="sticky_max_width"
+                                                                        value={maxWidth}
+                                                                        onInput={(e) => e.target.value = maxWidth}
+                                                                    />
+                                                                    <TextField
                                                                         type="number"
                                                                         placeholder="e.g., 600"
                                                                         value={maxWidth}
-                                                                        onChange={e => setMaxWidth(e.target.value)}
-                                                                        name="sticky_max_width"
-                                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                        onChange={value => setMaxWidth(value)}
+                                                                        style={{ flex: 1 }}
                                                                     />
                                                                     <Select
                                                                         options={[

@@ -93,7 +93,6 @@ class StickyBarSettings {
             transform = 'none';
         } else {
             // Contained width: respects max width and alignment
-            width = 'auto';
             maxWidth = settings.sticky_max_width ? `${settings.sticky_max_width}${settings.sticky_max_width_unit}` : '600px';
 
             // Handle alignment for contained width
