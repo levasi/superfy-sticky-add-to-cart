@@ -194,15 +194,13 @@ export default function Customize() {
     const savedSettings = useLoaderData();
 
     const [selectedTab, setSelectedTab] = useState(1);
-    const [editingViewTab, setEditingViewTab] = useState(1);
+    const [appearanceView, setAppearanceView] = useState('desktop');
     const [visibility, setVisibility] = useState(savedSettings.sticky_visibility);
     const [trigger, setTrigger] = useState(savedSettings.sticky_trigger);
     const [imageDisplay, setImageDisplay] = useState(savedSettings.sticky_content_display_image);
     const [titleDisplay, setTitleDisplay] = useState(savedSettings.sticky_content_display_title);
     const [priceDisplay, setPriceDisplay] = useState(savedSettings.sticky_content_display_price);
     const [quantityDisplay, setQuantityDisplay] = useState(savedSettings.sticky_content_display_quantity);
-    const [canPublish] = useState(false); // Set to true if there are unpublished changes
-    const [appearanceView, setAppearanceView] = useState('desktop');
     const [barWidth, setBarWidth] = useState(savedSettings.sticky_bar_width);
     const [maxWidth, setMaxWidth] = useState(savedSettings.sticky_max_width);
     const [maxWidthUnit, setMaxWidthUnit] = useState(savedSettings.sticky_max_width_unit);
@@ -224,208 +222,18 @@ export default function Customize() {
     const [buttonTextColor, setButtonTextColor] = useState(savedSettings.sticky_button_text_color);
     const [buttonBgColor, setButtonBgColor] = useState(savedSettings.sticky_button_bg_color);
     const [customCss, setCustomCss] = useState(savedSettings.sticky_custom_css);
-
-    // Modal state
     const [showResetModal, setShowResetModal] = useState(false);
-
-    // Preview quantity state
     const [previewQuantity, setPreviewQuantity] = useState(1);
 
-    const handleTabChange = useCallback((selectedTabIndex) => setSelectedTab(selectedTabIndex), []);
-    const handleEditingViewTabChange = useCallback((selectedIndex) => setEditingViewTab(selectedIndex), []);
     const shopify = useAppBridge();
-
     const fetcher = useFetcher();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (fetcher.data?.ok) {
             shopify.toast.show("Sticky bar settings saved!");
         }
     }, [fetcher.data, shopify]);
-
-    // Track if component has mounted to prevent initial triggers
-    const [hasMounted, setHasMounted] = useState(false);
-    const [hasUserInteracted, setHasUserInteracted] = useState(false);
-
-    useEffect(() => {
-        setHasMounted(true);
-    }, []);
-
-    // Helper function to trigger form changes only after user interaction
-    const triggerFormChange = (inputName) => {
-        if (!hasMounted || !hasUserInteracted) return;
-        const hiddenInput = document.querySelector(`input[name="${inputName}"]`);
-        if (hiddenInput) {
-            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    };
-
-    // Track user interactions
-    const handleUserInteraction = (setter) => (value) => {
-        if (!hasUserInteracted) {
-            setHasUserInteracted(true);
-        }
-        setter(value);
-    };
-
-    // Trigger form change detection when maxWidth updates
-    useEffect(() => {
-        triggerFormChange('sticky_max_width');
-    }, [maxWidth, hasUserInteracted]);
-
-    // Trigger form change detection when outerSpacing updates
-    useEffect(() => {
-        triggerFormChange('sticky_outer_spacing');
-    }, [outerSpacing, hasUserInteracted]);
-
-    // Trigger form change detection when innerSpacing updates
-    useEffect(() => {
-        triggerFormChange('sticky_inner_spacing');
-    }, [innerSpacing, hasUserInteracted]);
-
-    // Trigger form change detection when buttonBehavior updates
-    useEffect(() => {
-        triggerFormChange('sticky_button_behavior');
-    }, [buttonBehavior, hasUserInteracted]);
-
-    // Trigger form change detection when imageSize updates
-    useEffect(() => {
-        triggerFormChange('sticky_image_size');
-    }, [imageSize, hasUserInteracted]);
-
-    // Trigger form change detection when buttonText updates
-    useEffect(() => {
-        triggerFormChange('sticky_button_text');
-    }, [buttonText, hasUserInteracted]);
-
-    // Trigger form change detection when enableCartIcon updates
-    useEffect(() => {
-        triggerFormChange('sticky_enable_cart_icon');
-    }, [enableCartIcon, hasUserInteracted]);
-
-    // Default settings for desktop and mobile
-    const getDefaultSettings = (view) => {
-        if (view === 'mobile') {
-            return {
-                barWidth: 'full',
-                maxWidth: '',
-                maxWidthUnit: 'px',
-                alignment: 'center',
-                outerSpacing: '',
-                outerSpacingUnit: 'px',
-                innerSpacing: '12',
-                innerSpacingUnit: 'px',
-                backgroundColor: '#FFFFFF',
-                borderColor: '#E1E3E5',
-                borderRadius: '12',
-                productNameColor: '#141414',
-                imageSize: 'small',
-                quantityColor: '#141414',
-                quantityBorderColor: '#DFDFDF',
-                buttonBehavior: 'add',
-                buttonText: 'Add to cart',
-                enableCartIcon: true,
-                buttonTextColor: '#FFFFFF',
-                buttonBgColor: '#141414',
-                customCss: ''
-            };
-        } else {
-            // Desktop defaults
-            return {
-                barWidth: 'contained',
-                maxWidth: '',
-                maxWidthUnit: 'px',
-                alignment: 'right',
-                outerSpacing: '',
-                outerSpacingUnit: 'px',
-                innerSpacing: '12',
-                innerSpacingUnit: 'px',
-                backgroundColor: '#FFFFFF',
-                borderColor: '#000000',
-                borderRadius: '12',
-                productNameColor: '#141414',
-                imageSize: 'medium',
-                quantityColor: '#141414',
-                quantityBorderColor: '#DFDFDF',
-                buttonBehavior: 'add',
-                buttonText: 'Add to cart',
-                enableCartIcon: false,
-                buttonTextColor: '#FFFFFF',
-                buttonBgColor: '#141414',
-                customCss: ''
-            };
-        }
-    };
-
-    const handleResetAppearance = useCallback(() => {
-        const defaults = getDefaultSettings(appearanceView);
-
-        setBarWidth(defaults.barWidth);
-        setMaxWidth(defaults.maxWidth);
-        setMaxWidthUnit(defaults.maxWidthUnit);
-        setAlignment(defaults.alignment);
-        setOuterSpacing(defaults.outerSpacing);
-        setOuterSpacingUnit(defaults.outerSpacingUnit);
-        setInnerSpacing(defaults.innerSpacing);
-        setInnerSpacingUnit(defaults.innerSpacingUnit);
-        setBackgroundColor(defaults.backgroundColor);
-        setBorderColor(defaults.borderColor);
-        setBorderRadius(defaults.borderRadius);
-        setProductNameColor(defaults.productNameColor);
-        setImageSize(defaults.imageSize);
-        setQuantityColor(defaults.quantityColor);
-        setQuantityBorderColor(defaults.quantityBorderColor);
-        setButtonBehavior(defaults.buttonBehavior);
-        setButtonText(defaults.buttonText);
-        setEnableCartIcon(defaults.enableCartIcon);
-        setButtonTextColor(defaults.buttonTextColor);
-        setButtonBgColor(defaults.buttonBgColor);
-        setCustomCss(defaults.customCss);
-
-        setShowResetModal(false);
-        shopify.toast.show(`Appearance settings reset to ${appearanceView} defaults!`);
-
-        // Create a FormData object with the reset values and submit
-        const formData = new FormData();
-        formData.append('sticky_visibility', visibility);
-        formData.append('sticky_trigger', trigger);
-        formData.append('sticky_content_display_image', imageDisplay ? 'on' : '');
-        formData.append('sticky_content_display_title', titleDisplay ? 'on' : '');
-        formData.append('sticky_content_display_price', priceDisplay ? 'on' : '');
-        formData.append('sticky_content_display_quantity', quantityDisplay ? 'on' : '');
-        formData.append('sticky_bar_width', defaults.barWidth);
-        formData.append('sticky_max_width', defaults.maxWidth);
-        formData.append('sticky_max_width_unit', defaults.maxWidthUnit);
-        formData.append('sticky_alignment', defaults.alignment);
-        formData.append('sticky_outer_spacing', defaults.outerSpacing);
-        formData.append('sticky_outer_spacing_unit', defaults.outerSpacingUnit);
-        formData.append('sticky_inner_spacing', defaults.innerSpacing);
-        formData.append('sticky_inner_spacing_unit', defaults.innerSpacingUnit);
-        formData.append('sticky_background_color', defaults.backgroundColor);
-        formData.append('sticky_border_color', defaults.borderColor);
-        formData.append('sticky_border_radius', defaults.borderRadius);
-        formData.append('sticky_product_name_color', defaults.productNameColor);
-        formData.append('sticky_image_size', defaults.imageSize);
-        formData.append('sticky_quantity_color', defaults.quantityColor);
-        formData.append('sticky_quantity_border_color', defaults.quantityBorderColor);
-        formData.append('sticky_button_behavior', defaults.buttonBehavior);
-        formData.append('sticky_button_text', defaults.buttonText);
-        formData.append('sticky_enable_cart_icon', defaults.enableCartIcon ? 'on' : '');
-        formData.append('sticky_button_text_color', defaults.buttonTextColor);
-        formData.append('sticky_button_bg_color', defaults.buttonBgColor);
-        formData.append('sticky_custom_css', defaults.customCss);
-
-        // Submit the form data to save the reset settings
-        fetcher.submit(formData, { method: 'post' });
-    }, [appearanceView, shopify, fetcher, visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay]);
-
-    const handleResetClick = useCallback(() => {
-        setShowResetModal(true);
-    }, []);
-
-    const handleCloseModal = useCallback(() => {
-        setShowResetModal(false);
-    }, []);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -435,50 +243,30 @@ export default function Customize() {
         setPreviewQuantity(prev => Math.max(prev - 1, 1));
     }, []);
 
-    const tabs = [
-        {
-            id: 'general',
-            content: 'General',
-            panelID: 'general-content',
-        },
-        {
-            id: 'appearance',
-            content: 'Appearance',
-            panelID: 'appearance-content',
-        },
-        {
-            id: 'advanced',
-            content: 'Advanced',
-            panelID: 'advanced-content',
-        },
-    ];
+    const handleResetClick = useCallback(() => {
+        setShowResetModal(true);
+    }, []);
 
-    const editingViewTabs = [
-        {
-            id: 'desktop',
-            content: 'Desktop',
-            panelID: 'desktop',
-        },
-        {
-            id: 'mobile',
-            content: 'Mobile',
-            panelID: 'mobile',
-        },
-    ];
-
-    const navigate = useNavigate();
+    const handleCloseModal = useCallback(() => {
+        setShowResetModal(false);
+    }, []);
 
     const handleBack = useCallback(() => {
         navigate(-1);
     }, [navigate]);
 
-    const handlePublish = useCallback(() => {
-        // Implement your publish logic here
-    }, []);
+    const handleTabChange = useCallback((selectedTabIndex) => setSelectedTab(selectedTabIndex), []);
 
-    const handleSetMaxWidth = useCallback((e) => {
-        setMaxWidth(e)
-    })
+    const tabs = [
+        { id: 'general', content: 'General', panelID: 'general-content' },
+        { id: 'appearance', content: 'Appearance', panelID: 'appearance-content' },
+        { id: 'advanced', content: 'Advanced', panelID: 'advanced-content' },
+    ];
+
+    const editingViewTabs = [
+        { id: 'desktop', content: 'Desktop', panelID: 'desktop' },
+        { id: 'mobile', content: 'Mobile', panelID: 'mobile' },
+    ];
 
     let alignmentStyles = {};
     if (alignment === 'left') {
@@ -509,11 +297,7 @@ export default function Customize() {
                     <InlineStack gap="200" blockAlign="center">
                         <Button icon={ArrowLeftIcon} variant="tertiary" onClick={handleBack} />
                         <span style={{ fontWeight: 600, fontSize: 20 }}>Customize</span>
-                        <Badge tone="subdued">No published</Badge>
                     </InlineStack>
-                    <Button disabled={!canPublish} onClick={handlePublish}>
-                        Publish
-                    </Button>
                 </InlineStack>
             </Box>
             <InlineGrid columns={['oneThird', 'twoThirds']} alignItems="start" gap="400">
@@ -695,7 +479,7 @@ export default function Customize() {
                                                                         type="number"
                                                                         placeholder="e.g., 600"
                                                                         value={maxWidth}
-                                                                        onChange={handleUserInteraction(setMaxWidth)}
+                                                                        onChange={setMaxWidth}
                                                                         style={{ flex: 1 }}
                                                                     />
                                                                     <Select
@@ -742,7 +526,7 @@ export default function Customize() {
                                                                         type="number"
                                                                         placeholder="e.g., 20"
                                                                         value={outerSpacing}
-                                                                        onChange={handleUserInteraction(setOuterSpacing)}
+                                                                        onChange={setOuterSpacing}
                                                                     />
                                                                     <select
                                                                         value={outerSpacingUnit}
@@ -772,7 +556,7 @@ export default function Customize() {
                                                             type="number"
                                                             placeholder="e.g., 16"
                                                             value={innerSpacing}
-                                                            onChange={handleUserInteraction(setInnerSpacing)}
+                                                            onChange={setInnerSpacing}
                                                         />
                                                         <select
                                                             value={innerSpacingUnit}
@@ -918,7 +702,7 @@ export default function Customize() {
                                                     { label: 'Medium', value: 'medium' },
                                                     { label: 'Large', value: 'large' }
                                                 ]}
-                                                onChange={handleUserInteraction(setImageSize)}
+                                                onChange={setImageSize}
                                                 value={imageSize}
                                             />
                                             <Box style={{ margin: '16px 0' }}>
@@ -994,7 +778,7 @@ export default function Customize() {
                                                             { label: 'Buy now', value: 'buy' },
                                                             { label: 'Custom action', value: 'custom' }
                                                         ]}
-                                                        onChange={handleUserInteraction(setButtonBehavior)}
+                                                        onChange={setButtonBehavior}
                                                         value={buttonBehavior}
                                                     />
                                                 </Box>
@@ -1009,7 +793,7 @@ export default function Customize() {
                                                         <TextField
                                                             type="text"
                                                             value={buttonText}
-                                                            onChange={handleUserInteraction(setButtonText)}
+                                                            onChange={setButtonText}
                                                             maxLength={40}
                                                             placeholder="Add to cart"
                                                         />
@@ -1029,7 +813,7 @@ export default function Customize() {
                                                         label="Show cart icon"
                                                         labelHidden
                                                         checked={enableCartIcon}
-                                                        onChange={handleUserInteraction(setEnableCartIcon)}
+                                                        onChange={setEnableCartIcon}
                                                     />
                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                                         <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
