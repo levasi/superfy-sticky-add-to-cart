@@ -1,0 +1,72 @@
+// Border radius container
+.sticky-border-radius-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+
+    &>div {
+        width: 100%;
+    }
+
+    .Polaris-RangeSlider {
+        flex: 1;
+    }
+
+    .border-radius-input {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        border: 1px solid #DFDFDF;
+        border-radius: 12px;
+        background-color: #FFFFFF;
+        width: 80px;
+
+        input {
+            border: none;
+            outline: none;
+            font-size: 16px;
+            text-align: center;
+            width: 40px;
+            background-color: transparent;
+        }
+
+        .unit {
+            color: #6D7175;
+            font-size: 14px;
+            margin-left: 4px;
+        }
+    }
+}
+
+.sy-range-slider-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+
+    & :first-child {
+        width: 100%;
+    }
+}
+
+.sy-range-slider-unit-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+    border: 1px solid #DFDFDF;
+    border-radius: 12px;
+    padding: 8px 12px;
+    background-color: #FFFFFF;
+    min-width: 80px;
+
+    .sy-border-radius-input-number {
+        border: none;
+    }
+
+    .unit {
+        color: #6D7175;
+    }
+}

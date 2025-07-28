@@ -18,7 +18,8 @@ import {
     ButtonGroup,
     TextField,
     ColorPicker,
-    Modal
+    Modal,
+    RangeSlider
 } from '@shopify/polaris';
 import {
     ArrowLeftIcon,
@@ -33,6 +34,7 @@ import { useFetcher } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { getSetting } from "../models/settings.server";
+import "./app.customize.scss";
 
 export const loader = async ({ request }) => {
     await authenticate.admin(request);
@@ -754,19 +756,31 @@ export default function Customize() {
                                                 </BlockStack>
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Corner radius</Text>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                        <input
-                                                            type="number"
-                                                            min="0"
-                                                            max="24"
-                                                            value={borderRadius || '12'}
-                                                            onChange={e => setBorderRadius(e.target.value)}
+                                                    <div className='sy-range-slider-wrapper'>
+                                                        <RangeSlider
+                                                            label="Corner radius"
+                                                            labelHidden
+                                                            value={parseInt(borderRadius) || 12}
+                                                            min={0}
+                                                            max={24}
+                                                            step={1}
+                                                            onChange={value => setBorderRadius(value.toString())}
                                                             name="sticky_border_radius"
-                                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            style={{ flex: 1 }}
                                                         />
-                                                        <span style={{ color: '#6D7175', fontSize: 14 }}>px</span>
+                                                        <div className='sy-range-slider-unit-wrapper'>
+                                                            <input
+                                                                className='sy-border-radius-input-number'
+                                                                type="number"
+                                                                min="0"
+                                                                max="24"
+                                                                value={borderRadius || '12'}
+                                                                onChange={e => setBorderRadius(e.target.value)}
+                                                                name="sticky_border_radius"
+                                                            />
+                                                            <span className='unit'>px</span>
+                                                        </div>
                                                     </div>
-                                                    <Text variant="bodySm" tone="subdued">Border corner radius</Text>
                                                 </BlockStack>
                                             </BlockStack>
                                         </Card>
