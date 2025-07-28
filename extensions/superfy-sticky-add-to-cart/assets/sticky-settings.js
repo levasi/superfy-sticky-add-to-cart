@@ -293,6 +293,33 @@ class StickyBarSettings {
             quantityInput.style.color = settings.sticky_quantity_color;
         }
 
+        // Apply image size
+        const productImage = stickyBar.querySelector('.sticky-product-image');
+        if (productImage) {
+            const imageSize = settings.sticky_image_size || 'medium';
+            let width, height;
+
+            switch (imageSize) {
+                case 'small':
+                    width = '48px';
+                    height = '48px';
+                    break;
+                case 'large':
+                    width = '72px';
+                    height = '72px';
+                    break;
+                default: // medium
+                    width = '60px';
+                    height = '60px';
+                    break;
+            }
+
+            productImage.style.width = width;
+            productImage.style.height = height;
+            productImage.style.objectFit = 'cover';
+            productImage.style.borderRadius = '8px';
+        }
+
         // Apply custom CSS if provided
         if (settings.sticky_custom_css && settings.sticky_custom_css.trim()) {
             try {

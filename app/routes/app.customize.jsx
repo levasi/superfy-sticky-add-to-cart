@@ -291,6 +291,14 @@ export default function Customize() {
         }
     }, [buttonText]);
 
+    // Trigger form change detection when enableCartIcon updates
+    useEffect(() => {
+        const hiddenInput = document.querySelector('input[name="sticky_enable_cart_icon"]');
+        if (hiddenInput) {
+            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, [enableCartIcon]);
+
     // Default settings for desktop and mobile
     const getDefaultSettings = (view) => {
         if (view === 'mobile') {
@@ -1013,22 +1021,24 @@ export default function Customize() {
                                                         To add the price inline, use {'{price}'} token
                                                     </Text>
                                                 </Box>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                                    <InlineStack wrap={false} gap="150">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={enableCartIcon}
-                                                            onChange={e => setEnableCartIcon(e.target.checked)}
-                                                            name="sticky_enable_cart_icon"
-                                                            style={{ width: 20, height: 20 }}
-                                                        />
-                                                        <Box>
-                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
-                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 28 }}>
-                                                                Choose whether to display the icon or not
-                                                            </Text>
-                                                        </Box>
-                                                    </InlineStack>
+                                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                                    <input
+                                                        type="hidden"
+                                                        name="sticky_enable_cart_icon"
+                                                        value={enableCartIcon ? 'on' : 'off'}
+                                                    />
+                                                    <Checkbox
+                                                        label="Show cart icon"
+                                                        labelHidden
+                                                        checked={enableCartIcon}
+                                                        onChange={setEnableCartIcon}
+                                                    />
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                        <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
+                                                        <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
+                                                            Choose whether to display the icon or not
+                                                        </Text>
+                                                    </div>
                                                 </div>
                                                 <Box>
                                                     <BlockStack gap="100">
