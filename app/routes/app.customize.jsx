@@ -718,45 +718,49 @@ export default function Customize() {
                                             <BlockStack gap="400">
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <div
+                                                        className='color-input-wrapper'
+                                                    >
                                                         <input
+                                                            className='color-input-type-color'
                                                             type="color"
                                                             value={backgroundColor}
                                                             onChange={e => setBackgroundColor(e.target.value)}
                                                             name="sticky_background_color"
-                                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
                                                         />
                                                         <input
+                                                            className='color-input-type-text'
                                                             type="text"
                                                             value={backgroundColor}
                                                             onChange={e => setBackgroundColor(e.target.value)}
                                                             name="sticky_background_color"
-                                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                         />
                                                     </div>
                                                 </BlockStack>
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Border color</Text>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <div
+                                                        className='color-input-wrapper'
+                                                    >
                                                         <input
+                                                            className='color-input-type-color'
                                                             type="color"
                                                             value={borderColor}
                                                             onChange={e => setBorderColor(e.target.value)}
                                                             name="sticky_border_color"
-                                                            style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
                                                         />
                                                         <input
+                                                            className='color-input-type-text'
                                                             type="text"
                                                             value={borderColor}
                                                             onChange={e => setBorderColor(e.target.value)}
                                                             name="sticky_border_color"
-                                                            style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                         />
                                                     </div>
                                                 </BlockStack>
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Corner radius</Text>
-                                                    <div className='sy-range-slider-wrapper'>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                                         <RangeSlider
                                                             label="Corner radius"
                                                             labelHidden
@@ -801,20 +805,22 @@ export default function Customize() {
                                                 <Box style={{ marginBottom: '4px' }}>
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Color</Text>
                                                 </Box>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                                                <div
+                                                    className='color-input-wrapper'
+                                                >
                                                     <input
+                                                        className='color-input-type-color'
                                                         type="color"
                                                         value={productNameColor}
                                                         onChange={e => setProductNameColor(e.target.value)}
                                                         name="sticky_product_name_color"
-                                                        style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
                                                     />
                                                     <input
+                                                        className='color-input-type-text'
                                                         type="text"
                                                         value={productNameColor}
                                                         onChange={e => setProductNameColor(e.target.value)}
                                                         name="sticky_product_name_color"
-                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                     />
                                                 </div>
                                             </Box>
@@ -847,40 +853,45 @@ export default function Customize() {
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Color</Text>
                                             </Box>
                                             <Box style={{ marginBottom: 8 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <div
+                                                    className='color-input-wrapper'
+                                                >
                                                     <input
+                                                        className='color-input-type-color'
                                                         type="color"
                                                         value={quantityColor}
                                                         onChange={e => setQuantityColor(e.target.value)}
                                                         name="sticky_quantity_color"
-                                                        style={{ width: 32, height: 32, s: '1px solid #DFDFDF', borderRadius: 8 }}
                                                     />
                                                     <input
+                                                        className='color-input-type-text'
                                                         type="text"
                                                         value={quantityColor}
                                                         onChange={e => setQuantityColor(e.target.value)}
                                                         name="sticky_quantity_color"
-                                                        style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                        style={{ flex: 1, borderRadius: 8, fontSize: 16 }}
                                                     />
                                                 </div>
                                             </Box>
                                             <Box style={{ marginBottom: 4 }}>
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
                                             </Box>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <div
+                                                className='color-input-wrapper'
+                                            >
                                                 <input
+                                                    className='color-input-type-color'
                                                     type="color"
                                                     value={quantityBorderColor}
                                                     onChange={e => setQuantityBorderColor(e.target.value)}
                                                     name="sticky_quantity_border_color"
-                                                    style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
                                                 />
                                                 <input
+                                                    className='color-input-type-text'
                                                     type="text"
                                                     value={quantityBorderColor}
                                                     onChange={e => setQuantityBorderColor(e.target.value)}
                                                     name="sticky_quantity_border_color"
-                                                    style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                 />
                                             </div>
                                         </Card>
@@ -942,20 +953,22 @@ export default function Customize() {
                                                 <Box>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text color</Text>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <div
+                                                            className='color-input-wrapper'
+                                                        >
                                                             <input
+                                                                className='color-input-type-color'
                                                                 type="color"
                                                                 value={buttonTextColor}
                                                                 onChange={e => setButtonTextColor(e.target.value)}
                                                                 name="sticky_button_text_color"
-                                                                style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
                                                             />
                                                             <input
+                                                                className='color-input-type-text'
                                                                 type="text"
                                                                 value={buttonTextColor}
                                                                 onChange={e => setButtonTextColor(e.target.value)}
                                                                 name="sticky_button_text_color"
-                                                                style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                             />
                                                         </div>
                                                     </BlockStack>
@@ -963,20 +976,20 @@ export default function Customize() {
                                                 <Box>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <div className='color-input-wrapper'>
                                                             <input
+                                                                className='color-input-type-color'
                                                                 type="color"
                                                                 value={buttonBgColor}
                                                                 onChange={e => setButtonBgColor(e.target.value)}
                                                                 name="sticky_button_bg_color"
-                                                                style={{ width: 32, height: 32, border: '1px solid #DFDFDF', borderRadius: 8 }}
                                                             />
                                                             <input
+                                                                className='color-input-type-text'
                                                                 type="text"
                                                                 value={buttonBgColor}
                                                                 onChange={e => setButtonBgColor(e.target.value)}
                                                                 name="sticky_button_bg_color"
-                                                                style={{ flex: 1, padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                             />
                                                         </div>
                                                     </BlockStack>
@@ -1141,7 +1154,6 @@ export default function Customize() {
                                             background: 'transparent',
                                             padding: '0 16px',
                                             cursor: 'pointer',
-                                            color: '#6d7175',
                                             fontSize: '16px',
                                             fontWeight: '600',
                                             height: '100%',
@@ -1157,7 +1169,6 @@ export default function Customize() {
                                             padding: '0 16px',
                                             fontSize: '14px',
                                             fontWeight: '600',
-                                            color: '#141414',
                                             background: '#fff',
                                             height: '100%',
                                             display: 'flex',
@@ -1173,7 +1184,6 @@ export default function Customize() {
                                             background: 'transparent',
                                             padding: '0 16px',
                                             cursor: 'pointer',
-                                            color: '#6d7175',
                                             fontSize: '16px',
                                             fontWeight: '600',
                                             height: '100%',

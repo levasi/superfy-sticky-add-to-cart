@@ -288,6 +288,12 @@ class StickyBarSettings {
 
         }
 
+        // Apply quantity input color
+        const quantityInput = stickyBar.querySelector('.sticky-quantity-input');
+        if (quantityInput) {
+            quantityInput.style.color = settings.sticky_quantity_color;
+        }
+
         // Apply custom CSS if provided
         if (settings.sticky_custom_css && settings.sticky_custom_css.trim()) {
             try {

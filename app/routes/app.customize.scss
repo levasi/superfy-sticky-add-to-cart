@@ -70,3 +70,58 @@
         color: #6D7175;
     }
 }
+
+.color-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #DFDFDF;
+    border-radius: 8px;
+    padding: 8px;
+
+    input {
+        border: none;
+    }
+
+    .color-input-type-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        background-color: transparent;
+        border: 0;
+        padding: 0;
+        overflow: hidden;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+
+        &::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        &::-webkit-color-swatch {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 0;
+        }
+
+        &::-moz-color-swatch {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 0;
+        }
+
+    }
+
+    .quantity-color-input {
+        width: 80px;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+}
