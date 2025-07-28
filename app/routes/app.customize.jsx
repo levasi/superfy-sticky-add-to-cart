@@ -1059,7 +1059,7 @@ export default function Customize() {
                                     left: barWidth === 'contained' ?
                                         (alignment === 'left' ? '20px' : alignment === 'center' ? '50%' : 'auto') : '20px',
                                     transform: barWidth === 'contained' && alignment === 'center' ? 'translateX(-50%)' : 'none',
-                                    borderRadius: '12px',
+                                    borderRadius: borderRadius + 'px' || '12px',
                                     border: `1px solid ${borderColor}`,
                                     backgroundColor: backgroundColor,
                                     padding: `${innerSpacing}${innerSpacingUnit}`,

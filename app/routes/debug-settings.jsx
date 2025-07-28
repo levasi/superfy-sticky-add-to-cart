@@ -26,6 +26,7 @@ export const loader = async ({ request }) => {
         sticky_inner_spacing_unit: await getSetting("sticky_inner_spacing_unit"),
         sticky_background_color: await getSetting("sticky_background_color"),
         sticky_border_color: await getSetting("sticky_border_color"),
+        sticky_border_radius: await getSetting("sticky_border_radius"),
         sticky_product_name_color: await getSetting("sticky_product_name_color"),
         sticky_image_size: await getSetting("sticky_image_size"),
         sticky_quantity_color: await getSetting("sticky_quantity_color"),

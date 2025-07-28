@@ -42,7 +42,7 @@ class StickyBarSettings {
             sticky_button_text_color: '#FFFFFF',
             sticky_button_bg_color: '#141414',
             sticky_custom_css: '',
-            sticky_border_radius: 12 // Added for border radius
+            sticky_border_radius: '12'
         };
     }
 
