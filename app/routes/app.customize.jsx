@@ -243,61 +243,65 @@ export default function Customize() {
         }
     }, [fetcher.data, shopify]);
 
-    // Trigger form change detection when maxWidth updates
+    // Track if component has mounted to prevent initial triggers
+    const [hasMounted, setHasMounted] = useState(false);
+    const [hasUserInteracted, setHasUserInteracted] = useState(false);
+
     useEffect(() => {
-        const hiddenInput = document.querySelector('input[name="sticky_max_width"]');
+        setHasMounted(true);
+    }, []);
+
+    // Helper function to trigger form changes only after user interaction
+    const triggerFormChange = (inputName) => {
+        if (!hasMounted || !hasUserInteracted) return;
+        const hiddenInput = document.querySelector(`input[name="${inputName}"]`);
         if (hiddenInput) {
             hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
         }
-    }, [maxWidth]);
+    };
+
+    // Track user interactions
+    const handleUserInteraction = (setter) => (value) => {
+        if (!hasUserInteracted) {
+            setHasUserInteracted(true);
+        }
+        setter(value);
+    };
+
+    // Trigger form change detection when maxWidth updates
+    useEffect(() => {
+        triggerFormChange('sticky_max_width');
+    }, [maxWidth, hasUserInteracted]);
 
     // Trigger form change detection when outerSpacing updates
     useEffect(() => {
-        const hiddenInput = document.querySelector('input[name="sticky_outer_spacing"]');
-        if (hiddenInput) {
-            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    }, [outerSpacing]);
+        triggerFormChange('sticky_outer_spacing');
+    }, [outerSpacing, hasUserInteracted]);
 
     // Trigger form change detection when innerSpacing updates
     useEffect(() => {
-        const hiddenInput = document.querySelector('input[name="sticky_inner_spacing"]');
-        if (hiddenInput) {
-            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    }, [innerSpacing]);
+        triggerFormChange('sticky_inner_spacing');
+    }, [innerSpacing, hasUserInteracted]);
 
     // Trigger form change detection when buttonBehavior updates
     useEffect(() => {
-        const hiddenInput = document.querySelector('input[name="sticky_button_behavior"]');
-        if (hiddenInput) {
-            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    }, [buttonBehavior]);
+        triggerFormChange('sticky_button_behavior');
+    }, [buttonBehavior, hasUserInteracted]);
 
     // Trigger form change detection when imageSize updates
     useEffect(() => {
-        const hiddenInput = document.querySelector('input[name="sticky_image_size"]');
-        if (hiddenInput) {
-            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    }, [imageSize]);
+        triggerFormChange('sticky_image_size');
+    }, [imageSize, hasUserInteracted]);
 
     // Trigger form change detection when buttonText updates
     useEffect(() => {
-        const hiddenInput = document.querySelector('input[name="sticky_button_text"]');
-        if (hiddenInput) {
-            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    }, [buttonText]);
+        triggerFormChange('sticky_button_text');
+    }, [buttonText, hasUserInteracted]);
 
     // Trigger form change detection when enableCartIcon updates
     useEffect(() => {
-        const hiddenInput = document.querySelector('input[name="sticky_enable_cart_icon"]');
-        if (hiddenInput) {
-            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    }, [enableCartIcon]);
+        triggerFormChange('sticky_enable_cart_icon');
+    }, [enableCartIcon, hasUserInteracted]);
 
     // Default settings for desktop and mobile
     const getDefaultSettings = (view) => {
@@ -685,14 +689,13 @@ export default function Customize() {
                                                                         type="hidden"
                                                                         name="sticky_max_width"
                                                                         value={maxWidth}
-                                                                        onInput={(e) => e.target.value = maxWidth}
                                                                     />
                                                                     <TextField
                                                                         className='max-width-input-type-number'
                                                                         type="number"
                                                                         placeholder="e.g., 600"
                                                                         value={maxWidth}
-                                                                        onChange={value => setMaxWidth(value)}
+                                                                        onChange={handleUserInteraction(setMaxWidth)}
                                                                         style={{ flex: 1 }}
                                                                     />
                                                                     <Select
@@ -733,14 +736,13 @@ export default function Customize() {
                                                                         type="hidden"
                                                                         name="sticky_outer_spacing"
                                                                         value={outerSpacing}
-                                                                        onInput={(e) => e.target.value = outerSpacing}
                                                                     />
                                                                     <TextField
                                                                         className='outer-spacing-input-type-number'
                                                                         type="number"
                                                                         placeholder="e.g., 20"
                                                                         value={outerSpacing}
-                                                                        onChange={value => setOuterSpacing(value)}
+                                                                        onChange={handleUserInteraction(setOuterSpacing)}
                                                                     />
                                                                     <select
                                                                         value={outerSpacingUnit}
@@ -764,14 +766,13 @@ export default function Customize() {
                                                             type="hidden"
                                                             name="sticky_inner_spacing"
                                                             value={innerSpacing}
-                                                            onInput={(e) => e.target.value = innerSpacing}
                                                         />
                                                         <TextField
                                                             className='inner-spacing-input-type-number'
                                                             type="number"
                                                             placeholder="e.g., 16"
                                                             value={innerSpacing}
-                                                            onChange={value => setInnerSpacing(value)}
+                                                            onChange={handleUserInteraction(setInnerSpacing)}
                                                         />
                                                         <select
                                                             value={innerSpacingUnit}
@@ -910,7 +911,6 @@ export default function Customize() {
                                                 type="hidden"
                                                 name="sticky_image_size"
                                                 value={imageSize}
-                                                onInput={(e) => e.target.value = imageSize}
                                             />
                                             <Select
                                                 options={[
@@ -918,7 +918,7 @@ export default function Customize() {
                                                     { label: 'Medium', value: 'medium' },
                                                     { label: 'Large', value: 'large' }
                                                 ]}
-                                                onChange={setImageSize}
+                                                onChange={handleUserInteraction(setImageSize)}
                                                 value={imageSize}
                                             />
                                             <Box style={{ margin: '16px 0' }}>
@@ -987,7 +987,6 @@ export default function Customize() {
                                                         type="hidden"
                                                         name="sticky_button_behavior"
                                                         value={buttonBehavior}
-                                                        onInput={(e) => e.target.value = buttonBehavior}
                                                     />
                                                     <Select
                                                         options={[
@@ -995,7 +994,7 @@ export default function Customize() {
                                                             { label: 'Buy now', value: 'buy' },
                                                             { label: 'Custom action', value: 'custom' }
                                                         ]}
-                                                        onChange={setButtonBehavior}
+                                                        onChange={handleUserInteraction(setButtonBehavior)}
                                                         value={buttonBehavior}
                                                     />
                                                 </Box>
@@ -1005,13 +1004,12 @@ export default function Customize() {
                                                         type="hidden"
                                                         name="sticky_button_text"
                                                         value={buttonText}
-                                                        onInput={(e) => e.target.value = buttonText}
                                                     />
                                                     <div style={{ position: 'relative', marginBottom: 4 }}>
                                                         <TextField
                                                             type="text"
                                                             value={buttonText}
-                                                            onChange={value => setButtonText(value)}
+                                                            onChange={handleUserInteraction(setButtonText)}
                                                             maxLength={40}
                                                             placeholder="Add to cart"
                                                         />
@@ -1031,7 +1029,7 @@ export default function Customize() {
                                                         label="Show cart icon"
                                                         labelHidden
                                                         checked={enableCartIcon}
-                                                        onChange={setEnableCartIcon}
+                                                        onChange={handleUserInteraction(setEnableCartIcon)}
                                                     />
                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                                         <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>

@@ -97,7 +97,6 @@
           addToCartBtn.addEventListener('click', function() {
             const quantity = parseInt(quantityInput?.value || 1);
             
-            // Use AJAX to add to cart and open offcanvas cart
             fetch('/cart/add.js', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -108,95 +107,14 @@
             })
             .then(res => res.json())
             .then(data => {
-              // Wait a bit for cart to update, then try to open drawer
-              setTimeout(() => {
-                // First, refresh cart data if theme supports it
-                if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && typeof window.Shopify.theme.cart.getCart === 'function') {
-                  window.Shopify.theme.cart.getCart();
-                }
-                
-                // Try multiple methods to open cart drawer
-                let cartOpened = false;
-                
-                // Method 1: Try to find and click the cart icon/button
-                const cartButtons = document.querySelectorAll('a[href="/cart"], button[data-cart-toggle], [data-cart-drawer-trigger], .cart-drawer-trigger, [data-cart-toggle], .cart-toggle, [data-cart-open], .cart-open, [data-cart-icon], .cart-icon, [data-cart-count], .cart-count, .cart-link, .cart-button');
-                
-                for (let button of cartButtons) {
-                  if (button.offsetParent !== null) { // Check if element is visible
-                    button.click();
-                    cartOpened = true;
-                    break;
-                  }
-                }
-                
-                // Method 2: Try theme cart methods
-                if (!cartOpened && window.Shopify && window.Shopify.theme && window.Shopify.theme.cart) {
-                  const cart = window.Shopify.theme.cart;
-                  if (typeof cart.open === 'function') {
-                    cart.open();
-                    cartOpened = true;
-                  } else if (typeof cart.toggle === 'function') {
-                    cart.toggle();
-                    cartOpened = true;
-                  } else if (typeof cart.show === 'function') {
-                    cart.show();
-                    cartOpened = true;
-                  }
-                }
-                
-                // Method 3: Try global functions
-                if (!cartOpened) {
-                  if (typeof window.openCart === 'function') {
-                    window.openCart();
-                    cartOpened = true;
-                  } else if (typeof window.toggleCart === 'function') {
-                    window.toggleCart();
-                    cartOpened = true;
-                  } else if (typeof window.showCart === 'function') {
-                    window.showCart();
-                    cartOpened = true;
-                  }
-                }
-                
-                // Method 4: Dispatch events
-                if (!cartOpened) {
-                  document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
-                  document.dispatchEvent(new CustomEvent('cart:open', { detail: data }));
-                  document.dispatchEvent(new CustomEvent('cart:toggle', { detail: data }));
-                  document.dispatchEvent(new CustomEvent('cart:refresh', { detail: data }));
-                }
-                
-                // Update cart count
-                if (data.item_count !== undefined) {
-                  const cartCountElements = document.querySelectorAll('[data-cart-count], .cart-count, .cart-item-count, .cart-badge, .cart-count-badge');
-                  cartCountElements.forEach(element => {
-                    element.textContent = data.item_count;
-                    if (data.item_count > 0) {
-                      element.style.display = 'block';
-                      element.style.visibility = 'visible';
-                    }
-                  });
-                }
-                
-                // Force refresh cart drawer contents after a short delay
-                setTimeout(() => {
-                  // Try to refresh cart drawer contents
-                  if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && typeof window.Shopify.theme.cart.getCart === 'function') {
-                    window.Shopify.theme.cart.getCart();
-                  }
-                  
-                  // Dispatch additional events to trigger cart refresh
-                  document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
-                  document.dispatchEvent(new CustomEvent('cart:refresh', { detail: data }));
-                  document.dispatchEvent(new CustomEvent('cart:reload', { detail: data }));
-                  
-                  // Try to trigger cart drawer refresh if it exists
-                  const cartDrawer = document.querySelector('[data-cart-drawer], .cart-drawer, .drawer--cart, [data-drawer="cart"]');
-                  if (cartDrawer) {
-                    cartDrawer.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
-                  }
-                }, 200);
-              }, 100); // Small delay to ensure cart is updated
+              
+              // Try to open the offcanvas cart if the theme supports it
+              if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && window.Shopify.theme.cart.open) {
+                window.Shopify.theme.cart.open();
+              }
+              
+              // Or trigger a custom event for other themes
+              document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
               
               // Show success message
               addToCartBtn.textContent = 'Added!';
