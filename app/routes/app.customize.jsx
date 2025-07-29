@@ -504,16 +504,6 @@ export default function Customize() {
                                                     onChange={([value]) => setTrigger(value)}
                                                 />
                                             </BlockStack>
-                                            <Box style={{ margin: '16px 0' }}>
-                                                <Divider />
-                                            </Box>
-                                        </Card>
-                                        <Card>
-                                            <BlockStack gap="400">
-                                                <Button submit primary>
-                                                    Save settings
-                                                </Button>
-                                            </BlockStack>
                                         </Card>
                                     </BlockStack>
                                 </Layout.Section>
