@@ -22,6 +22,10 @@ class StickyBarSettings {
             sticky_content_display_title: true,
             sticky_content_display_price: true,
             sticky_content_display_quantity: true,
+            sticky_content_display_mobile_image: true,
+            sticky_content_display_mobile_title: true,
+            sticky_content_display_mobile_price: true,
+            sticky_content_display_mobile_quantity: true,
             sticky_bar_width: 'contained',
             sticky_max_width: '',
             sticky_max_width_unit: 'px',
@@ -221,20 +225,50 @@ class StickyBarSettings {
         const priceElement = stickyBar.querySelector('.sticky-product-price');
         const quantityElement = stickyBar.querySelector('.sticky-quantity-selector');
 
+        // Console log for debugging mobile display settings
+        console.log('=== MOBILE DISPLAY SETTINGS DEBUG ===');
+        console.log('Window width:', window.innerWidth);
+        console.log('Is mobile:', window.innerWidth <= 768);
+        console.log('sticky_content_display_mobile_image:', settings.sticky_content_display_mobile_image);
+        console.log('sticky_content_display_mobile_title:', settings.sticky_content_display_mobile_title);
+        console.log('sticky_content_display_mobile_price:', settings.sticky_content_display_mobile_price);
+        console.log('sticky_content_display_mobile_quantity:', settings.sticky_content_display_mobile_quantity);
+        console.log('sticky_content_display_image:', settings.sticky_content_display_image);
+        console.log('sticky_content_display_title:', settings.sticky_content_display_title);
+        console.log('sticky_content_display_price:', settings.sticky_content_display_price);
+        console.log('sticky_content_display_quantity:', settings.sticky_content_display_quantity);
+        console.log('=== END MOBILE DISPLAY SETTINGS DEBUG ===');
+
         if (imageElement) {
-            const display = settings.sticky_content_display_image ? 'block' : 'none';
+            const isMobile = window.innerWidth <= 768;
+            const shouldShowImage = isMobile ?
+                (settings.sticky_content_display_mobile_image !== false) :
+                (settings.sticky_content_display_image !== false);
+            const display = shouldShowImage ? 'block' : 'none';
             imageElement.style.display = display;
         }
         if (titleElement) {
-            const display = settings.sticky_content_display_title ? 'block' : 'none';
+            const isMobile = window.innerWidth <= 768;
+            const shouldShowTitle = isMobile ?
+                (settings.sticky_content_display_mobile_title !== false) :
+                (settings.sticky_content_display_title !== false);
+            const display = shouldShowTitle ? 'block' : 'none';
             titleElement.style.display = display;
         }
         if (priceElement) {
-            const display = settings.sticky_content_display_price ? 'block' : 'none';
+            const isMobile = window.innerWidth <= 768;
+            const shouldShowPrice = isMobile ?
+                (settings.sticky_content_display_mobile_price !== false) :
+                (settings.sticky_content_display_price !== false);
+            const display = shouldShowPrice ? 'block' : 'none';
             priceElement.style.display = display;
         }
         if (quantityElement) {
-            const display = settings.sticky_content_display_quantity ? 'flex' : 'none';
+            const isMobile = window.innerWidth <= 768;
+            const shouldShowQuantity = isMobile ?
+                (settings.sticky_content_display_mobile_quantity !== false) :
+                (settings.sticky_content_display_quantity !== false);
+            const display = shouldShowQuantity ? 'flex' : 'none';
             quantityElement.style.display = display;
         }
 

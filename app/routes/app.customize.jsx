@@ -46,6 +46,10 @@ export const loader = async ({ request }) => {
     const titleSetting = await getSetting("sticky_content_display_title");
     const priceSetting = await getSetting("sticky_content_display_price");
     const quantitySetting = await getSetting("sticky_content_display_quantity");
+    const mobileImageSetting = await getSetting("sticky_content_display_mobile_image");
+    const mobileTitleSetting = await getSetting("sticky_content_display_mobile_title");
+    const mobilePriceSetting = await getSetting("sticky_content_display_mobile_price");
+    const mobileQuantitySetting = await getSetting("sticky_content_display_mobile_quantity");
     const barWidthSetting = await getSetting("sticky_bar_width");
     const maxWidthSetting = await getSetting("sticky_max_width");
     const maxWidthUnitSetting = await getSetting("sticky_max_width_unit");
@@ -76,6 +80,10 @@ export const loader = async ({ request }) => {
         sticky_content_display_title: titleSetting?.value === 'true',
         sticky_content_display_price: priceSetting?.value === 'true',
         sticky_content_display_quantity: quantitySetting?.value === 'true',
+        sticky_content_display_mobile_image: mobileImageSetting?.value === 'true',
+        sticky_content_display_mobile_title: mobileTitleSetting?.value === 'true',
+        sticky_content_display_mobile_price: mobilePriceSetting?.value === 'true',
+        sticky_content_display_mobile_quantity: mobileQuantitySetting?.value === 'true',
         sticky_bar_width: barWidthSetting?.value || 'contained',
         sticky_max_width: maxWidthSetting?.value || '',
         sticky_max_width_unit: maxWidthUnitSetting?.value || 'px',
@@ -155,6 +163,10 @@ export const action = async ({ request }) => {
         sticky_content_display_title: formData.get("sticky_content_display_title") === 'on' ? 'true' : 'false',
         sticky_content_display_price: formData.get("sticky_content_display_price") === 'on' ? 'true' : 'false',
         sticky_content_display_quantity: formData.get("sticky_content_display_quantity") === 'on' ? 'true' : 'false',
+        sticky_content_display_mobile_image: formData.get("sticky_content_display_mobile_image") === 'on' ? 'true' : 'false',
+        sticky_content_display_mobile_title: formData.get("sticky_content_display_mobile_title") === 'on' ? 'true' : 'false',
+        sticky_content_display_mobile_price: formData.get("sticky_content_display_mobile_price") === 'on' ? 'true' : 'false',
+        sticky_content_display_mobile_quantity: formData.get("sticky_content_display_mobile_quantity") === 'on' ? 'true' : 'false',
         sticky_bar_width: formData.get("sticky_bar_width") || "contained",
         sticky_max_width: formData.get("sticky_max_width") || "",
         sticky_max_width_unit: formData.get("sticky_max_width_unit") || "px",
@@ -191,6 +203,10 @@ export const action = async ({ request }) => {
     await upsertSetting("sticky_content_display_title", settings.sticky_content_display_title);
     await upsertSetting("sticky_content_display_price", settings.sticky_content_display_price);
     await upsertSetting("sticky_content_display_quantity", settings.sticky_content_display_quantity);
+    await upsertSetting("sticky_content_display_mobile_image", settings.sticky_content_display_mobile_image);
+    await upsertSetting("sticky_content_display_mobile_title", settings.sticky_content_display_mobile_title);
+    await upsertSetting("sticky_content_display_mobile_price", settings.sticky_content_display_mobile_price);
+    await upsertSetting("sticky_content_display_mobile_quantity", settings.sticky_content_display_mobile_quantity);
     await upsertSetting("sticky_bar_width", settings.sticky_bar_width);
     await upsertSetting("sticky_max_width", settings.sticky_max_width);
     await upsertSetting("sticky_max_width_unit", settings.sticky_max_width_unit);
@@ -234,6 +250,10 @@ export default function Customize() {
     const [titleDisplay, setTitleDisplay] = useState(savedSettings.sticky_content_display_title);
     const [priceDisplay, setPriceDisplay] = useState(savedSettings.sticky_content_display_price);
     const [quantityDisplay, setQuantityDisplay] = useState(savedSettings.sticky_content_display_quantity);
+    const [mobileImageDisplay, setMobileImageDisplay] = useState(savedSettings.sticky_content_display_mobile_image);
+    const [mobileTitleDisplay, setMobileTitleDisplay] = useState(savedSettings.sticky_content_display_mobile_title);
+    const [mobilePriceDisplay, setMobilePriceDisplay] = useState(savedSettings.sticky_content_display_mobile_price);
+    const [mobileQuantityDisplay, setMobileQuantityDisplay] = useState(savedSettings.sticky_content_display_mobile_quantity);
     const [barWidth, setBarWidth] = useState(savedSettings.sticky_bar_width);
     const [maxWidth, setMaxWidth] = useState(savedSettings.sticky_max_width);
     const [maxWidthUnit, setMaxWidthUnit] = useState(savedSettings.sticky_max_width_unit);
@@ -355,6 +375,50 @@ export default function Customize() {
             fetcher.submit(formData, { method: 'post' });
         }
     }, [enableCartIcon, appearanceView]);
+
+    // Auto-save mobile display settings when they change
+    useEffect(() => {
+        if (appearanceView === 'mobile') {
+            const formData = new FormData();
+            // Add all required form fields
+            formData.append("sticky_bar_color", savedSettings.sticky_bar_color);
+            formData.append("sticky_visibility", visibility);
+            formData.append("sticky_trigger", trigger);
+            formData.append("sticky_content_display_image", imageDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_title", titleDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_price", priceDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_quantity", quantityDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_mobile_image", mobileImageDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_mobile_title", mobileTitleDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_mobile_price", mobilePriceDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_mobile_quantity", mobileQuantityDisplay ? 'on' : 'off');
+            formData.append("sticky_bar_width", barWidth);
+            formData.append("sticky_max_width", maxWidth);
+            formData.append("sticky_max_width_unit", maxWidthUnit);
+            formData.append("sticky_alignment", alignment);
+            formData.append("sticky_outer_spacing", outerSpacing);
+            formData.append("sticky_outer_spacing_unit", outerSpacingUnit);
+            formData.append("sticky_inner_spacing", innerSpacing);
+            formData.append("sticky_inner_spacing_unit", innerSpacingUnit);
+            formData.append("sticky_background_color", backgroundColor);
+            formData.append("sticky_border_color", borderColor);
+            formData.append("sticky_border_radius", borderRadius);
+            formData.append("sticky_product_name_color", productNameColor);
+            formData.append("sticky_image_size", imageSize);
+            formData.append("sticky_quantity_color", quantityColor);
+            formData.append("sticky_quantity_border_color", quantityBorderColor);
+            formData.append("sticky_button_behavior", buttonBehavior);
+            formData.append("sticky_button_text", buttonText);
+            formData.append("sticky_enable_cart_icon", enableCartIcon ? 'on' : 'off');
+            formData.append("sticky_enable_mobile_cart_icon", enableMobileCartIcon ? 'on' : 'off');
+            formData.append("sticky_button_text_color", buttonTextColor);
+            formData.append("sticky_button_bg_color", buttonBgColor);
+            formData.append("sticky_custom_css", customCss);
+
+            // Submit the form
+            fetcher.submit(formData, { method: 'post' });
+        }
+    }, [mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay, appearanceView]);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -1122,6 +1186,94 @@ export default function Customize() {
                                         <Card>
                                             <BlockStack gap="400">
                                                 <BlockStack gap="100">
+                                                    <Text as="h3" variant="headingMd">Content</Text>
+                                                    <Text variant="bodySm" tone="subdued">
+                                                        Choose what content to display in the sticky bar.
+                                                    </Text>
+                                                </BlockStack>
+                                                <BlockStack gap="200">
+                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                                        <input
+                                                            type="hidden"
+                                                            name="sticky_content_display_mobile_image"
+                                                            value={mobileImageDisplay ? 'on' : 'off'}
+                                                        />
+                                                        <Checkbox
+                                                            label="Show product image"
+                                                            labelHidden
+                                                            checked={mobileImageDisplay}
+                                                            onChange={setMobileImageDisplay}
+                                                        />
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show product image</Text>
+                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
+                                                                Display the product image in the sticky bar
+                                                            </Text>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                                        <input
+                                                            type="hidden"
+                                                            name="sticky_content_display_mobile_title"
+                                                            value={mobileTitleDisplay ? 'on' : 'off'}
+                                                        />
+                                                        <Checkbox
+                                                            label="Show product title"
+                                                            labelHidden
+                                                            checked={mobileTitleDisplay}
+                                                            onChange={setMobileTitleDisplay}
+                                                        />
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show product title</Text>
+                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
+                                                                Display the product title in the sticky bar
+                                                            </Text>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                                        <input
+                                                            type="hidden"
+                                                            name="sticky_content_display_mobile_price"
+                                                            value={mobilePriceDisplay ? 'on' : 'off'}
+                                                        />
+                                                        <Checkbox
+                                                            label="Show product price"
+                                                            labelHidden
+                                                            checked={mobilePriceDisplay}
+                                                            onChange={setMobilePriceDisplay}
+                                                        />
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show product price</Text>
+                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
+                                                                Display the product price in the sticky bar
+                                                            </Text>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                                        <input
+                                                            type="hidden"
+                                                            name="sticky_content_display_mobile_quantity"
+                                                            value={mobileQuantityDisplay ? 'on' : 'off'}
+                                                        />
+                                                        <Checkbox
+                                                            label="Show quantity selector"
+                                                            labelHidden
+                                                            checked={mobileQuantityDisplay}
+                                                            onChange={setMobileQuantityDisplay}
+                                                        />
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show quantity selector</Text>
+                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
+                                                                Display the quantity selector in the sticky bar
+                                                            </Text>
+                                                        </div>
+                                                    </div>
+                                                </BlockStack>
+                                            </BlockStack>
+                                        </Card>
+                                        <Card>
+                                            <BlockStack gap="400">
+                                                <BlockStack gap="100">
                                                     <Text as="h3" variant="headingMd">Button settings</Text>
                                                     <Text variant="bodySm" tone="subdued">
                                                         Configure the appearance and behavior of the add to cart button.
@@ -1241,104 +1393,206 @@ export default function Customize() {
                                     gap: '12px'
                                 }}>
 
-                                {imageDisplay && (
-                                    <img
-                                        src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
-                                        alt="Product"
-                                        style={{
-                                            width: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
-                                            height: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
-                                            objectFit: 'cover',
-                                            borderRadius: '8px',
-                                            border: '1px solid #e1e3e5'
-                                        }}
-                                    />
-                                )}
+                                {appearanceView === 'mobile' ?
+                                    (mobileImageDisplay && (
+                                        <img
+                                            src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
+                                            alt="Product"
+                                            style={{
+                                                width: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                                height: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                                objectFit: 'cover',
+                                                borderRadius: '8px',
+                                                border: '1px solid #e1e3e5'
+                                            }}
+                                        />
+                                    )) :
+                                    (imageDisplay && (
+                                        <img
+                                            src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
+                                            alt="Product"
+                                            style={{
+                                                width: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                                height: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                                objectFit: 'cover',
+                                                borderRadius: '8px',
+                                                border: '1px solid #e1e3e5'
+                                            }}
+                                        />
+                                    ))
+                                }
 
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    {titleDisplay && (
-                                        <div style={{
-                                            color: productNameColor,
-                                            fontWeight: 600,
-                                            fontSize: '14px',
-                                            marginBottom: '2px',
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis'
-                                        }}>
-                                            Taupe One Loafers
-                                        </div>
-                                    )}
-                                    {priceDisplay && (
-                                        <div style={{ fontSize: '13px', color: '#6d7175' }}>
-                                            <span style={{ textDecoration: 'line-through', marginRight: '8px' }}>$296</span>
-                                            <span style={{ fontWeight: 600, color: '#141414' }}>$100</span>
-                                        </div>
-                                    )}
+                                    {appearanceView === 'mobile' ?
+                                        (mobileTitleDisplay && (
+                                            <div style={{
+                                                color: productNameColor,
+                                                fontWeight: 600,
+                                                fontSize: '14px',
+                                                marginBottom: '2px',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis'
+                                            }}>
+                                                Taupe One Loafers
+                                            </div>
+                                        )) :
+                                        (titleDisplay && (
+                                            <div style={{
+                                                color: productNameColor,
+                                                fontWeight: 600,
+                                                fontSize: '14px',
+                                                marginBottom: '2px',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis'
+                                            }}>
+                                                Taupe One Loafers
+                                            </div>
+                                        ))
+                                    }
+                                    {appearanceView === 'mobile' ?
+                                        (mobilePriceDisplay && (
+                                            <div style={{ fontSize: '13px', color: '#6d7175' }}>
+                                                <span style={{ textDecoration: 'line-through', marginRight: '8px' }}>$296</span>
+                                                <span style={{ fontWeight: 600, color: '#141414' }}>$100</span>
+                                            </div>
+                                        )) :
+                                        (priceDisplay && (
+                                            <div style={{ fontSize: '13px', color: '#6d7175' }}>
+                                                <span style={{ textDecoration: 'line-through', marginRight: '8px' }}>$296</span>
+                                                <span style={{ fontWeight: 600, color: '#141414' }}>$100</span>
+                                            </div>
+                                        ))
+                                    }
                                 </div>
 
-                                {quantityDisplay && (
-                                    <div className='sy-quantity-wrapper'
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            color: quantityColor,
-                                            border: `1px solid ${quantityBorderColor}`,
-                                            borderRadius: '20px',
-                                            overflow: 'hidden',
-                                            background: '#fff',
-                                            height: '36px',
-                                            minWidth: '120px'
-                                        }}
-                                    >
-                                        <button style={{
-                                            border: 'none',
-                                            background: 'transparent',
-                                            padding: '0 16px',
-                                            cursor: 'pointer',
-                                            fontSize: '16px',
-                                            fontWeight: '600',
-                                            height: '100%',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            minWidth: '40px',
-                                            transition: 'background-color 0.2s'
-                                        }} onClick={handleQuantityDecrease}>
-                                            −
-                                        </button>
-                                        <span style={{
-                                            padding: '0 16px',
-                                            fontSize: '14px',
-                                            fontWeight: '600',
-                                            background: '#fff',
-                                            height: '100%',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            minWidth: '40px',
-                                            flex: 1
-                                        }}>
-                                            {previewQuantity}
-                                        </span>
-                                        <button style={{
-                                            border: 'none',
-                                            background: 'transparent',
-                                            padding: '0 16px',
-                                            cursor: 'pointer',
-                                            fontSize: '16px',
-                                            fontWeight: '600',
-                                            height: '100%',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            minWidth: '40px',
-                                            transition: 'background-color 0.2s'
-                                        }} onClick={handleQuantityIncrease}>
-                                            +
-                                        </button>
-                                    </div>
-                                )}
+                                {appearanceView === 'mobile' ?
+                                    (mobileQuantityDisplay && (
+                                        <div className='sy-quantity-wrapper'
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                color: quantityColor,
+                                                border: `1px solid ${quantityBorderColor}`,
+                                                borderRadius: '20px',
+                                                overflow: 'hidden',
+                                                background: '#fff',
+                                                height: '36px',
+                                                minWidth: '120px'
+                                            }}
+                                        >
+                                            <button style={{
+                                                border: 'none',
+                                                background: 'transparent',
+                                                padding: '0 16px',
+                                                cursor: 'pointer',
+                                                fontSize: '16px',
+                                                fontWeight: '600',
+                                                height: '100%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                minWidth: '40px',
+                                                transition: 'background-color 0.2s'
+                                            }} onClick={handleQuantityDecrease}>
+                                                −
+                                            </button>
+                                            <span style={{
+                                                padding: '0 16px',
+                                                fontSize: '14px',
+                                                fontWeight: '600',
+                                                background: '#fff',
+                                                height: '100%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                minWidth: '40px',
+                                                flex: 1
+                                            }}>
+                                                {previewQuantity}
+                                            </span>
+                                            <button style={{
+                                                border: 'none',
+                                                background: 'transparent',
+                                                padding: '0 16px',
+                                                cursor: 'pointer',
+                                                fontSize: '16px',
+                                                fontWeight: '600',
+                                                height: '100%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                minWidth: '40px',
+                                                transition: 'background-color 0.2s'
+                                            }} onClick={handleQuantityIncrease}>
+                                                +
+                                            </button>
+                                        </div>
+                                    )) :
+                                    (quantityDisplay && (
+                                        <div className='sy-quantity-wrapper'
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                color: quantityColor,
+                                                border: `1px solid ${quantityBorderColor}`,
+                                                borderRadius: '20px',
+                                                overflow: 'hidden',
+                                                background: '#fff',
+                                                height: '36px',
+                                                minWidth: '120px'
+                                            }}
+                                        >
+                                            <button style={{
+                                                border: 'none',
+                                                background: 'transparent',
+                                                padding: '0 16px',
+                                                cursor: 'pointer',
+                                                fontSize: '16px',
+                                                fontWeight: '600',
+                                                height: '100%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                minWidth: '40px',
+                                                transition: 'background-color 0.2s'
+                                            }} onClick={handleQuantityDecrease}>
+                                                −
+                                            </button>
+                                            <span style={{
+                                                padding: '0 16px',
+                                                fontSize: '14px',
+                                                fontWeight: '600',
+                                                background: '#fff',
+                                                height: '100%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                minWidth: '40px',
+                                                flex: 1
+                                            }}>
+                                                {previewQuantity}
+                                            </span>
+                                            <button style={{
+                                                border: 'none',
+                                                background: 'transparent',
+                                                padding: '0 16px',
+                                                cursor: 'pointer',
+                                                fontSize: '16px',
+                                                fontWeight: '600',
+                                                height: '100%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                minWidth: '40px',
+                                                transition: 'background-color 0.2s'
+                                            }} onClick={handleQuantityIncrease}>
+                                                +
+                                            </button>
+                                        </div>
+                                    ))
+                                }
 
                                 <button style={{
                                     color: buttonTextColor,
