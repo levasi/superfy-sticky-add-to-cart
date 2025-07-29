@@ -28,7 +28,7 @@ export const loader = async ({ request }) => {
         const metafieldsResponse = await admin.graphql(`
             query {
                 shop {
-                    metafields(namespace: "superfy_sticky", first: 50) {
+                    metafields(namespace: "sticky_bar", first: 50) {
                         edges {
                             node {
                                 key
@@ -103,32 +103,6 @@ export const loader = async ({ request }) => {
             sticky_button_text_color: settings.sticky_button_text_color || '#FFFFFF',
             sticky_button_bg_color: settings.sticky_button_bg_color || '#141414',
             sticky_custom_css: settings.sticky_custom_css || '',
-
-            // Mobile-specific settings
-            sticky_mobile_content_display_image: settings.sticky_mobile_content_display_image !== false,
-            sticky_mobile_content_display_title: settings.sticky_mobile_content_display_title !== false,
-            sticky_mobile_content_display_price: settings.sticky_mobile_content_display_price !== false,
-            sticky_mobile_content_display_quantity: settings.sticky_mobile_content_display_quantity !== false,
-            sticky_mobile_bar_width: settings.sticky_mobile_bar_width || 'contained',
-            sticky_mobile_max_width: settings.sticky_mobile_max_width || '',
-            sticky_mobile_max_width_unit: settings.sticky_mobile_max_width_unit || 'px',
-            sticky_mobile_alignment: settings.sticky_mobile_alignment || 'right',
-            sticky_mobile_outer_spacing: settings.sticky_mobile_outer_spacing || '',
-            sticky_mobile_outer_spacing_unit: settings.sticky_mobile_outer_spacing_unit || 'px',
-            sticky_mobile_inner_spacing: settings.sticky_mobile_inner_spacing || '16',
-            sticky_mobile_inner_spacing_unit: settings.sticky_mobile_inner_spacing_unit || 'px',
-            sticky_mobile_background_color: settings.sticky_mobile_background_color || '#FFFFFF',
-            sticky_mobile_border_color: settings.sticky_mobile_border_color || '#000000',
-            sticky_mobile_border_radius: settings.sticky_mobile_border_radius || '12',
-            sticky_mobile_product_name_color: settings.sticky_mobile_product_name_color || '#141414',
-            sticky_mobile_image_size: settings.sticky_mobile_image_size || 'medium',
-            sticky_mobile_quantity_color: settings.sticky_mobile_quantity_color || '#141414',
-            sticky_mobile_quantity_border_color: settings.sticky_mobile_quantity_border_color || '#DFDFDF',
-            sticky_mobile_button_behavior: settings.sticky_mobile_button_behavior || 'add',
-            sticky_mobile_button_text: settings.sticky_mobile_button_text || 'Add to cart',
-            sticky_mobile_enable_cart_icon: settings.sticky_mobile_enable_cart_icon === true,
-            sticky_mobile_button_text_color: settings.sticky_mobile_button_text_color || '#FFFFFF',
-            sticky_mobile_button_bg_color: settings.sticky_mobile_button_bg_color || '#141414',
         };
 
         console.log('=== CLEAN METAFIELDS SETTINGS ===');

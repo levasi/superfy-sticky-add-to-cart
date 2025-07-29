@@ -10,7 +10,7 @@ export const loader = async ({ request }) => {
     try {
         // Try to authenticate the request using Shopify's app proxy authentication
         const { storefront, liquid } = await authenticate.public.appProxy(request);
-        console.log('✅ App proxy authentication successful - using MAIN PATH');
+        console.log('App proxy authentication successful');
 
         // Get the shop from the request parameters (as per Shopify docs)
         const url = new URL(request.url);
@@ -67,35 +67,9 @@ export const loader = async ({ request }) => {
             sticky_button_text_color: await getSetting("sticky_button_text_color"),
             sticky_button_bg_color: await getSetting("sticky_button_bg_color"),
             sticky_custom_css: await getSetting("sticky_custom_css"),
-
-            // Mobile-specific settings
-            sticky_mobile_content_display_image: await getSetting("sticky_mobile_content_display_image"),
-            sticky_mobile_content_display_title: await getSetting("sticky_mobile_content_display_title"),
-            sticky_mobile_content_display_price: await getSetting("sticky_mobile_content_display_price"),
-            sticky_mobile_content_display_quantity: await getSetting("sticky_mobile_content_display_quantity"),
-            sticky_mobile_bar_width: await getSetting("sticky_mobile_bar_width"),
-            sticky_mobile_max_width: await getSetting("sticky_mobile_max_width"),
-            sticky_mobile_max_width_unit: await getSetting("sticky_mobile_max_width_unit"),
-            sticky_mobile_alignment: await getSetting("sticky_mobile_alignment"),
-            sticky_mobile_outer_spacing: await getSetting("sticky_mobile_outer_spacing"),
-            sticky_mobile_outer_spacing_unit: await getSetting("sticky_mobile_outer_spacing_unit"),
-            sticky_mobile_inner_spacing: await getSetting("sticky_mobile_inner_spacing"),
-            sticky_mobile_inner_spacing_unit: await getSetting("sticky_mobile_inner_spacing_unit"),
-            sticky_mobile_background_color: await getSetting("sticky_mobile_background_color"),
-            sticky_mobile_border_color: await getSetting("sticky_mobile_border_color"),
-            sticky_mobile_border_radius: await getSetting("sticky_mobile_border_radius"),
-            sticky_mobile_product_name_color: await getSetting("sticky_mobile_product_name_color"),
-            sticky_mobile_image_size: await getSetting("sticky_mobile_image_size"),
-            sticky_mobile_quantity_color: await getSetting("sticky_mobile_quantity_color"),
-            sticky_mobile_quantity_border_color: await getSetting("sticky_mobile_quantity_border_color"),
-            sticky_mobile_button_behavior: await getSetting("sticky_mobile_button_behavior"),
-            sticky_mobile_button_text: await getSetting("sticky_mobile_button_text"),
-            sticky_mobile_enable_cart_icon: await getSetting("sticky_mobile_enable_cart_icon"),
-            sticky_mobile_button_text_color: await getSetting("sticky_mobile_button_text_color"),
-            sticky_mobile_button_bg_color: await getSetting("sticky_mobile_button_bg_color"),
         };
 
-        console.log('=== RAW DATABASE SETTINGS (MAIN PATH) ===');
+        console.log('=== RAW DATABASE SETTINGS ===');
         console.log(JSON.stringify(settings, null, 2));
 
         // Log each setting individually for debugging
@@ -135,35 +109,9 @@ export const loader = async ({ request }) => {
             sticky_button_text_color: settings.sticky_button_text_color?.value || '#FFFFFF',
             sticky_button_bg_color: settings.sticky_button_bg_color?.value || '#141414',
             sticky_custom_css: settings.sticky_custom_css?.value || '',
-
-            // Mobile-specific settings
-            sticky_mobile_content_display_image: settings.sticky_mobile_content_display_image?.value === 'true',
-            sticky_mobile_content_display_title: settings.sticky_mobile_content_display_title?.value === 'true',
-            sticky_mobile_content_display_price: settings.sticky_mobile_content_display_price?.value === 'true',
-            sticky_mobile_content_display_quantity: settings.sticky_mobile_content_display_quantity?.value === 'true',
-            sticky_mobile_bar_width: settings.sticky_mobile_bar_width?.value || 'contained',
-            sticky_mobile_max_width: settings.sticky_mobile_max_width?.value || '',
-            sticky_mobile_max_width_unit: settings.sticky_mobile_max_width_unit?.value || 'px',
-            sticky_mobile_alignment: settings.sticky_mobile_alignment?.value || 'right',
-            sticky_mobile_outer_spacing: settings.sticky_mobile_outer_spacing?.value || '',
-            sticky_mobile_outer_spacing_unit: settings.sticky_mobile_outer_spacing_unit?.value || 'px',
-            sticky_mobile_inner_spacing: settings.sticky_mobile_inner_spacing?.value || '16',
-            sticky_mobile_inner_spacing_unit: settings.sticky_mobile_inner_spacing_unit?.value || 'px',
-            sticky_mobile_background_color: settings.sticky_mobile_background_color?.value || '#FFFFFF',
-            sticky_mobile_border_color: settings.sticky_mobile_border_color?.value || '#000000',
-            sticky_mobile_border_radius: settings.sticky_mobile_border_radius?.value || '12',
-            sticky_mobile_product_name_color: settings.sticky_mobile_product_name_color?.value || '#141414',
-            sticky_mobile_image_size: settings.sticky_mobile_image_size?.value || 'medium',
-            sticky_mobile_quantity_color: settings.sticky_mobile_quantity_color?.value || '#141414',
-            sticky_mobile_quantity_border_color: settings.sticky_mobile_quantity_border_color?.value || '#DFDFDF',
-            sticky_mobile_button_behavior: settings.sticky_mobile_button_behavior?.value || 'add',
-            sticky_mobile_button_text: settings.sticky_mobile_button_text?.value || 'Add to cart',
-            sticky_mobile_enable_cart_icon: settings.sticky_mobile_enable_cart_icon?.value === 'true',
-            sticky_mobile_button_text_color: settings.sticky_mobile_button_text_color?.value || '#FFFFFF',
-            sticky_mobile_button_bg_color: settings.sticky_mobile_button_bg_color?.value || '#141414',
         };
 
-        console.log('=== CLEAN SETTINGS TO RETURN (MAIN PATH) ===');
+        console.log('=== CLEAN SETTINGS TO RETURN ===');
         console.log(JSON.stringify(cleanSettings, null, 2));
         console.log('=== END APP PROXY SETTINGS REQUEST ===');
 
@@ -179,13 +127,14 @@ export const loader = async ({ request }) => {
             }
         });
 
-    } catch (error) {
-        console.error('❌ App proxy authentication failed - using FALLBACK PATH');
-        console.error('Authentication error:', error);
+    } catch (authError) {
+        console.error('=== APP PROXY AUTHENTICATION FAILED ===');
+        console.error('Auth error:', authError);
 
+        // Fallback: Try to load settings without app proxy authentication
+        // This might work if the store has password protection
         try {
-            // Fallback: Load settings without authentication
-            console.log('Loading settings with fallback authentication...');
+            console.log('Trying fallback authentication...');
 
             // Get the shop from the request
             const url = new URL(request.url);
@@ -230,32 +179,10 @@ export const loader = async ({ request }) => {
                 sticky_button_text_color: await getSetting("sticky_button_text_color"),
                 sticky_button_bg_color: await getSetting("sticky_button_bg_color"),
                 sticky_custom_css: await getSetting("sticky_custom_css"),
-                // Mobile-specific settings
-                sticky_mobile_content_display_image: await getSetting("sticky_mobile_content_display_image"),
-                sticky_mobile_content_display_title: await getSetting("sticky_mobile_content_display_title"),
-                sticky_mobile_content_display_price: await getSetting("sticky_mobile_content_display_price"),
-                sticky_mobile_content_display_quantity: await getSetting("sticky_mobile_content_display_quantity"),
-                sticky_mobile_bar_width: await getSetting("sticky_mobile_bar_width"),
-                sticky_mobile_max_width: await getSetting("sticky_mobile_max_width"),
-                sticky_mobile_max_width_unit: await getSetting("sticky_mobile_max_width_unit"),
-                sticky_mobile_alignment: await getSetting("sticky_mobile_alignment"),
-                sticky_mobile_outer_spacing: await getSetting("sticky_mobile_outer_spacing"),
-                sticky_mobile_outer_spacing_unit: await getSetting("sticky_mobile_outer_spacing_unit"),
-                sticky_mobile_inner_spacing: await getSetting("sticky_mobile_inner_spacing"),
-                sticky_mobile_inner_spacing_unit: await getSetting("sticky_mobile_inner_spacing_unit"),
-                sticky_mobile_background_color: await getSetting("sticky_mobile_background_color"),
-                sticky_mobile_border_color: await getSetting("sticky_mobile_border_color"),
-                sticky_mobile_border_radius: await getSetting("sticky_mobile_border_radius"),
-                sticky_mobile_product_name_color: await getSetting("sticky_mobile_product_name_color"),
-                sticky_mobile_image_size: await getSetting("sticky_mobile_image_size"),
-                sticky_mobile_quantity_color: await getSetting("sticky_mobile_quantity_color"),
-                sticky_mobile_quantity_border_color: await getSetting("sticky_mobile_quantity_border_color"),
-                sticky_mobile_button_behavior: await getSetting("sticky_mobile_button_behavior"),
-                sticky_mobile_button_text: await getSetting("sticky_mobile_button_text"),
-                sticky_mobile_enable_cart_icon: await getSetting("sticky_mobile_enable_cart_icon"),
-                sticky_mobile_button_text_color: await getSetting("sticky_mobile_button_text_color"),
-                sticky_mobile_button_bg_color: await getSetting("sticky_mobile_button_bg_color"),
             };
+
+            console.log('=== FALLBACK DATABASE SETTINGS ===');
+            console.log(JSON.stringify(settings, null, 2));
 
             // Convert to a clean settings object with default values
             const cleanSettings = {
@@ -287,31 +214,6 @@ export const loader = async ({ request }) => {
                 sticky_button_text_color: settings.sticky_button_text_color?.value || '#FFFFFF',
                 sticky_button_bg_color: settings.sticky_button_bg_color?.value || '#141414',
                 sticky_custom_css: settings.sticky_custom_css?.value || '',
-                // Mobile-specific settings
-                sticky_mobile_content_display_image: settings.sticky_mobile_content_display_image?.value === 'true',
-                sticky_mobile_content_display_title: settings.sticky_mobile_content_display_title?.value === 'true',
-                sticky_mobile_content_display_price: settings.sticky_mobile_content_display_price?.value === 'true',
-                sticky_mobile_content_display_quantity: settings.sticky_mobile_content_display_quantity?.value === 'true',
-                sticky_mobile_bar_width: settings.sticky_mobile_bar_width?.value || 'contained',
-                sticky_mobile_max_width: settings.sticky_mobile_max_width?.value || '',
-                sticky_mobile_max_width_unit: settings.sticky_mobile_max_width_unit?.value || 'px',
-                sticky_mobile_alignment: settings.sticky_mobile_alignment?.value || 'right',
-                sticky_mobile_outer_spacing: settings.sticky_mobile_outer_spacing?.value || '',
-                sticky_mobile_outer_spacing_unit: settings.sticky_mobile_outer_spacing_unit?.value || 'px',
-                sticky_mobile_inner_spacing: settings.sticky_mobile_inner_spacing?.value || '16',
-                sticky_mobile_inner_spacing_unit: settings.sticky_mobile_inner_spacing_unit?.value || 'px',
-                sticky_mobile_background_color: settings.sticky_mobile_background_color?.value || '#FFFFFF',
-                sticky_mobile_border_color: settings.sticky_mobile_border_color?.value || '#000000',
-                sticky_mobile_border_radius: settings.sticky_mobile_border_radius?.value || '12',
-                sticky_mobile_product_name_color: settings.sticky_mobile_product_name_color?.value || '#141414',
-                sticky_mobile_image_size: settings.sticky_mobile_image_size?.value || 'medium',
-                sticky_mobile_quantity_color: settings.sticky_mobile_quantity_color?.value || '#141414',
-                sticky_mobile_quantity_border_color: settings.sticky_mobile_quantity_border_color?.value || '#DFDFDF',
-                sticky_mobile_button_behavior: settings.sticky_mobile_button_behavior?.value || 'add',
-                sticky_mobile_button_text: settings.sticky_mobile_button_text?.value || 'Add to cart',
-                sticky_mobile_enable_cart_icon: settings.sticky_mobile_enable_cart_icon?.value === 'true',
-                sticky_mobile_button_text_color: settings.sticky_mobile_button_text_color?.value || '#FFFFFF',
-                sticky_mobile_button_bg_color: settings.sticky_mobile_button_bg_color?.value || '#141414',
             };
 
             console.log('=== FALLBACK SETTINGS TO RETURN ===');

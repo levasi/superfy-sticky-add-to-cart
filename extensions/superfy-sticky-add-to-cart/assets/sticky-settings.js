@@ -70,29 +70,11 @@ class StickyBarSettings {
     // Get CSS styles based on settings
     getStyles() {
         const settings = this.getAll();
-        const isMobile = window.innerWidth <= 768;
-
-        // Function to get setting with mobile override
-        const getSettingWithMobileOverride = (desktopKey, mobileKey, defaultValue = '') => {
-            if (isMobile && settings[mobileKey] !== undefined) {
-                return settings[mobileKey];
-            }
-            return settings[desktopKey] !== undefined ? settings[desktopKey] : defaultValue;
-        };
 
         // Calculate width and positioning based on bar width setting
         let width, maxWidth, left, right, transform;
 
-        const barWidth = getSettingWithMobileOverride('sticky_bar_width', 'sticky_mobile_bar_width', 'contained');
-        const maxWidthValue = getSettingWithMobileOverride('sticky_max_width', 'sticky_mobile_max_width', '');
-        const maxWidthUnit = getSettingWithMobileOverride('sticky_max_width_unit', 'sticky_mobile_max_width_unit', 'px');
-        const alignment = getSettingWithMobileOverride('sticky_alignment', 'sticky_mobile_alignment', 'left');
-        const outerSpacing = getSettingWithMobileOverride('sticky_outer_spacing', 'sticky_mobile_outer_spacing', '');
-        const outerSpacingUnit = getSettingWithMobileOverride('sticky_outer_spacing_unit', 'sticky_mobile_outer_spacing_unit', 'px');
-        const innerSpacing = getSettingWithMobileOverride('sticky_inner_spacing', 'sticky_mobile_inner_spacing', '16');
-        const innerSpacingUnit = getSettingWithMobileOverride('sticky_inner_spacing_unit', 'sticky_mobile_inner_spacing_unit', 'px');
-
-        if (barWidth === 'full') {
+        if (settings.sticky_bar_width === 'full') {
             // Full width: spans the entire width with margins
             width = 'calc(100% - 40px)'; // Account for outer spacing
             maxWidth = 'none';
@@ -101,18 +83,18 @@ class StickyBarSettings {
             transform = 'none';
         } else {
             // Contained width: respects max width and alignment
-            maxWidth = maxWidthValue ? `${maxWidthValue}${maxWidthUnit}` : '600px';
+            maxWidth = settings.sticky_max_width ? `${settings.sticky_max_width}${settings.sticky_max_width_unit}` : '600px';
 
             // Handle alignment for contained width
-            if (alignment === 'left') {
+            if (settings.sticky_alignment === 'left') {
                 left = '20px';
                 right = 'auto';
                 transform = 'none';
-            } else if (alignment === 'center') {
+            } else if (settings.sticky_alignment === 'center') {
                 left = '50%';
                 right = 'auto';
                 transform = 'translateX(-50%)';
-            } else if (alignment === 'right') {
+            } else if (settings.sticky_alignment === 'right') {
                 left = 'auto';
                 right = '20px';
                 transform = 'none';
@@ -120,18 +102,18 @@ class StickyBarSettings {
         }
 
         const styles = {
-            backgroundColor: getSettingWithMobileOverride('sticky_background_color', 'sticky_mobile_background_color', '#FFFFFF'),
-            borderColor: getSettingWithMobileOverride('sticky_border_color', 'sticky_mobile_border_color', '#000000'),
-            color: getSettingWithMobileOverride('sticky_product_name_color', 'sticky_mobile_product_name_color', '#141414'),
+            backgroundColor: settings.sticky_background_color,
+            borderColor: settings.sticky_border_color,
+            color: settings.sticky_product_name_color,
             width: width,
             maxWidth: maxWidth,
             left: left,
             right: right,
             transform: transform,
-            margin: outerSpacing ? `${outerSpacing}${outerSpacingUnit}` : 'unset',
-            padding: `${innerSpacing}${innerSpacingUnit}`,
-            border: `1px solid ${getSettingWithMobileOverride('sticky_border_color', 'sticky_mobile_border_color', '#000000')}`,
-            borderRadius: `${getSettingWithMobileOverride('sticky_border_radius', 'sticky_mobile_border_radius', '12')}px`,
+            margin: settings.sticky_outer_spacing ? `${settings.sticky_outer_spacing}${settings.sticky_outer_spacing_unit}` : 'unset',
+            padding: `${settings.sticky_inner_spacing}${settings.sticky_inner_spacing_unit}`,
+            border: `1px solid ${settings.sticky_border_color}`,
+            borderRadius: `${settings.sticky_border_radius || '12'}px`,
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             position: 'fixed',
             bottom: '20px',
@@ -179,19 +161,6 @@ class StickyBarSettings {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Settings loaded from app proxy:', data);
-
-                // Extract and log mobile settings
-                const mobileSettings = {};
-                for (const [key, value] of Object.entries(data)) {
-                    if (key.startsWith('sticky_mobile_')) {
-                        mobileSettings[key] = value;
-                    }
-                }
-
-                console.log('📱 MOBILE SETTINGS FOUND:');
-                console.log('Number of mobile settings:', Object.keys(mobileSettings).length);
-                console.table(mobileSettings);
-
                 this.settings = data;
             } else {
                 console.log('App proxy failed, trying metafields...');
@@ -220,15 +189,6 @@ class StickyBarSettings {
     // Apply settings to the sticky bar
     applySettings() {
         const settings = this.getAll();
-        const isMobile = window.innerWidth <= 768;
-
-        // Function to get setting with mobile override
-        const getSettingWithMobileOverride = (desktopKey, mobileKey, defaultValue = '') => {
-            if (isMobile && settings[mobileKey] !== undefined) {
-                return settings[mobileKey];
-            }
-            return settings[desktopKey] !== undefined ? settings[desktopKey] : defaultValue;
-        };
 
         // Find the sticky bar element
         const stickyBar = document.querySelector('.sticky-add-to-cart-block');
@@ -254,43 +214,38 @@ class StickyBarSettings {
         // Apply styles to the main sticky bar container
         Object.assign(stickyBar.style, styles);
 
-        // Apply content display settings with mobile overrides
+        // Apply content display settings
         const imageElement = stickyBar.querySelector('.sticky-product-image');
         const titleElement = stickyBar.querySelector('.sticky-product-title');
         const priceElement = stickyBar.querySelector('.sticky-product-price');
         const quantityElement = stickyBar.querySelector('.sticky-quantity-selector');
 
         if (imageElement) {
-            const display = getSettingWithMobileOverride('sticky_content_display_image', 'sticky_mobile_content_display_image', true) ? 'block' : 'none';
+            const display = settings.sticky_content_display_image ? 'block' : 'none';
             imageElement.style.display = display;
         }
         if (titleElement) {
-            const display = getSettingWithMobileOverride('sticky_content_display_title', 'sticky_mobile_content_display_title', true) ? 'block' : 'none';
+            const display = settings.sticky_content_display_title ? 'block' : 'none';
             titleElement.style.display = display;
         }
         if (priceElement) {
-            const display = getSettingWithMobileOverride('sticky_content_display_price', 'sticky_mobile_content_display_price', true) ? 'block' : 'none';
+            const display = settings.sticky_content_display_price ? 'block' : 'none';
             priceElement.style.display = display;
         }
         if (quantityElement) {
-            const display = getSettingWithMobileOverride('sticky_content_display_quantity', 'sticky_mobile_content_display_quantity', true) ? 'flex' : 'none';
+            const display = settings.sticky_content_display_quantity ? 'flex' : 'none';
             quantityElement.style.display = display;
         }
 
-        // Apply button settings with mobile overrides
+        // Apply button settings
         const button = stickyBar.querySelector('.sticky-add-to-cart-btn');
         if (button) {
-            const buttonText = getSettingWithMobileOverride('sticky_button_text', 'sticky_mobile_button_text', 'Add to cart');
-            const buttonBgColor = getSettingWithMobileOverride('sticky_button_bg_color', 'sticky_mobile_button_bg_color', '#141414');
-            const buttonTextColor = getSettingWithMobileOverride('sticky_button_text_color', 'sticky_mobile_button_text_color', '#FFFFFF');
-            const enableCartIcon = getSettingWithMobileOverride('sticky_enable_cart_icon', 'sticky_mobile_enable_cart_icon', false);
-
-            button.textContent = buttonText;
-            button.style.backgroundColor = buttonBgColor;
-            button.style.color = buttonTextColor;
+            button.textContent = settings.sticky_button_text;
+            button.style.backgroundColor = settings.sticky_button_bg_color;
+            button.style.color = settings.sticky_button_text_color;
 
             // Add cart icon if enabled
-            if (enableCartIcon) {
+            if (settings.sticky_enable_cart_icon) {
                 // Create cart icon if it doesn't exist
                 let cartIcon = button.querySelector('.cart-icon');
                 if (!cartIcon) {
@@ -308,19 +263,19 @@ class StickyBarSettings {
                     cartIcon.style.display = 'none';
                 }
             }
+
         }
 
-        // Apply quantity input color with mobile override
+        // Apply quantity input color
         const quantityInput = stickyBar.querySelector('.sticky-quantity-input');
         if (quantityInput) {
-            const quantityColor = getSettingWithMobileOverride('sticky_quantity_color', 'sticky_mobile_quantity_color', '#141414');
-            quantityInput.style.color = quantityColor;
+            quantityInput.style.color = settings.sticky_quantity_color;
         }
 
-        // Apply image size with mobile override
+        // Apply image size
         const productImage = stickyBar.querySelector('.sticky-product-image');
         if (productImage) {
-            const imageSize = getSettingWithMobileOverride('sticky_image_size', 'sticky_mobile_image_size', 'medium');
+            const imageSize = settings.sticky_image_size || 'medium';
             let width, height;
 
             switch (imageSize) {

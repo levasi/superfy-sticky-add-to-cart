@@ -67,33 +67,6 @@ export const loader = async ({ request }) => {
     const buttonBgColorSetting = await getSetting("sticky_button_bg_color");
     const customCssSetting = await getSetting("sticky_custom_css");
     const borderRadiusSetting = await getSetting("sticky_border_radius");
-
-    // Mobile-specific settings
-    const mobileImageSetting = await getSetting("sticky_mobile_content_display_image");
-    const mobileTitleSetting = await getSetting("sticky_mobile_content_display_title");
-    const mobilePriceSetting = await getSetting("sticky_mobile_content_display_price");
-    const mobileQuantitySetting = await getSetting("sticky_mobile_content_display_quantity");
-    const mobileBarWidthSetting = await getSetting("sticky_mobile_bar_width");
-    const mobileMaxWidthSetting = await getSetting("sticky_mobile_max_width");
-    const mobileMaxWidthUnitSetting = await getSetting("sticky_mobile_max_width_unit");
-    const mobileAlignmentSetting = await getSetting("sticky_mobile_alignment");
-    const mobileOuterSpacingSetting = await getSetting("sticky_mobile_outer_spacing");
-    const mobileOuterSpacingUnitSetting = await getSetting("sticky_mobile_outer_spacing_unit");
-    const mobileInnerSpacingSetting = await getSetting("sticky_mobile_inner_spacing");
-    const mobileInnerSpacingUnitSetting = await getSetting("sticky_mobile_inner_spacing_unit");
-    const mobileBackgroundColorSetting = await getSetting("sticky_mobile_background_color");
-    const mobileBorderColorSetting = await getSetting("sticky_mobile_border_color");
-    const mobileBorderRadiusSetting = await getSetting("sticky_mobile_border_radius");
-    const mobileProductNameColorSetting = await getSetting("sticky_mobile_product_name_color");
-    const mobileImageSizeSetting = await getSetting("sticky_mobile_image_size");
-    const mobileQuantityColorSetting = await getSetting("sticky_mobile_quantity_color");
-    const mobileQuantityBorderColorSetting = await getSetting("sticky_mobile_quantity_border_color");
-    const mobileButtonBehaviorSetting = await getSetting("sticky_mobile_button_behavior");
-    const mobileButtonTextSetting = await getSetting("sticky_mobile_button_text");
-    const mobileEnableCartIconSetting = await getSetting("sticky_mobile_enable_cart_icon");
-    const mobileButtonTextColorSetting = await getSetting("sticky_mobile_button_text_color");
-    const mobileButtonBgColorSetting = await getSetting("sticky_mobile_button_bg_color");
-
     return json({
         sticky_bar_color: barColorSetting?.value || '#fff',
         sticky_visibility: visibilitySetting?.value || 'all',
@@ -122,31 +95,7 @@ export const loader = async ({ request }) => {
         sticky_enable_cart_icon: enableCartIconSetting?.value === 'true',
         sticky_button_text_color: buttonTextColorSetting?.value || '#FFFFFF',
         sticky_button_bg_color: buttonBgColorSetting?.value || '#141414',
-        sticky_custom_css: customCssSetting?.value || '<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>',
-        sticky_mobile_content_display_image: mobileImageSetting?.value === 'true',
-        sticky_mobile_content_display_title: mobileTitleSetting?.value === 'true',
-        sticky_mobile_content_display_price: mobilePriceSetting?.value === 'true',
-        sticky_mobile_content_display_quantity: mobileQuantitySetting?.value === 'true',
-        sticky_mobile_bar_width: mobileBarWidthSetting?.value || 'contained',
-        sticky_mobile_max_width: mobileMaxWidthSetting?.value || '',
-        sticky_mobile_max_width_unit: mobileMaxWidthUnitSetting?.value || 'px',
-        sticky_mobile_alignment: mobileAlignmentSetting?.value || 'right',
-        sticky_mobile_outer_spacing: mobileOuterSpacingSetting?.value || '',
-        sticky_mobile_outer_spacing_unit: mobileOuterSpacingUnitSetting?.value || 'px',
-        sticky_mobile_inner_spacing: mobileInnerSpacingSetting?.value || '16',
-        sticky_mobile_inner_spacing_unit: mobileInnerSpacingUnitSetting?.value || 'px',
-        sticky_mobile_background_color: mobileBackgroundColorSetting?.value || '#FFFFFF',
-        sticky_mobile_border_color: mobileBorderColorSetting?.value || '#000000',
-        sticky_mobile_border_radius: mobileBorderRadiusSetting?.value || '12',
-        sticky_mobile_product_name_color: mobileProductNameColorSetting?.value || '#141414',
-        sticky_mobile_image_size: mobileImageSizeSetting?.value || 'medium',
-        sticky_mobile_quantity_color: mobileQuantityColorSetting?.value || '#141414',
-        sticky_mobile_quantity_border_color: mobileQuantityBorderColorSetting?.value || '#DFDFDF',
-        sticky_mobile_button_behavior: mobileButtonBehaviorSetting?.value || 'add',
-        sticky_mobile_button_text: mobileButtonTextSetting?.value || 'Add to cart',
-        sticky_mobile_enable_cart_icon: mobileEnableCartIconSetting?.value === 'true',
-        sticky_mobile_button_text_color: mobileButtonTextColorSetting?.value || '#FFFFFF',
-        sticky_mobile_button_bg_color: mobileButtonBgColorSetting?.value || '#141414'
+        sticky_custom_css: customCssSetting?.value || '<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>'
     });
 };
 
@@ -173,15 +122,6 @@ export const action = async ({ request }) => {
     const isGeneralSettings = formData.has("sticky_visibility") && formData.has("sticky_trigger") &&
         !formData.has("sticky_content_display_image") && !formData.has("sticky_bar_width");
 
-    // Check if this is a mobile settings submission
-    const isMobileSettings = formData.has("sticky_mobile_content_display_image") || formData.has("sticky_mobile_bar_width");
-
-    console.log('=== MOBILE SETTINGS DETECTION ===');
-    console.log('formData.has("sticky_mobile_content_display_image"):', formData.has("sticky_mobile_content_display_image"));
-    console.log('formData.has("sticky_mobile_bar_width"):', formData.has("sticky_mobile_bar_width"));
-    console.log('isMobileSettings:', isMobileSettings);
-    console.log('=== END MOBILE SETTINGS DETECTION ===');
-
     if (isGeneralSettings) {
         // Handle only general settings
         const generalSettings = {
@@ -199,67 +139,6 @@ export const action = async ({ request }) => {
 
         // Save to metafields for backward compatibility
         await setShopMetafields(admin, shopId, generalSettings);
-
-        return Response.json({ ok: true });
-    }
-
-    if (isMobileSettings) {
-        // Handle mobile settings
-        const mobileSettings = {
-            sticky_mobile_content_display_image: formData.get("sticky_mobile_content_display_image") === 'on' ? 'true' : 'false',
-            sticky_mobile_content_display_title: formData.get("sticky_mobile_content_display_title") === 'on' ? 'true' : 'false',
-            sticky_mobile_content_display_price: formData.get("sticky_mobile_content_display_price") === 'on' ? 'true' : 'false',
-            sticky_mobile_content_display_quantity: formData.get("sticky_mobile_content_display_quantity") === 'on' ? 'true' : 'false',
-            sticky_mobile_bar_width: formData.get("sticky_mobile_bar_width") || "contained",
-            sticky_mobile_max_width: formData.get("sticky_mobile_max_width") || "",
-            sticky_mobile_max_width_unit: formData.get("sticky_mobile_max_width_unit") || "px",
-            sticky_mobile_alignment: formData.get("sticky_mobile_alignment") || "right",
-            sticky_mobile_outer_spacing: formData.get("sticky_mobile_outer_spacing") || "",
-            sticky_mobile_outer_spacing_unit: formData.get("sticky_mobile_outer_spacing_unit") || "px",
-            sticky_mobile_inner_spacing: formData.get("sticky_mobile_inner_spacing") || "16",
-            sticky_mobile_inner_spacing_unit: formData.get("sticky_mobile_inner_spacing_unit") || "px",
-            sticky_mobile_background_color: formData.get("sticky_mobile_background_color") || "#FFFFFF",
-            sticky_mobile_border_color: formData.get("sticky_mobile_border_color") || "#000000",
-            sticky_mobile_border_radius: formData.get("sticky_mobile_border_radius") || "12",
-            sticky_mobile_product_name_color: formData.get("sticky_mobile_product_name_color") || "#141414",
-            sticky_mobile_image_size: formData.get("sticky_mobile_image_size") || "medium",
-            sticky_mobile_quantity_color: formData.get("sticky_mobile_quantity_color") || "#141414",
-            sticky_mobile_quantity_border_color: formData.get("sticky_mobile_quantity_border_color") || "#DFDFDF",
-            sticky_mobile_button_behavior: formData.get("sticky_mobile_button_behavior") || "add",
-            sticky_mobile_button_text: formData.get("sticky_mobile_button_text") || "Add to cart",
-            sticky_mobile_enable_cart_icon: formData.get("sticky_mobile_enable_cart_icon") === 'on' ? 'true' : 'false',
-            sticky_mobile_button_text_color: formData.get("sticky_mobile_button_text_color") || "#FFFFFF",
-            sticky_mobile_button_bg_color: formData.get("sticky_mobile_button_bg_color") || "#141414"
-        };
-
-        // Save mobile settings to database
-        await upsertSetting("sticky_mobile_content_display_image", mobileSettings.sticky_mobile_content_display_image);
-        await upsertSetting("sticky_mobile_content_display_title", mobileSettings.sticky_mobile_content_display_title);
-        await upsertSetting("sticky_mobile_content_display_price", mobileSettings.sticky_mobile_content_display_price);
-        await upsertSetting("sticky_mobile_content_display_quantity", mobileSettings.sticky_mobile_content_display_quantity);
-        await upsertSetting("sticky_mobile_bar_width", mobileSettings.sticky_mobile_bar_width);
-        await upsertSetting("sticky_mobile_max_width", mobileSettings.sticky_mobile_max_width);
-        await upsertSetting("sticky_mobile_max_width_unit", mobileSettings.sticky_mobile_max_width_unit);
-        await upsertSetting("sticky_mobile_alignment", mobileSettings.sticky_mobile_alignment);
-        await upsertSetting("sticky_mobile_outer_spacing", mobileSettings.sticky_mobile_outer_spacing);
-        await upsertSetting("sticky_mobile_outer_spacing_unit", mobileSettings.sticky_mobile_outer_spacing_unit);
-        await upsertSetting("sticky_mobile_inner_spacing", mobileSettings.sticky_mobile_inner_spacing);
-        await upsertSetting("sticky_mobile_inner_spacing_unit", mobileSettings.sticky_mobile_inner_spacing_unit);
-        await upsertSetting("sticky_mobile_background_color", mobileSettings.sticky_mobile_background_color);
-        await upsertSetting("sticky_mobile_border_color", mobileSettings.sticky_mobile_border_color);
-        await upsertSetting("sticky_mobile_border_radius", mobileSettings.sticky_mobile_border_radius);
-        await upsertSetting("sticky_mobile_product_name_color", mobileSettings.sticky_mobile_product_name_color);
-        await upsertSetting("sticky_mobile_image_size", mobileSettings.sticky_mobile_image_size);
-        await upsertSetting("sticky_mobile_quantity_color", mobileSettings.sticky_mobile_quantity_color);
-        await upsertSetting("sticky_mobile_quantity_border_color", mobileSettings.sticky_mobile_quantity_border_color);
-        await upsertSetting("sticky_mobile_button_behavior", mobileSettings.sticky_mobile_button_behavior);
-        await upsertSetting("sticky_mobile_button_text", mobileSettings.sticky_mobile_button_text);
-        await upsertSetting("sticky_mobile_enable_cart_icon", mobileSettings.sticky_mobile_enable_cart_icon);
-        await upsertSetting("sticky_mobile_button_text_color", mobileSettings.sticky_mobile_button_text_color);
-        await upsertSetting("sticky_mobile_button_bg_color", mobileSettings.sticky_mobile_button_bg_color);
-
-        // Save to metafields for backward compatibility
-        await setShopMetafields(admin, shopId, mobileSettings);
 
         return Response.json({ ok: true });
     }
@@ -294,32 +173,6 @@ export const action = async ({ request }) => {
         sticky_button_text_color: formData.get("sticky_button_text_color") || "#FFFFFF",
         sticky_button_bg_color: formData.get("sticky_button_bg_color") || "#141414",
         sticky_custom_css: formData.get("sticky_custom_css") || '',
-
-        // Mobile-specific settings
-        sticky_mobile_content_display_image: formData.get("sticky_mobile_content_display_image") === 'on' ? 'true' : 'false',
-        sticky_mobile_content_display_title: formData.get("sticky_mobile_content_display_title") === 'on' ? 'true' : 'false',
-        sticky_mobile_content_display_price: formData.get("sticky_mobile_content_display_price") === 'on' ? 'true' : 'false',
-        sticky_mobile_content_display_quantity: formData.get("sticky_mobile_content_display_quantity") === 'on' ? 'true' : 'false',
-        sticky_mobile_bar_width: formData.get("sticky_mobile_bar_width") || "contained",
-        sticky_mobile_max_width: formData.get("sticky_mobile_max_width") || "",
-        sticky_mobile_max_width_unit: formData.get("sticky_mobile_max_width_unit") || "px",
-        sticky_mobile_alignment: formData.get("sticky_mobile_alignment") || "right",
-        sticky_mobile_outer_spacing: formData.get("sticky_mobile_outer_spacing") || "",
-        sticky_mobile_outer_spacing_unit: formData.get("sticky_mobile_outer_spacing_unit") || "px",
-        sticky_mobile_inner_spacing: formData.get("sticky_mobile_inner_spacing") || "16",
-        sticky_mobile_inner_spacing_unit: formData.get("sticky_mobile_inner_spacing_unit") || "px",
-        sticky_mobile_background_color: formData.get("sticky_mobile_background_color") || "#FFFFFF",
-        sticky_mobile_border_color: formData.get("sticky_mobile_border_color") || "#000000",
-        sticky_mobile_border_radius: formData.get("sticky_mobile_border_radius") || "12",
-        sticky_mobile_product_name_color: formData.get("sticky_mobile_product_name_color") || "#141414",
-        sticky_mobile_image_size: formData.get("sticky_mobile_image_size") || "medium",
-        sticky_mobile_quantity_color: formData.get("sticky_mobile_quantity_color") || "#141414",
-        sticky_mobile_quantity_border_color: formData.get("sticky_mobile_quantity_border_color") || "#DFDFDF",
-        sticky_mobile_button_behavior: formData.get("sticky_mobile_button_behavior") || "add",
-        sticky_mobile_button_text: formData.get("sticky_mobile_button_text") || "Add to cart",
-        sticky_mobile_enable_cart_icon: formData.get("sticky_mobile_enable_cart_icon") === 'on' ? 'true' : 'false',
-        sticky_mobile_button_text_color: formData.get("sticky_mobile_button_text_color") || "#FFFFFF",
-        sticky_mobile_button_bg_color: formData.get("sticky_mobile_button_bg_color") || "#141414"
     };
 
     console.log('=== APPEARANCE SETTINGS TO SAVE ===');
@@ -355,32 +208,6 @@ export const action = async ({ request }) => {
     await upsertSetting("sticky_button_text_color", settings.sticky_button_text_color);
     await upsertSetting("sticky_button_bg_color", settings.sticky_button_bg_color);
     await upsertSetting("sticky_custom_css", settings.sticky_custom_css);
-
-    // Save mobile-specific settings to database
-    await upsertSetting("sticky_mobile_content_display_image", settings.sticky_mobile_content_display_image);
-    await upsertSetting("sticky_mobile_content_display_title", settings.sticky_mobile_content_display_title);
-    await upsertSetting("sticky_mobile_content_display_price", settings.sticky_mobile_content_display_price);
-    await upsertSetting("sticky_mobile_content_display_quantity", settings.sticky_mobile_content_display_quantity);
-    await upsertSetting("sticky_mobile_bar_width", settings.sticky_mobile_bar_width);
-    await upsertSetting("sticky_mobile_max_width", settings.sticky_mobile_max_width);
-    await upsertSetting("sticky_mobile_max_width_unit", settings.sticky_mobile_max_width_unit);
-    await upsertSetting("sticky_mobile_alignment", settings.sticky_mobile_alignment);
-    await upsertSetting("sticky_mobile_outer_spacing", settings.sticky_mobile_outer_spacing);
-    await upsertSetting("sticky_mobile_outer_spacing_unit", settings.sticky_mobile_outer_spacing_unit);
-    await upsertSetting("sticky_mobile_inner_spacing", settings.sticky_mobile_inner_spacing);
-    await upsertSetting("sticky_mobile_inner_spacing_unit", settings.sticky_mobile_inner_spacing_unit);
-    await upsertSetting("sticky_mobile_background_color", settings.sticky_mobile_background_color);
-    await upsertSetting("sticky_mobile_border_color", settings.sticky_mobile_border_color);
-    await upsertSetting("sticky_mobile_border_radius", settings.sticky_mobile_border_radius);
-    await upsertSetting("sticky_mobile_product_name_color", settings.sticky_mobile_product_name_color);
-    await upsertSetting("sticky_mobile_image_size", settings.sticky_mobile_image_size);
-    await upsertSetting("sticky_mobile_quantity_color", settings.sticky_mobile_quantity_color);
-    await upsertSetting("sticky_mobile_quantity_border_color", settings.sticky_mobile_quantity_border_color);
-    await upsertSetting("sticky_mobile_button_behavior", settings.sticky_mobile_button_behavior);
-    await upsertSetting("sticky_mobile_button_text", settings.sticky_mobile_button_text);
-    await upsertSetting("sticky_mobile_enable_cart_icon", settings.sticky_mobile_enable_cart_icon);
-    await upsertSetting("sticky_mobile_button_text_color", settings.sticky_mobile_button_text_color);
-    await upsertSetting("sticky_mobile_button_bg_color", settings.sticky_mobile_button_bg_color);
 
     // Save to metafields for backward compatibility
     await setShopMetafields(admin, shopId, settings);
@@ -420,40 +247,12 @@ export default function Customize() {
     const [buttonTextColor, setButtonTextColor] = useState(savedSettings.sticky_button_text_color);
     const [buttonBgColor, setButtonBgColor] = useState(savedSettings.sticky_button_bg_color);
     const [customCss, setCustomCss] = useState(savedSettings.sticky_custom_css);
-
-    // Mobile-specific state variables
-    const [mobileImageDisplay, setMobileImageDisplay] = useState(savedSettings.sticky_mobile_content_display_image ?? savedSettings.sticky_content_display_image);
-    const [mobileTitleDisplay, setMobileTitleDisplay] = useState(savedSettings.sticky_mobile_content_display_title ?? savedSettings.sticky_content_display_title);
-    const [mobilePriceDisplay, setMobilePriceDisplay] = useState(savedSettings.sticky_mobile_content_display_price ?? savedSettings.sticky_content_display_price);
-    const [mobileQuantityDisplay, setMobileQuantityDisplay] = useState(savedSettings.sticky_mobile_content_display_quantity ?? savedSettings.sticky_content_display_quantity);
-    const [mobileBarWidth, setMobileBarWidth] = useState(savedSettings.sticky_mobile_bar_width ?? 'contained');
-    const [mobileMaxWidth, setMobileMaxWidth] = useState(savedSettings.sticky_mobile_max_width ?? '');
-    const [mobileMaxWidthUnit, setMobileMaxWidthUnit] = useState(savedSettings.sticky_mobile_max_width_unit ?? 'px');
-    const [mobileAlignment, setMobileAlignment] = useState(savedSettings.sticky_mobile_alignment ?? 'right');
-    const [mobileOuterSpacing, setMobileOuterSpacing] = useState(savedSettings.sticky_mobile_outer_spacing ?? '');
-    const [mobileOuterSpacingUnit, setMobileOuterSpacingUnit] = useState(savedSettings.sticky_mobile_outer_spacing_unit ?? 'px');
-    const [mobileInnerSpacing, setMobileInnerSpacing] = useState(savedSettings.sticky_mobile_inner_spacing ?? '16');
-    const [mobileInnerSpacingUnit, setMobileInnerSpacingUnit] = useState(savedSettings.sticky_mobile_inner_spacing_unit ?? 'px');
-    const [mobileBackgroundColor, setMobileBackgroundColor] = useState(savedSettings.sticky_mobile_background_color ?? '#FFFFFF');
-    const [mobileBorderColor, setMobileBorderColor] = useState(savedSettings.sticky_mobile_border_color ?? '#000000');
-    const [mobileBorderRadius, setMobileBorderRadius] = useState(savedSettings.sticky_mobile_border_radius ?? '12');
-    const [mobileProductNameColor, setMobileProductNameColor] = useState(savedSettings.sticky_mobile_product_name_color ?? '#141414');
-    const [mobileImageSize, setMobileImageSize] = useState(savedSettings.sticky_mobile_image_size ?? 'medium');
-    const [mobileQuantityColor, setMobileQuantityColor] = useState(savedSettings.sticky_mobile_quantity_color ?? '#141414');
-    const [mobileQuantityBorderColor, setMobileQuantityBorderColor] = useState(savedSettings.sticky_mobile_quantity_border_color ?? '#DFDFDF');
-    const [mobileButtonBehavior, setMobileButtonBehavior] = useState(savedSettings.sticky_mobile_button_behavior ?? 'add');
-    const [mobileButtonText, setMobileButtonText] = useState(savedSettings.sticky_mobile_button_text ?? 'Add to cart');
-    const [mobileEnableCartIcon, setMobileEnableCartIcon] = useState(savedSettings.sticky_mobile_enable_cart_icon ?? false);
-    const [mobileButtonTextColor, setMobileButtonTextColor] = useState(savedSettings.sticky_mobile_button_text_color ?? '#FFFFFF');
-    const [mobileButtonBgColor, setMobileButtonBgColor] = useState(savedSettings.sticky_mobile_button_bg_color ?? '#141414');
-
     const [showResetModal, setShowResetModal] = useState(false);
     const [previewQuantity, setPreviewQuantity] = useState(1);
 
     const shopify = useAppBridge();
     const fetcher = useFetcher();
     const generalFetcher = useFetcher();
-    const mobileFetcher = useFetcher();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -467,12 +266,6 @@ export default function Customize() {
             shopify.toast.show("General settings saved!");
         }
     }, [generalFetcher.data, shopify]);
-
-    useEffect(() => {
-        if (mobileFetcher.data?.ok) {
-            shopify.toast.show("Mobile settings saved!");
-        }
-    }, [mobileFetcher.data, shopify]);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -577,34 +370,6 @@ export default function Customize() {
         setButtonTextColor(defaultSettings.sticky_button_text_color);
         setButtonBgColor(defaultSettings.sticky_button_bg_color);
 
-        // Update mobile settings if on mobile view
-        if (appearanceView === 'mobile') {
-            setMobileImageDisplay(defaultSettings.sticky_content_display_image);
-            setMobileTitleDisplay(defaultSettings.sticky_content_display_title);
-            setMobilePriceDisplay(defaultSettings.sticky_content_display_price);
-            setMobileQuantityDisplay(defaultSettings.sticky_content_display_quantity);
-            setMobileBarWidth(defaultSettings.sticky_bar_width);
-            setMobileMaxWidth(defaultSettings.sticky_max_width);
-            setMobileMaxWidthUnit(defaultSettings.sticky_max_width_unit);
-            setMobileAlignment(defaultSettings.sticky_alignment);
-            setMobileOuterSpacing(defaultSettings.sticky_outer_spacing);
-            setMobileOuterSpacingUnit(defaultSettings.sticky_outer_spacing_unit);
-            setMobileInnerSpacing(defaultSettings.sticky_inner_spacing);
-            setMobileInnerSpacingUnit(defaultSettings.sticky_inner_spacing_unit);
-            setMobileBackgroundColor(defaultSettings.sticky_background_color);
-            setMobileBorderColor(defaultSettings.sticky_border_color);
-            setMobileBorderRadius(defaultSettings.sticky_border_radius);
-            setMobileProductNameColor(defaultSettings.sticky_product_name_color);
-            setMobileImageSize(defaultSettings.sticky_image_size);
-            setMobileQuantityColor(defaultSettings.sticky_quantity_color);
-            setMobileQuantityBorderColor(defaultSettings.sticky_quantity_border_color);
-            setMobileButtonBehavior(defaultSettings.sticky_button_behavior);
-            setMobileButtonText(defaultSettings.sticky_button_text);
-            setMobileEnableCartIcon(defaultSettings.sticky_enable_cart_icon);
-            setMobileButtonTextColor(defaultSettings.sticky_button_text_color);
-            setMobileButtonBgColor(defaultSettings.sticky_button_bg_color);
-        }
-
         // Create FormData with all default settings
         const formData = new FormData();
         Object.entries(defaultSettings).forEach(([key, value]) => {
@@ -619,15 +384,11 @@ export default function Customize() {
         console.log('Default settings:', defaultSettings);
 
         // Submit the form data to trigger save bar
-        if (appearanceView === 'mobile') {
-            mobileFetcher.submit(formData, { method: 'post' });
-        } else {
-            fetcher.submit(formData, { method: 'post' });
-        }
+        fetcher.submit(formData, { method: 'post' });
 
         // Close the modal
         setShowResetModal(false);
-    }, [appearanceView, fetcher, mobileFetcher]);
+    }, [appearanceView, fetcher]);
 
     const handleBack = useCallback(() => {
         navigate(-1);
@@ -665,66 +426,7 @@ export default function Customize() {
         };
     }
 
-    // Get current settings based on view
-    const getCurrentSettings = () => {
-        if (appearanceView === 'mobile') {
-            return {
-                sticky_content_display_image: mobileImageDisplay,
-                sticky_content_display_title: mobileTitleDisplay,
-                sticky_content_display_price: mobilePriceDisplay,
-                sticky_content_display_quantity: mobileQuantityDisplay,
-                sticky_bar_width: mobileBarWidth,
-                sticky_max_width: mobileMaxWidth,
-                sticky_max_width_unit: mobileMaxWidthUnit,
-                sticky_alignment: mobileAlignment,
-                sticky_outer_spacing: mobileOuterSpacing,
-                sticky_outer_spacing_unit: mobileOuterSpacingUnit,
-                sticky_inner_spacing: mobileInnerSpacing,
-                sticky_inner_spacing_unit: mobileInnerSpacingUnit,
-                sticky_background_color: mobileBackgroundColor,
-                sticky_border_color: mobileBorderColor,
-                sticky_border_radius: mobileBorderRadius,
-                sticky_product_name_color: mobileProductNameColor,
-                sticky_image_size: mobileImageSize,
-                sticky_quantity_color: mobileQuantityColor,
-                sticky_quantity_border_color: mobileQuantityBorderColor,
-                sticky_button_behavior: mobileButtonBehavior,
-                sticky_button_text: mobileButtonText,
-                sticky_enable_cart_icon: mobileEnableCartIcon,
-                sticky_button_text_color: mobileButtonTextColor,
-                sticky_button_bg_color: mobileButtonBgColor
-            };
-        } else {
-            return {
-                sticky_content_display_image: imageDisplay,
-                sticky_content_display_title: titleDisplay,
-                sticky_content_display_price: priceDisplay,
-                sticky_content_display_quantity: quantityDisplay,
-                sticky_bar_width: barWidth,
-                sticky_max_width: maxWidth,
-                sticky_max_width_unit: maxWidthUnit,
-                sticky_alignment: alignment,
-                sticky_outer_spacing: outerSpacing,
-                sticky_outer_spacing_unit: outerSpacingUnit,
-                sticky_inner_spacing: innerSpacing,
-                sticky_inner_spacing_unit: innerSpacingUnit,
-                sticky_background_color: backgroundColor,
-                sticky_border_color: borderColor,
-                sticky_border_radius: borderRadius,
-                sticky_product_name_color: productNameColor,
-                sticky_image_size: imageSize,
-                sticky_quantity_color: quantityColor,
-                sticky_quantity_border_color: quantityBorderColor,
-                sticky_button_behavior: buttonBehavior,
-                sticky_button_text: buttonText,
-                sticky_enable_cart_icon: enableCartIcon,
-                sticky_button_text_color: buttonTextColor,
-                sticky_button_bg_color: buttonBgColor
-            };
-        }
-    };
 
-    const currentSettings = getCurrentSettings();
 
     return (
         <Page fullWidth>
@@ -1322,352 +1024,16 @@ export default function Customize() {
                                 </fetcher.Form>
                             )}
                             {appearanceView === 'mobile' && (
-                                <mobileFetcher.Form method="post" data-save-bar>
-                                    <BlockStack gap="400">
-                                        <Card>
-                                            <BlockStack gap="400">
-                                                <BlockStack gap="100">
-                                                    <Text as="h3" variant="headingMd">Content display</Text>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Control which product elements are displayed on mobile.
-                                                    </Text>
-                                                </BlockStack>
-                                                <BlockStack gap="200">
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_mobile_content_display_image"
-                                                            value={mobileImageDisplay ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show image"
-                                                            labelHidden
-                                                            checked={mobileImageDisplay}
-                                                            onChange={setMobileImageDisplay}
-                                                        />
-                                                        <Text variant="bodySm" as="span">Show image</Text>
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_mobile_content_display_title"
-                                                            value={mobileTitleDisplay ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show title"
-                                                            labelHidden
-                                                            checked={mobileTitleDisplay}
-                                                            onChange={setMobileTitleDisplay}
-                                                        />
-                                                        <Text variant="bodySm" as="span">Show title</Text>
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_mobile_content_display_price"
-                                                            value={mobilePriceDisplay ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show price"
-                                                            labelHidden
-                                                            checked={mobilePriceDisplay}
-                                                            onChange={setMobilePriceDisplay}
-                                                        />
-                                                        <Text variant="bodySm" as="span">Show price</Text>
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_mobile_content_display_quantity"
-                                                            value={mobileQuantityDisplay ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show quantity selector"
-                                                            labelHidden
-                                                            checked={mobileQuantityDisplay}
-                                                            onChange={setMobileQuantityDisplay}
-                                                        />
-                                                        <Text variant="bodySm" as="span">Show quantity selector</Text>
-                                                    </div>
-                                                </BlockStack>
-                                            </BlockStack>
-                                        </Card>
-
-                                        <Card>
-                                            <BlockStack gap="400">
-                                                <BlockStack gap="100">
-                                                    <Text as="h3" variant="headingMd">Bar</Text>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Manage layout, spacing, and visual design for the sticky bar container on mobile.
-                                                    </Text>
-                                                </BlockStack>
-                                                <BlockStack gap="400">
-                                                    <BlockStack gap="200">
-                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Width</Text>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_mobile_bar_width"
-                                                            value={mobileBarWidth}
-                                                        />
-                                                        <ChoiceList
-                                                            choices={[
-                                                                { label: 'Full', value: 'full' },
-                                                                { label: 'Contained', value: 'contained' }
-                                                            ]}
-                                                            selected={[mobileBarWidth]}
-                                                            onChange={([selected]) => setMobileBarWidth(selected)}
-                                                        />
-                                                    </BlockStack>
-                                                    {mobileBarWidth === 'contained' && (
-                                                        <>
-                                                            <BlockStack gap="200">
-                                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Max width</Text>
-                                                                <InlineStack gap="200">
-                                                                    <div style={{ flex: 1 }}>
-                                                                        <input
-                                                                            type="hidden"
-                                                                            name="sticky_mobile_max_width"
-                                                                            value={mobileMaxWidth}
-                                                                        />
-                                                                        <TextField
-                                                                            type="number"
-                                                                            value={mobileMaxWidth}
-                                                                            onChange={setMobileMaxWidth}
-                                                                            placeholder="600"
-                                                                        />
-                                                                    </div>
-                                                                    <div style={{ width: 80 }}>
-                                                                        <input
-                                                                            type="hidden"
-                                                                            name="sticky_mobile_max_width_unit"
-                                                                            value={mobileMaxWidthUnit}
-                                                                        />
-                                                                        <Select
-                                                                            options={[
-                                                                                { label: 'px', value: 'px' },
-                                                                                { label: '%', value: '%' }
-                                                                            ]}
-                                                                            value={mobileMaxWidthUnit}
-                                                                            onChange={setMobileMaxWidthUnit}
-                                                                        />
-                                                                    </div>
-                                                                </InlineStack>
-                                                            </BlockStack>
-                                                            <BlockStack gap="200">
-                                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Alignment</Text>
-                                                                <ChoiceList
-                                                                    choices={[
-                                                                        { label: 'Left', value: 'left' },
-                                                                        { label: 'Center', value: 'center' },
-                                                                        { label: 'Right', value: 'right' }
-                                                                    ]}
-                                                                    selected={[mobileAlignment]}
-                                                                    onChange={([selected]) => setMobileAlignment(selected)}
-                                                                />
-                                                            </BlockStack>
-                                                            <BlockStack gap="200">
-                                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
-                                                                <InlineStack gap="200">
-                                                                    <div style={{ flex: 1 }}>
-                                                                        <input
-                                                                            type="hidden"
-                                                                            name="sticky_mobile_outer_spacing"
-                                                                            value={mobileOuterSpacing}
-                                                                        />
-                                                                        <TextField
-                                                                            type="number"
-                                                                            value={mobileOuterSpacing}
-                                                                            onChange={setMobileOuterSpacing}
-                                                                            placeholder="20"
-                                                                        />
-                                                                    </div>
-                                                                    <div style={{ width: 80 }}>
-                                                                        <input
-                                                                            type="hidden"
-                                                                            name="sticky_mobile_outer_spacing_unit"
-                                                                            value={mobileOuterSpacingUnit}
-                                                                        />
-                                                                        <Select
-                                                                            options={[
-                                                                                { label: 'px', value: 'px' },
-                                                                                { label: '%', value: '%' }
-                                                                            ]}
-                                                                            value={mobileOuterSpacingUnit}
-                                                                            onChange={setMobileOuterSpacingUnit}
-                                                                        />
-                                                                    </div>
-                                                                </InlineStack>
-                                                            </BlockStack>
-                                                        </>
-                                                    )}
-                                                    <BlockStack gap="200">
-                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Inner spacing</Text>
-                                                        <InlineStack gap="200">
-                                                            <div style={{ flex: 1 }}>
-                                                                <input
-                                                                    type="hidden"
-                                                                    name="sticky_mobile_inner_spacing"
-                                                                    value={mobileInnerSpacing}
-                                                                />
-                                                                <TextField
-                                                                    type="number"
-                                                                    value={mobileInnerSpacing}
-                                                                    onChange={setMobileInnerSpacing}
-                                                                    placeholder="16"
-                                                                />
-                                                            </div>
-                                                            <div style={{ width: 80 }}>
-                                                                <input
-                                                                    type="hidden"
-                                                                    name="sticky_mobile_inner_spacing_unit"
-                                                                    value={mobileInnerSpacingUnit}
-                                                                />
-                                                                <Select
-                                                                    options={[
-                                                                        { label: 'px', value: 'px' },
-                                                                        { label: '%', value: '%' }
-                                                                    ]}
-                                                                    value={mobileInnerSpacingUnit}
-                                                                    onChange={setMobileInnerSpacingUnit}
-                                                                />
-                                                            </div>
-                                                        </InlineStack>
-                                                        <Text variant="bodySm" tone="subdued">
-                                                            Padding inside the sticky bar on mobile
-                                                        </Text>
-                                                    </BlockStack>
-                                                </BlockStack>
-                                            </BlockStack>
-                                        </Card>
-
-                                        <Card>
-                                            <BlockStack gap="400">
-                                                <BlockStack gap="100">
-                                                    <Text as="h3" variant="headingMd">Content</Text>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Customize fonts, colors, and spacing for product content inside the sticky bar on mobile.
-                                                    </Text>
-                                                </BlockStack>
-                                                <BlockStack gap="400">
-                                                    <BlockStack gap="200">
-                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Image</Text>
-                                                        <BlockStack gap="200">
-                                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Size</Text>
-                                                            <input
-                                                                type="hidden"
-                                                                name="sticky_mobile_image_size"
-                                                                value={mobileImageSize}
-                                                            />
-                                                            <Select
-                                                                options={[
-                                                                    { label: 'Small', value: 'small' },
-                                                                    { label: 'Medium', value: 'medium' },
-                                                                    { label: 'Large', value: 'large' }
-                                                                ]}
-                                                                value={mobileImageSize}
-                                                                onChange={setMobileImageSize}
-                                                            />
-                                                        </BlockStack>
-                                                    </BlockStack>
-                                                </BlockStack>
-                                            </BlockStack>
-                                        </Card>
-
-                                        <Card>
-                                            <BlockStack gap="400">
-                                                <BlockStack gap="100">
-                                                    <Text as="h3" variant="headingMd">Button</Text>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Customize the look and feel of the 'Add to cart' button inside the sticky bar on mobile.
-                                                    </Text>
-                                                </BlockStack>
-                                                <BlockStack gap="400">
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_mobile_enable_cart_icon"
-                                                            value={mobileEnableCartIcon ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show cart icon"
-                                                            labelHidden
-                                                            checked={mobileEnableCartIcon}
-                                                            onChange={setMobileEnableCartIcon}
-                                                        />
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
-                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
-                                                                Choose whether to display the icon or not
-                                                            </Text>
-                                                        </div>
-                                                    </div>
-                                                </BlockStack>
-                                            </BlockStack>
-                                        </Card>
-
-                                        {/* Hidden inputs for missing mobile settings */}
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_alignment"
-                                            value={mobileAlignment}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_background_color"
-                                            value={mobileBackgroundColor}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_border_color"
-                                            value={mobileBorderColor}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_border_radius"
-                                            value={mobileBorderRadius}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_product_name_color"
-                                            value={mobileProductNameColor}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_quantity_color"
-                                            value={mobileQuantityColor}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_quantity_border_color"
-                                            value={mobileQuantityBorderColor}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_button_behavior"
-                                            value={mobileButtonBehavior}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_button_text"
-                                            value={mobileButtonText}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_button_text_color"
-                                            value={mobileButtonTextColor}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="sticky_mobile_button_bg_color"
-                                            value={mobileButtonBgColor}
-                                        />
-                                    </BlockStack>
-                                </mobileFetcher.Form>
+                                <div className="mobile-view">
+                                    <Card>
+                                        mobile soon
+                                    </Card>
+                                </div>
                             )}
                             <Card>
-                                <Text as="h3" variant="headingMd">Reset {appearanceView} appearance settings</Text>
+                                <Text as="h3" variant="headingMd">Reset appearance settings</Text>
                                 <Text variant="bodySm" tone="subdued">
-                                    Revert all appearance settings for the {appearanceView.charAt(0).toUpperCase() + appearanceView.slice(1)} view to defaults.<br />This action cannot be undone.
+                                    Revert appearance settings to their original defaults.<br />This action cannot be undone.
                                 </Text>
                                 <Button onClick={handleResetClick} >
                                     Reset to defaults
@@ -1734,31 +1100,31 @@ export default function Customize() {
                                 style={{
                                     position: 'absolute',
                                     bottom: '20px',
-                                    right: currentSettings.sticky_bar_width === 'contained' ?
-                                        (currentSettings.sticky_alignment === 'left' ? 'auto' : currentSettings.sticky_alignment === 'center' ? 'auto' : '20px') : '20px',
-                                    left: currentSettings.sticky_bar_width === 'contained' ?
-                                        (currentSettings.sticky_alignment === 'left' ? '20px' : currentSettings.sticky_alignment === 'center' ? '50%' : 'auto') : '20px',
-                                    transform: currentSettings.sticky_bar_width === 'contained' && currentSettings.sticky_alignment === 'center' ? 'translateX(-50%)' : 'none',
-                                    borderRadius: currentSettings.sticky_border_radius + 'px' || '12px',
-                                    border: `1px solid ${currentSettings.sticky_border_color}`,
-                                    backgroundColor: currentSettings.sticky_background_color,
-                                    padding: `${currentSettings.sticky_inner_spacing}${currentSettings.sticky_inner_spacing_unit}`,
-                                    width: currentSettings.sticky_bar_width === 'full' ? 'calc(100% - 40px)' : 'auto',
-                                    maxWidth: currentSettings.sticky_bar_width === 'contained' ? (currentSettings.sticky_max_width === '' ? '600px' : `${currentSettings.sticky_max_width}${currentSettings.sticky_max_width_unit}`) : 'none',
-                                    margin: currentSettings.sticky_outer_spacing === '' ? 'unset' : `${currentSettings.sticky_outer_spacing}${currentSettings.sticky_outer_spacing_unit}`,
+                                    right: barWidth === 'contained' ?
+                                        (alignment === 'left' ? 'auto' : alignment === 'center' ? 'auto' : '20px') : '20px',
+                                    left: barWidth === 'contained' ?
+                                        (alignment === 'left' ? '20px' : alignment === 'center' ? '50%' : 'auto') : '20px',
+                                    transform: barWidth === 'contained' && alignment === 'center' ? 'translateX(-50%)' : 'none',
+                                    borderRadius: borderRadius + 'px' || '12px',
+                                    border: `1px solid ${borderColor}`,
+                                    backgroundColor: backgroundColor,
+                                    padding: `${innerSpacing}${innerSpacingUnit}`,
+                                    width: barWidth === 'full' ? 'calc(100% - 40px)' : 'auto',
+                                    maxWidth: barWidth === 'contained' ? (maxWidth === '' ? '600px' : `${maxWidth}${maxWidthUnit}`) : 'none',
+                                    margin: outerSpacing === '' ? 'unset' : `${outerSpacing}${outerSpacingUnit}`,
                                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '12px'
                                 }}>
 
-                                {currentSettings.sticky_content_display_image && (
+                                {imageDisplay && (
                                     <img
                                         src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
                                         alt="Product"
                                         style={{
-                                            width: currentSettings.sticky_image_size === 'small' ? '48px' : currentSettings.sticky_image_size === 'medium' ? '60px' : '72px',
-                                            height: currentSettings.sticky_image_size === 'small' ? '48px' : currentSettings.sticky_image_size === 'medium' ? '60px' : '72px',
+                                            width: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                            height: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
                                             objectFit: 'cover',
                                             borderRadius: '8px',
                                             border: '1px solid #e1e3e5'
@@ -1767,9 +1133,9 @@ export default function Customize() {
                                 )}
 
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    {currentSettings.sticky_content_display_title && (
+                                    {titleDisplay && (
                                         <div style={{
-                                            color: currentSettings.sticky_product_name_color,
+                                            color: productNameColor,
                                             fontWeight: 600,
                                             fontSize: '14px',
                                             marginBottom: '2px',
@@ -1780,7 +1146,7 @@ export default function Customize() {
                                             Taupe One Loafers
                                         </div>
                                     )}
-                                    {currentSettings.sticky_content_display_price && (
+                                    {priceDisplay && (
                                         <div style={{ fontSize: '13px', color: '#6d7175' }}>
                                             <span style={{ textDecoration: 'line-through', marginRight: '8px' }}>$296</span>
                                             <span style={{ fontWeight: 600, color: '#141414' }}>$100</span>
@@ -1788,13 +1154,13 @@ export default function Customize() {
                                     )}
                                 </div>
 
-                                {currentSettings.sticky_content_display_quantity && (
+                                {quantityDisplay && (
                                     <div className='sy-quantity-wrapper'
                                         style={{
                                             display: 'flex',
                                             alignItems: 'center',
-                                            color: currentSettings.sticky_quantity_color,
-                                            border: `1px solid ${currentSettings.sticky_quantity_border_color}`,
+                                            color: quantityColor,
+                                            border: `1px solid ${quantityBorderColor}`,
                                             borderRadius: '20px',
                                             overflow: 'hidden',
                                             background: '#fff',
@@ -1852,8 +1218,8 @@ export default function Customize() {
                                 )}
 
                                 <button style={{
-                                    color: currentSettings.sticky_button_text_color,
-                                    backgroundColor: currentSettings.sticky_button_bg_color,
+                                    color: buttonTextColor,
+                                    backgroundColor: buttonBgColor,
                                     borderRadius: '8px',
                                     border: 'none',
                                     cursor: 'pointer',
@@ -1865,10 +1231,10 @@ export default function Customize() {
                                     gap: '6px',
                                     whiteSpace: 'nowrap'
                                 }}>
-                                    {currentSettings.sticky_enable_cart_icon && (
+                                    {enableCartIcon && (
                                         <Icon source={CartIcon} color="base" />
                                     )}
-                                    {currentSettings.sticky_button_text}
+                                    {buttonText}
                                 </button>
                             </div>
                         </div>
