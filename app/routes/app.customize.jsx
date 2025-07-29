@@ -63,6 +63,7 @@ export const loader = async ({ request }) => {
     const buttonBehaviorSetting = await getSetting("sticky_button_behavior");
     const buttonTextSetting = await getSetting("sticky_button_text");
     const enableCartIconSetting = await getSetting("sticky_enable_cart_icon");
+    const enableMobileCartIconSetting = await getSetting("sticky_enable_mobile_cart_icon");
     const buttonTextColorSetting = await getSetting("sticky_button_text_color");
     const buttonBgColorSetting = await getSetting("sticky_button_bg_color");
     const customCssSetting = await getSetting("sticky_custom_css");
@@ -93,6 +94,7 @@ export const loader = async ({ request }) => {
         sticky_button_behavior: buttonBehaviorSetting?.value || 'add',
         sticky_button_text: buttonTextSetting?.value || 'Add to cart',
         sticky_enable_cart_icon: enableCartIconSetting?.value === 'true',
+        sticky_enable_mobile_cart_icon: enableMobileCartIconSetting?.value === 'true',
         sticky_button_text_color: buttonTextColorSetting?.value || '#FFFFFF',
         sticky_button_bg_color: buttonBgColorSetting?.value || '#141414',
         sticky_custom_css: customCssSetting?.value || '<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>'
@@ -108,7 +110,8 @@ export const action = async ({ request }) => {
     for (let [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
     }
-    console.log('=== END FORM DATA ===');
+    // Debug mobile cart icon specifically
+    console.log('sticky_enable_mobile_cart_icon from formData:', formData.get("sticky_enable_mobile_cart_icon"));
 
     const { upsertSetting } = await import("../models/settings.server");
     const { setShopMetafields } = await import("../utils/metafields.server");
@@ -170,6 +173,7 @@ export const action = async ({ request }) => {
         sticky_button_behavior: formData.get("sticky_button_behavior") || "add",
         sticky_button_text: formData.get("sticky_button_text") || "Add to cart",
         sticky_enable_cart_icon: formData.get("sticky_enable_cart_icon") === 'on' ? 'true' : 'false',
+        sticky_enable_mobile_cart_icon: formData.get("sticky_enable_mobile_cart_icon") === 'on' ? 'true' : 'false',
         sticky_button_text_color: formData.get("sticky_button_text_color") || "#FFFFFF",
         sticky_button_bg_color: formData.get("sticky_button_bg_color") || "#141414",
         sticky_custom_css: formData.get("sticky_custom_css") || '',
@@ -205,6 +209,10 @@ export const action = async ({ request }) => {
     await upsertSetting("sticky_button_behavior", settings.sticky_button_behavior);
     await upsertSetting("sticky_button_text", settings.sticky_button_text);
     await upsertSetting("sticky_enable_cart_icon", settings.sticky_enable_cart_icon);
+    await upsertSetting("sticky_enable_mobile_cart_icon", settings.sticky_enable_mobile_cart_icon);
+    console.log('=== SAVING MOBILE CART ICON ===');
+    console.log('saving sticky_enable_mobile_cart_icon:', settings.sticky_enable_mobile_cart_icon);
+    console.log('=== END SAVING MOBILE CART ICON ===');
     await upsertSetting("sticky_button_text_color", settings.sticky_button_text_color);
     await upsertSetting("sticky_button_bg_color", settings.sticky_button_bg_color);
     await upsertSetting("sticky_custom_css", settings.sticky_custom_css);
@@ -244,6 +252,7 @@ export default function Customize() {
     const [buttonBehavior, setButtonBehavior] = useState(savedSettings.sticky_button_behavior);
     const [buttonText, setButtonText] = useState(savedSettings.sticky_button_text);
     const [enableCartIcon, setEnableCartIcon] = useState(savedSettings.sticky_enable_cart_icon);
+    const [enableMobileCartIcon, setEnableMobileCartIcon] = useState(savedSettings.sticky_enable_mobile_cart_icon);
     const [buttonTextColor, setButtonTextColor] = useState(savedSettings.sticky_button_text_color);
     const [buttonBgColor, setButtonBgColor] = useState(savedSettings.sticky_button_bg_color);
     const [customCss, setCustomCss] = useState(savedSettings.sticky_custom_css);
@@ -266,6 +275,86 @@ export default function Customize() {
             shopify.toast.show("General settings saved!");
         }
     }, [generalFetcher.data, shopify]);
+
+    // Auto-save mobile cart icon setting when it changes
+    useEffect(() => {
+        if (appearanceView === 'mobile') {
+            const formData = new FormData();
+            // Add all required form fields
+            formData.append("sticky_bar_color", savedSettings.sticky_bar_color);
+            formData.append("sticky_visibility", visibility);
+            formData.append("sticky_trigger", trigger);
+            formData.append("sticky_content_display_image", imageDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_title", titleDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_price", priceDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_quantity", quantityDisplay ? 'on' : 'off');
+            formData.append("sticky_bar_width", barWidth);
+            formData.append("sticky_max_width", maxWidth);
+            formData.append("sticky_max_width_unit", maxWidthUnit);
+            formData.append("sticky_alignment", alignment);
+            formData.append("sticky_outer_spacing", outerSpacing);
+            formData.append("sticky_outer_spacing_unit", outerSpacingUnit);
+            formData.append("sticky_inner_spacing", innerSpacing);
+            formData.append("sticky_inner_spacing_unit", innerSpacingUnit);
+            formData.append("sticky_background_color", backgroundColor);
+            formData.append("sticky_border_color", borderColor);
+            formData.append("sticky_border_radius", borderRadius);
+            formData.append("sticky_product_name_color", productNameColor);
+            formData.append("sticky_image_size", imageSize);
+            formData.append("sticky_quantity_color", quantityColor);
+            formData.append("sticky_quantity_border_color", quantityBorderColor);
+            formData.append("sticky_button_behavior", buttonBehavior);
+            formData.append("sticky_button_text", buttonText);
+            formData.append("sticky_enable_cart_icon", enableCartIcon ? 'on' : 'off');
+            formData.append("sticky_enable_mobile_cart_icon", enableMobileCartIcon ? 'on' : 'off');
+            formData.append("sticky_button_text_color", buttonTextColor);
+            formData.append("sticky_button_bg_color", buttonBgColor);
+            formData.append("sticky_custom_css", customCss);
+
+            // Submit the form
+            fetcher.submit(formData, { method: 'post' });
+        }
+    }, [enableMobileCartIcon, appearanceView]);
+
+    // Auto-save desktop cart icon setting when it changes
+    useEffect(() => {
+        if (appearanceView === 'desktop') {
+            const formData = new FormData();
+            // Add all required form fields
+            formData.append("sticky_bar_color", savedSettings.sticky_bar_color);
+            formData.append("sticky_visibility", visibility);
+            formData.append("sticky_trigger", trigger);
+            formData.append("sticky_content_display_image", imageDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_title", titleDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_price", priceDisplay ? 'on' : 'off');
+            formData.append("sticky_content_display_quantity", quantityDisplay ? 'on' : 'off');
+            formData.append("sticky_bar_width", barWidth);
+            formData.append("sticky_max_width", maxWidth);
+            formData.append("sticky_max_width_unit", maxWidthUnit);
+            formData.append("sticky_alignment", alignment);
+            formData.append("sticky_outer_spacing", outerSpacing);
+            formData.append("sticky_outer_spacing_unit", outerSpacingUnit);
+            formData.append("sticky_inner_spacing", innerSpacing);
+            formData.append("sticky_inner_spacing_unit", innerSpacingUnit);
+            formData.append("sticky_background_color", backgroundColor);
+            formData.append("sticky_border_color", borderColor);
+            formData.append("sticky_border_radius", borderRadius);
+            formData.append("sticky_product_name_color", productNameColor);
+            formData.append("sticky_image_size", imageSize);
+            formData.append("sticky_quantity_color", quantityColor);
+            formData.append("sticky_quantity_border_color", quantityBorderColor);
+            formData.append("sticky_button_behavior", buttonBehavior);
+            formData.append("sticky_button_text", buttonText);
+            formData.append("sticky_enable_cart_icon", enableCartIcon ? 'on' : 'off');
+            formData.append("sticky_enable_mobile_cart_icon", enableMobileCartIcon ? 'on' : 'off');
+            formData.append("sticky_button_text_color", buttonTextColor);
+            formData.append("sticky_button_bg_color", buttonBgColor);
+            formData.append("sticky_custom_css", customCss);
+
+            // Submit the form
+            fetcher.submit(formData, { method: 'post' });
+        }
+    }, [enableCartIcon, appearanceView]);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -309,6 +398,7 @@ export default function Customize() {
                     sticky_button_behavior: 'add',
                     sticky_button_text: 'Add to cart',
                     sticky_enable_cart_icon: true,
+                    sticky_enable_mobile_cart_icon: true,
                     sticky_button_text_color: '#FFFFFF',
                     sticky_button_bg_color: '#141414'
                 };
@@ -336,6 +426,7 @@ export default function Customize() {
                     sticky_button_behavior: 'add',
                     sticky_button_text: 'Add to cart',
                     sticky_enable_cart_icon: true,
+                    sticky_enable_mobile_cart_icon: true,
                     sticky_button_text_color: '#FFFFFF',
                     sticky_button_bg_color: '#141414'
                 };
@@ -367,6 +458,7 @@ export default function Customize() {
         setButtonBehavior(defaultSettings.sticky_button_behavior);
         setButtonText(defaultSettings.sticky_button_text);
         setEnableCartIcon(defaultSettings.sticky_enable_cart_icon);
+        setEnableMobileCartIcon(defaultSettings.sticky_enable_mobile_cart_icon);
         setButtonTextColor(defaultSettings.sticky_button_text_color);
         setButtonBgColor(defaultSettings.sticky_button_bg_color);
 
@@ -1021,14 +1113,45 @@ export default function Customize() {
                                             </BlockStack>
                                         </Card>
                                     </BlockStack>
+
                                 </fetcher.Form>
                             )}
                             {appearanceView === 'mobile' && (
-                                <div className="mobile-view">
-                                    <Card>
-                                        mobile soon
-                                    </Card>
-                                </div>
+                                <fetcher.Form method="post" data-save-bar>
+                                    <BlockStack gap="400">
+                                        <Card>
+                                            <BlockStack gap="400">
+                                                <BlockStack gap="100">
+                                                    <Text as="h3" variant="headingMd">Button settings</Text>
+                                                    <Text variant="bodySm" tone="subdued">
+                                                        Configure the appearance and behavior of the add to cart button.
+                                                    </Text>
+                                                </BlockStack>
+                                                <BlockStack gap="200">
+                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                                        <input
+                                                            type="hidden"
+                                                            name="sticky_enable_mobile_cart_icon"
+                                                            value={enableMobileCartIcon ? 'on' : 'off'}
+                                                        />
+                                                        <Checkbox
+                                                            label="Show cart icon"
+                                                            labelHidden
+                                                            checked={enableMobileCartIcon}
+                                                            onChange={setEnableMobileCartIcon}
+                                                        />
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
+                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
+                                                                Choose whether to display the icon or not
+                                                            </Text>
+                                                        </div>
+                                                    </div>
+                                                </BlockStack>
+                                            </BlockStack>
+                                        </Card>
+                                    </BlockStack>
+                                </fetcher.Form>
                             )}
                             <Card>
                                 <Text as="h3" variant="headingMd">Reset appearance settings</Text>
@@ -1231,9 +1354,14 @@ export default function Customize() {
                                     gap: '6px',
                                     whiteSpace: 'nowrap'
                                 }}>
-                                    {enableCartIcon && (
-                                        <Icon source={CartIcon} color="base" />
-                                    )}
+                                    {appearanceView === 'mobile' ?
+                                        (enableMobileCartIcon && (
+                                            <Icon source={CartIcon} color="base" />
+                                        )) :
+                                        (enableCartIcon && (
+                                            <Icon source={CartIcon} color="base" />
+                                        ))
+                                    }
                                     {buttonText}
                                 </button>
                             </div>

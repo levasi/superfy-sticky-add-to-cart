@@ -39,6 +39,7 @@ class StickyBarSettings {
             sticky_button_behavior: 'add',
             sticky_button_text: 'Add to cart',
             sticky_enable_cart_icon: false,
+            sticky_enable_mobile_cart_icon: false,
             sticky_button_text_color: '#FFFFFF',
             sticky_button_bg_color: '#141414',
             sticky_custom_css: '',
@@ -245,7 +246,12 @@ class StickyBarSettings {
             button.style.color = settings.sticky_button_text_color;
 
             // Add cart icon if enabled
-            if (settings.sticky_enable_cart_icon) {
+            const isMobile = window.innerWidth <= 768;
+            const shouldShowCartIcon = isMobile ?
+                (settings.sticky_enable_mobile_cart_icon !== false) :
+                (settings.sticky_enable_cart_icon !== false);
+
+            if (shouldShowCartIcon) {
                 // Create cart icon if it doesn't exist
                 let cartIcon = button.querySelector('.cart-icon');
                 if (!cartIcon) {

@@ -34,6 +34,7 @@ export const loader = async ({ request }) => {
         sticky_button_behavior: await getSetting("sticky_button_behavior"),
         sticky_button_text: await getSetting("sticky_button_text"),
         sticky_enable_cart_icon: await getSetting("sticky_enable_cart_icon"),
+        sticky_enable_mobile_cart_icon: await getSetting("sticky_enable_mobile_cart_icon"),
         sticky_button_text_color: await getSetting("sticky_button_text_color"),
         sticky_button_bg_color: await getSetting("sticky_button_bg_color"),
         sticky_custom_css: await getSetting("sticky_custom_css"),

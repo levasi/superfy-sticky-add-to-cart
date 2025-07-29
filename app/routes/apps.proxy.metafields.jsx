@@ -100,6 +100,7 @@ export const loader = async ({ request }) => {
             sticky_button_behavior: settings.sticky_button_behavior || 'add',
             sticky_button_text: settings.sticky_button_text || 'Add to cart',
             sticky_enable_cart_icon: settings.sticky_enable_cart_icon === true,
+            sticky_enable_mobile_cart_icon: settings.sticky_enable_mobile_cart_icon === true,
             sticky_button_text_color: settings.sticky_button_text_color || '#FFFFFF',
             sticky_button_bg_color: settings.sticky_button_bg_color || '#141414',
             sticky_custom_css: settings.sticky_custom_css || '',
