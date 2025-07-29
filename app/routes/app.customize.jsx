@@ -118,7 +118,32 @@ export const action = async ({ request }) => {
     const shopIdResponse = await admin.graphql(`query { shop { id } }`);
     const { data: { shop: { id: shopId } } } = await shopIdResponse.json();
 
-    // Prepare settings object
+    // Check if this is a general settings submission (only visibility and trigger)
+    const isGeneralSettings = formData.has("sticky_visibility") && formData.has("sticky_trigger") &&
+        !formData.has("sticky_content_display_image") && !formData.has("sticky_bar_width");
+
+    if (isGeneralSettings) {
+        // Handle only general settings
+        const generalSettings = {
+            sticky_visibility: formData.get("sticky_visibility") || "all",
+            sticky_trigger: formData.get("sticky_trigger") || "after-summary",
+        };
+
+        console.log('=== GENERAL SETTINGS TO SAVE ===');
+        console.log(JSON.stringify(generalSettings, null, 2));
+        console.log('=== END GENERAL SETTINGS ===');
+
+        // Save to database
+        await upsertSetting("sticky_visibility", generalSettings.sticky_visibility);
+        await upsertSetting("sticky_trigger", generalSettings.sticky_trigger);
+
+        // Save to metafields for backward compatibility
+        await setShopMetafields(admin, shopId, generalSettings);
+
+        return Response.json({ ok: true });
+    }
+
+    // Handle appearance settings (existing logic)
     const settings = {
         sticky_bar_color: formData.get("sticky_bar_color") || "#fff",
         sticky_visibility: formData.get("sticky_visibility") || "all",
@@ -150,9 +175,9 @@ export const action = async ({ request }) => {
         sticky_custom_css: formData.get("sticky_custom_css") || '',
     };
 
-    console.log('=== SETTINGS TO SAVE ===');
+    console.log('=== APPEARANCE SETTINGS TO SAVE ===');
     console.log(JSON.stringify(settings, null, 2));
-    console.log('=== END SETTINGS ===');
+    console.log('=== END APPEARANCE SETTINGS ===');
 
     // Save to database
     await upsertSetting("sticky_bar_color", settings.sticky_bar_color);
@@ -227,6 +252,7 @@ export default function Customize() {
 
     const shopify = useAppBridge();
     const fetcher = useFetcher();
+    const generalFetcher = useFetcher();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -234,6 +260,12 @@ export default function Customize() {
             shopify.toast.show("Sticky bar settings saved!");
         }
     }, [fetcher.data, shopify]);
+
+    useEffect(() => {
+        if (generalFetcher.data?.ok) {
+            shopify.toast.show("General settings saved!");
+        }
+    }, [generalFetcher.data, shopify]);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -411,64 +443,82 @@ export default function Customize() {
                 <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange}>
                     <div style={{ marginBottom: '8px' }}></div>
                     {selectedTab === 0 && (
-                        <Layout>
-                            <Layout.Section>
-                                <BlockStack gap="400">
-                                    <Card>
-                                        <InlineStack gap="400" align="space-between" blockAlign="center">
-                                            <Text variant="headingSm" tone="success">Sticky Bar <span style={{ marginLeft: 8 }}><span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span></span></Text>
-                                            <Button tone="critical">Pause</Button>
-                                        </InlineStack>
-                                    </Card>
-                                    <Card>
-                                        <Box>
-                                            <div style={{ marginBottom: '16px' }}>
-                                                <Text variant="headingSm" as="h3">Visibility</Text>
-                                            </div>
-                                            <Box style={{ margin: '4px 0' }}>
+                        <generalFetcher.Form method="post" data-save-bar>
+                            <Layout>
+                                <Layout.Section>
+                                    <BlockStack gap="400">
+                                        <Card>
+                                            <InlineStack gap="400" align="space-between" blockAlign="center">
+                                                <Text variant="headingSm" tone="success">Sticky Bar <span style={{ marginLeft: 8 }}><span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span></span></Text>
+                                                <Button tone="critical">Pause</Button>
+                                            </InlineStack>
+                                        </Card>
+                                        <Card>
+                                            <Box>
+                                                <div style={{ marginBottom: '16px' }}>
+                                                    <Text variant="headingSm" as="h3">Visibility</Text>
+                                                </div>
+                                                <Box style={{ margin: '4px 0' }}>
+                                                    <input
+                                                        type="hidden"
+                                                        name="sticky_visibility"
+                                                        value={visibility}
+                                                    />
+                                                    <Select
+                                                        label="Show on"
+                                                        options={[
+                                                            { label: 'All devices', value: 'all' },
+                                                            { label: 'Desktop only', value: 'desktop' },
+                                                            { label: 'Mobile only', value: 'mobile' },
+                                                        ]}
+                                                        value={visibility}
+                                                        onChange={setVisibility}
+                                                    />
+                                                </Box>
 
-                                                <Select
-                                                    label="Show on"
-                                                    options={[
-                                                        { label: 'All devices', value: 'all' },
-                                                        { label: 'Desktop only', value: 'desktop' },
-                                                        { label: 'Mobile only', value: 'mobile' },
-                                                    ]}
-                                                    value={visibility}
-                                                    onChange={setVisibility}
+                                                <Text variant="bodySm" tone="subdued" style={{ marginTop: 4 }}>Control where the Sticky Bar is shown.</Text>
+                                            </Box>
+                                            <Box style={{ margin: '16px 0' }}>
+                                                <Divider />
+                                            </Box>
+                                            <BlockStack >
+                                                <Box style={{ marginBottom: '16px' }}>
+                                                    <Text variant="headingSm" as="h3">Trigger</Text>
+                                                </Box>
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_trigger"
+                                                    value={trigger}
                                                 />
+                                                <ChoiceList
+                                                    title="Display trigger"
+                                                    choices={[
+                                                        { label: 'Always visible', value: 'always' },
+                                                        { label: 'On scroll up', value: 'scroll-up' },
+                                                        { label: 'After X seconds', value: 'after-x-seconds' },
+                                                        { label: 'After scrolling down X pixels', value: 'after-x-pixels' },
+                                                        { label: 'After product summary', value: 'after-summary' },
+                                                        { label: 'When add to cart button is out of view', value: 'out-of-view' },
+                                                    ]}
+                                                    selected={[trigger]}
+                                                    onChange={([value]) => setTrigger(value)}
+                                                />
+                                            </BlockStack>
+                                            <Box style={{ margin: '16px 0' }}>
+                                                <Divider />
                                             </Box>
-
-                                            <Text variant="bodySm" tone="subdued" style={{ marginTop: 4 }}>Control where the Sticky Bar is shown.</Text>
-                                        </Box>
-                                        <Box style={{ margin: '16px 0' }}>
-                                            <Divider />
-                                        </Box>
-                                        <BlockStack >
-                                            <Box style={{ marginBottom: '16px' }}>
-                                                <Text variant="headingSm" as="h3">Trigger</Text>
-                                            </Box>
-                                            <ChoiceList
-                                                title="Display trigger"
-                                                choices={[
-                                                    { label: 'Always visible', value: 'always' },
-                                                    { label: 'On scroll up', value: 'scroll-up' },
-                                                    { label: 'After X seconds', value: 'after-x-seconds' },
-                                                    { label: 'After scrolling down X pixels', value: 'after-x-pixels' },
-                                                    { label: 'After product summary', value: 'after-summary' },
-                                                    { label: 'When add to cart button is out of view', value: 'out-of-view' },
-                                                ]}
-                                                selected={[trigger]}
-                                                onChange={([value]) => setTrigger(value)}
-                                            />
-                                        </BlockStack>
-                                        <Box style={{ margin: '16px 0' }}>
-                                            <Divider />
-                                        </Box>
-                                    </Card>
-                                </BlockStack>
-                            </Layout.Section>
-                        </Layout>
+                                        </Card>
+                                        <Card>
+                                            <BlockStack gap="400">
+                                                <Button submit primary>
+                                                    Save settings
+                                                </Button>
+                                            </BlockStack>
+                                        </Card>
+                                    </BlockStack>
+                                </Layout.Section>
+                            </Layout>
+                        </generalFetcher.Form>
                     )}
                     {selectedTab === 1 && (
                         <BlockStack gap="400">

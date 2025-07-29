@@ -48,6 +48,7 @@
   </div>
 
   <!-- Load settings from app proxy -->
+  <link rel="stylesheet" href="{{ 'sticky-bar.css' | asset_url }}?v={{ 'now' | date: '%s' }}">
   <script src="{{ 'sticky-settings.js' | asset_url }}?v={{ 'now' | date: '%s' }}" defer></script>
 
   <script>
@@ -64,11 +65,8 @@
       // Wait for settings to load from app proxy
       window.StickyBarSettings.onLoad(function(settings) {
         
-        // Show the sticky bar if enabled
-        if (window.StickyBarSettings.isEnabled()) {
-          block.style.display = 'block';
-          window.StickyBarSettings.applySettings();
-        }
+        // Apply settings (this will handle visibility via CSS classes)
+        window.StickyBarSettings.applySettings();
         
         // Set up quantity selector
         const quantityInput = block.querySelector('.sticky-quantity-input');

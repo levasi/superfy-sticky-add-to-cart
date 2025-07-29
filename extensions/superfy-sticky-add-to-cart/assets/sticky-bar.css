@@ -1,0 +1,39 @@
+/* Sticky Bar Visibility Classes */
+
+/* Default state - hidden */
+.sticky-add-to-cart-block {
+    display: none;
+}
+
+/* Show on all devices */
+.sticky-visible-all {
+    display: block !important;
+}
+
+/* Show only on desktop (screens wider than 768px) */
+@media (min-width: 769px) {
+    .sticky-visible-desktop {
+        display: block !important;
+    }
+}
+
+/* Show only on mobile (screens 768px and narrower) */
+@media (max-width: 768px) {
+    .sticky-visible-mobile {
+        display: block !important;
+    }
+}
+
+/* Hide desktop class on mobile */
+@media (max-width: 768px) {
+    .sticky-visible-desktop {
+        display: none !important;
+    }
+}
+
+/* Hide mobile class on desktop */
+@media (min-width: 769px) {
+    .sticky-visible-mobile {
+        display: none !important;
+    }
+}

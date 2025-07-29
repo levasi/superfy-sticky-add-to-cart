@@ -67,16 +67,6 @@ class StickyBarSettings {
         }
     }
 
-    // Check if sticky bar should be enabled
-    isEnabled() {
-        const visibility = this.get('sticky_visibility');
-        const isEnabled = visibility === 'all' ||
-            (visibility === 'mobile' && window.innerWidth <= 768) ||
-            (visibility === 'desktop' && window.innerWidth > 768);
-
-        return isEnabled;
-    }
-
     // Get CSS styles based on settings
     getStyles() {
         const settings = this.getAll();
@@ -160,70 +150,45 @@ class StickyBarSettings {
         }
     }
 
-    // Load settings from app proxy
+    // Load settings and apply them
     async load() {
-        if (this.loaded) {
-            return this.settings;
-        }
-
         try {
-            const response = await fetch(this.proxyUrl, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                cache: 'no-cache'
-            });
+            console.log('Loading sticky bar settings...');
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // Try to load from app proxy first
+            const response = await fetch(`${this.proxyUrl}?t=${Date.now()}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Settings loaded from app proxy:', data);
+                this.settings = data;
+            } else {
+                console.log('App proxy failed, trying metafields...');
+                // Fallback to metafields
+                await this.loadFromMetafields();
             }
 
-            const settings = await response.json();
-
-            this.settings = settings;
             this.loaded = true;
 
-            // Execute any pending callbacks
+            // Apply settings
+            this.applySettings();
+
+            // Call all registered callbacks
             this.callbacks.forEach(callback => callback(this.settings));
             this.callbacks = [];
 
-            return this.settings;
         } catch (error) {
-
-            // Try metafields fallback
-            const metafieldsSettings = await this.loadFromMetafields();
-            if (metafieldsSettings) {
-                this.settings = metafieldsSettings;
-                this.loaded = true;
-
-                // Execute any pending callbacks
-                this.callbacks.forEach(callback => callback(this.settings));
-                this.callbacks = [];
-
-                return this.settings;
-            }
-
-            // Return default settings if all methods fail
+            console.error('Error loading sticky bar settings:', error);
+            // Apply default settings on error
             this.settings = this.getDefaultSettings();
             this.loaded = true;
-
-            // Execute any pending callbacks
-            this.callbacks.forEach(callback => callback(this.settings));
-            this.callbacks = [];
-
-            return this.settings;
+            this.applySettings();
         }
     }
 
     // Apply settings to the sticky bar
     applySettings() {
-        if (!this.isEnabled()) {
-            return;
-        }
-
         const settings = this.getAll();
-        const styles = this.getStyles();
 
         // Find the sticky bar element
         const stickyBar = document.querySelector('.sticky-add-to-cart-block');
@@ -231,6 +196,20 @@ class StickyBarSettings {
             console.error('Sticky bar element not found');
             return;
         }
+
+        // Apply visibility classes instead of JavaScript show/hide
+        stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile');
+
+        const visibility = this.get('sticky_visibility');
+        if (visibility === 'all') {
+            stickyBar.classList.add('sticky-visible-all');
+        } else if (visibility === 'desktop') {
+            stickyBar.classList.add('sticky-visible-desktop');
+        } else if (visibility === 'mobile') {
+            stickyBar.classList.add('sticky-visible-mobile');
+        }
+
+        const styles = this.getStyles();
 
         // Apply styles to the main sticky bar container
         Object.assign(stickyBar.style, styles);
