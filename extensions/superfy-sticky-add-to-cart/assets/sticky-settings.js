@@ -27,6 +27,13 @@ class StickyBarSettings {
             sticky_content_display_mobile_price: true,
             sticky_content_display_mobile_quantity: true,
             sticky_bar_width: 'contained',
+            sticky_bar_width_mobile: 'full',
+            sticky_max_width_mobile: '',
+            sticky_max_width_mobile_unit: 'px',
+            sticky_alignment_mobile: 'right',
+            sticky_outer_spacing_mobile: '',
+            sticky_outer_spacing_mobile_unit: 'px',
+            sticky_inner_spacing_mobile: '16',
             sticky_max_width: '',
             sticky_max_width_unit: 'px',
             sticky_alignment: 'left',
@@ -229,14 +236,8 @@ class StickyBarSettings {
         console.log('=== MOBILE DISPLAY SETTINGS DEBUG ===');
         console.log('Window width:', window.innerWidth);
         console.log('Is mobile:', window.innerWidth <= 768);
-        console.log('sticky_content_display_mobile_image:', settings.sticky_content_display_mobile_image);
-        console.log('sticky_content_display_mobile_title:', settings.sticky_content_display_mobile_title);
-        console.log('sticky_content_display_mobile_price:', settings.sticky_content_display_mobile_price);
-        console.log('sticky_content_display_mobile_quantity:', settings.sticky_content_display_mobile_quantity);
-        console.log('sticky_content_display_image:', settings.sticky_content_display_image);
-        console.log('sticky_content_display_title:', settings.sticky_content_display_title);
-        console.log('sticky_content_display_price:', settings.sticky_content_display_price);
-        console.log('sticky_content_display_quantity:', settings.sticky_content_display_quantity);
+
+
         console.log('=== END MOBILE DISPLAY SETTINGS DEBUG ===');
 
         if (imageElement) {

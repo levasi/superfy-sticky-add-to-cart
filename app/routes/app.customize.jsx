@@ -51,6 +51,13 @@ export const loader = async ({ request }) => {
     const mobilePriceSetting = await getSetting("sticky_content_display_mobile_price");
     const mobileQuantitySetting = await getSetting("sticky_content_display_mobile_quantity");
     const barWidthSetting = await getSetting("sticky_bar_width");
+    const mobileBarWidthSetting = await getSetting("sticky_bar_width_mobile");
+    const mobileMaxWidthSetting = await getSetting("sticky_max_width_mobile");
+    const mobileMaxWidthUnitSetting = await getSetting("sticky_max_width_mobile_unit");
+    const mobileAlignmentSetting = await getSetting("sticky_alignment_mobile");
+    const mobileOuterSpacingSetting = await getSetting("sticky_outer_spacing_mobile");
+    const mobileOuterSpacingUnitSetting = await getSetting("sticky_outer_spacing_mobile_unit");
+    const mobileInnerSpacingSetting = await getSetting("sticky_inner_spacing_mobile");
     const maxWidthSetting = await getSetting("sticky_max_width");
     const maxWidthUnitSetting = await getSetting("sticky_max_width_unit");
     const alignmentSetting = await getSetting("sticky_alignment");
@@ -85,6 +92,13 @@ export const loader = async ({ request }) => {
         sticky_content_display_mobile_price: mobilePriceSetting?.value === 'true',
         sticky_content_display_mobile_quantity: mobileQuantitySetting?.value === 'true',
         sticky_bar_width: barWidthSetting?.value || 'contained',
+        sticky_bar_width_mobile: mobileBarWidthSetting?.value || 'full',
+        sticky_max_width_mobile: mobileMaxWidthSetting?.value || '',
+        sticky_max_width_mobile_unit: mobileMaxWidthUnitSetting?.value || 'px',
+        sticky_alignment_mobile: mobileAlignmentSetting?.value || 'right',
+        sticky_outer_spacing_mobile: mobileOuterSpacingSetting?.value || '',
+        sticky_outer_spacing_mobile_unit: mobileOuterSpacingUnitSetting?.value || 'px',
+        sticky_inner_spacing_mobile: mobileInnerSpacingSetting?.value || '16',
         sticky_max_width: maxWidthSetting?.value || '',
         sticky_max_width_unit: maxWidthUnitSetting?.value || 'px',
         sticky_alignment: alignmentSetting?.value || 'right',
@@ -168,6 +182,13 @@ export const action = async ({ request }) => {
         sticky_content_display_mobile_price: formData.get("sticky_content_display_mobile_price") === 'on' ? 'true' : 'false',
         sticky_content_display_mobile_quantity: formData.get("sticky_content_display_mobile_quantity") === 'on' ? 'true' : 'false',
         sticky_bar_width: formData.get("sticky_bar_width") || "contained",
+        sticky_bar_width_mobile: formData.get("sticky_bar_width_mobile") || "full",
+        sticky_max_width_mobile: formData.get("sticky_max_width_mobile") || "",
+        sticky_max_width_mobile_unit: formData.get("sticky_max_width_mobile_unit") || "px",
+        sticky_alignment_mobile: formData.get("sticky_alignment_mobile") || "right",
+        sticky_outer_spacing_mobile: formData.get("sticky_outer_spacing_mobile") || "",
+        sticky_outer_spacing_mobile_unit: formData.get("sticky_outer_spacing_mobile_unit") || "px",
+        sticky_inner_spacing_mobile: formData.get("sticky_inner_spacing_mobile") || "16",
         sticky_max_width: formData.get("sticky_max_width") || "",
         sticky_max_width_unit: formData.get("sticky_max_width_unit") || "px",
         sticky_alignment: formData.get("sticky_alignment") || "right",
@@ -208,6 +229,13 @@ export const action = async ({ request }) => {
     await upsertSetting("sticky_content_display_mobile_price", settings.sticky_content_display_mobile_price);
     await upsertSetting("sticky_content_display_mobile_quantity", settings.sticky_content_display_mobile_quantity);
     await upsertSetting("sticky_bar_width", settings.sticky_bar_width);
+    await upsertSetting("sticky_bar_width_mobile", settings.sticky_bar_width_mobile);
+    await upsertSetting("sticky_max_width_mobile", settings.sticky_max_width_mobile);
+    await upsertSetting("sticky_max_width_mobile_unit", settings.sticky_max_width_mobile_unit);
+    await upsertSetting("sticky_alignment_mobile", settings.sticky_alignment_mobile);
+    await upsertSetting("sticky_outer_spacing_mobile", settings.sticky_outer_spacing_mobile);
+    await upsertSetting("sticky_outer_spacing_mobile_unit", settings.sticky_outer_spacing_mobile_unit);
+    await upsertSetting("sticky_inner_spacing_mobile", settings.sticky_inner_spacing_mobile);
     await upsertSetting("sticky_max_width", settings.sticky_max_width);
     await upsertSetting("sticky_max_width_unit", settings.sticky_max_width_unit);
     await upsertSetting("sticky_alignment", settings.sticky_alignment);
@@ -255,6 +283,13 @@ export default function Customize() {
     const [mobilePriceDisplay, setMobilePriceDisplay] = useState(savedSettings.sticky_content_display_mobile_price);
     const [mobileQuantityDisplay, setMobileQuantityDisplay] = useState(savedSettings.sticky_content_display_mobile_quantity);
     const [barWidth, setBarWidth] = useState(savedSettings.sticky_bar_width);
+    const [mobileBarWidth, setMobileBarWidth] = useState(savedSettings.sticky_bar_width_mobile);
+    const [mobileMaxWidth, setMobileMaxWidth] = useState(savedSettings.sticky_max_width_mobile);
+    const [mobileMaxWidthUnit, setMobileMaxWidthUnit] = useState(savedSettings.sticky_max_width_mobile_unit);
+    const [mobileAlignment, setMobileAlignment] = useState(savedSettings.sticky_alignment_mobile);
+    const [mobileOuterSpacing, setMobileOuterSpacing] = useState(savedSettings.sticky_outer_spacing_mobile);
+    const [mobileOuterSpacingUnit, setMobileOuterSpacingUnit] = useState(savedSettings.sticky_outer_spacing_mobile_unit);
+    const [mobileInnerSpacing, setMobileInnerSpacing] = useState(savedSettings.sticky_inner_spacing_mobile);
     const [maxWidth, setMaxWidth] = useState(savedSettings.sticky_max_width);
     const [maxWidthUnit, setMaxWidthUnit] = useState(savedSettings.sticky_max_width_unit);
     const [alignment, setAlignment] = useState(savedSettings.sticky_alignment);
@@ -393,6 +428,13 @@ export default function Customize() {
             formData.append("sticky_content_display_mobile_price", mobilePriceDisplay ? 'on' : 'off');
             formData.append("sticky_content_display_mobile_quantity", mobileQuantityDisplay ? 'on' : 'off');
             formData.append("sticky_bar_width", barWidth);
+            formData.append("sticky_bar_width_mobile", mobileBarWidth);
+            formData.append("sticky_max_width_mobile", mobileMaxWidth);
+            formData.append("sticky_max_width_mobile_unit", mobileMaxWidthUnit);
+            formData.append("sticky_alignment_mobile", mobileAlignment);
+            formData.append("sticky_outer_spacing_mobile", mobileOuterSpacing);
+            formData.append("sticky_outer_spacing_mobile_unit", mobileOuterSpacingUnit);
+            formData.append("sticky_inner_spacing_mobile", mobileInnerSpacing);
             formData.append("sticky_max_width", maxWidth);
             formData.append("sticky_max_width_unit", maxWidthUnit);
             formData.append("sticky_alignment", alignment);
@@ -418,7 +460,7 @@ export default function Customize() {
             // Submit the form
             fetcher.submit(formData, { method: 'post' });
         }
-    }, [mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay, appearanceView]);
+    }, [mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay, mobileBarWidth, mobileMaxWidth, mobileMaxWidthUnit, mobileAlignment, mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, appearanceView]);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -1300,6 +1342,137 @@ export default function Customize() {
                                                         </div>
                                                     </div>
                                                 </BlockStack>
+                                            </BlockStack>
+                                        </Card>
+                                        <Card>
+                                            <BlockStack gap="400">
+                                                <BlockStack gap="100">
+                                                    <Text as="h3" variant="headingMd">Bar</Text>
+                                                    <Text variant="bodySm" tone="subdued">
+                                                        Manage layout, spacing, and visual design for the sticky bar container.
+                                                    </Text>
+                                                </BlockStack>
+                                                <Box paddingBlock="400">
+                                                    <Box style={{ marginBottom: '8px' }}>
+                                                        <ChoiceList
+                                                            title="Width"
+                                                            choices={[
+                                                                { label: 'Full', value: 'full' },
+                                                                { label: 'Contained', value: 'contained' },
+                                                            ]}
+                                                            selected={[mobileBarWidth]}
+                                                            onChange={([value]) => setMobileBarWidth(value)}
+                                                            allowMultiple={false}
+                                                            name="sticky_bar_width_mobile"
+                                                        />
+                                                    </Box>
+                                                    {mobileBarWidth === 'contained' && (
+                                                        <>
+                                                            <Box style={{ marginBottom: '8px' }}>
+                                                                <BlockStack gap="100">
+                                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
+                                                                    <div className='input-and-unit-wrapper'>
+                                                                        <input
+                                                                            type="hidden"
+                                                                            name="sticky_max_width_mobile"
+                                                                            value={mobileMaxWidth}
+                                                                        />
+                                                                        <TextField
+                                                                            className='max-width-input-type-number'
+                                                                            type="number"
+                                                                            placeholder="e.g., 600"
+                                                                            value={mobileMaxWidth}
+                                                                            onChange={setMobileMaxWidth}
+                                                                            style={{ flex: 1 }}
+                                                                        />
+                                                                        <Select
+                                                                            options={[
+                                                                                { label: 'px', value: 'px' },
+                                                                                { label: '%', value: '%' }
+                                                                            ]}
+                                                                            onChange={setMobileMaxWidthUnit}
+                                                                            value={mobileMaxWidthUnit}
+                                                                            name="sticky_max_width_mobile_unit"
+                                                                            style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                        />
+                                                                    </div>
+                                                                    <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
+                                                                </BlockStack>
+                                                            </Box>
+                                                            <Box style={{ marginBottom: "16px" }}>
+                                                                <BlockStack gap="100">
+                                                                    <Text variant="bodySm" as="div">Alignment</Text>
+                                                                    <Select
+                                                                        options={[
+                                                                            { label: 'Left', value: 'left' },
+                                                                            { label: 'Center', value: 'center' },
+                                                                            { label: 'Right', value: 'right' }
+                                                                        ]}
+                                                                        onChange={setMobileAlignment}
+                                                                        value={mobileAlignment}
+                                                                        name="sticky_alignment_mobile"
+                                                                        style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                    />
+                                                                </BlockStack>
+                                                            </Box>
+                                                            <Box style={{ marginBottom: "16px" }}>
+                                                                <BlockStack gap="100">
+                                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
+                                                                    <div className='input-and-unit-wrapper'>
+                                                                        <input
+                                                                            type="hidden"
+                                                                            name="sticky_outer_spacing_mobile"
+                                                                            value={mobileOuterSpacing}
+                                                                        />
+                                                                        <TextField
+                                                                            className='outer-spacing-input-type-number'
+                                                                            type="number"
+                                                                            placeholder="e.g., 20"
+                                                                            value={mobileOuterSpacing}
+                                                                            onChange={setMobileOuterSpacing}
+                                                                        />
+                                                                        <select
+                                                                            value={mobileOuterSpacingUnit}
+                                                                            onChange={e => setMobileOuterSpacingUnit(e.target.value)}
+                                                                            name="sticky_outer_spacing_mobile_unit"
+                                                                            style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                        >
+                                                                            <option value="px">px</option>
+                                                                            <option value="%">%</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
+                                                                </BlockStack>
+                                                            </Box>
+                                                        </>
+                                                    )}
+                                                    <BlockStack gap="100">
+                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Inner spacing</Text>
+                                                        <div className='input-and-unit-wrapper'>
+                                                            <input
+                                                                type="hidden"
+                                                                name="sticky_inner_spacing_mobile"
+                                                                value={mobileInnerSpacing}
+                                                            />
+                                                            <TextField
+                                                                className='inner-spacing-input-type-number'
+                                                                type="number"
+                                                                placeholder="e.g., 16"
+                                                                value={mobileInnerSpacing}
+                                                                onChange={setMobileInnerSpacing}
+                                                            />
+                                                            <select
+                                                                value="px"
+                                                                disabled
+                                                                name="sticky_inner_spacing_mobile_unit"
+                                                                style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            >
+                                                                <option value="px">px</option>
+                                                            </select>
+                                                        </div>
+                                                        <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
+                                                    </BlockStack>
+                                                </Box>
                                             </BlockStack>
                                         </Card>
                                     </BlockStack>
