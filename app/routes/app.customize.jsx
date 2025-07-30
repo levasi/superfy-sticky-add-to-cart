@@ -879,10 +879,10 @@ export default function Customize() {
                                                     />
                                                     <Select
                                                         options={[
-                                                            { label: 'px', value: 'px' }
+                                                            { label: 'px', value: 'px' },
+                                                            { label: '%', value: '%' }
                                                         ]}
                                                         value="px"
-                                                        disabled
                                                         name="sticky_inner_spacing_unit"
                                                         style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                     />
@@ -1373,10 +1373,10 @@ export default function Customize() {
                                                         />
                                                         <Select
                                                             options={[
-                                                                { label: 'px', value: 'px' }
+                                                                { label: 'px', value: 'px' },
+                                                                { label: '%', value: '%' }
                                                             ]}
                                                             value="px"
-                                                            disabled
                                                             name="sticky_inner_spacing_mobile_unit"
                                                             style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                         />
