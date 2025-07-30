@@ -2,14 +2,10 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
-    console.log('=== SETTINGS ROUTE (REDIRECT) ===');
-    console.log('Request URL:', request.url);
-    console.log('Request method:', request.method);
 
     try {
         // Try to authenticate the request using Shopify's app proxy authentication
         const { storefront, liquid } = await authenticate.public.appProxy(request);
-        console.log('App proxy authentication successful');
 
         // Get the shop from the request parameters (as per Shopify docs)
         const url = new URL(request.url);
@@ -19,19 +15,10 @@ export const loader = async ({ request }) => {
         const signature = url.searchParams.get('signature');
         const loggedInCustomerId = url.searchParams.get('logged_in_customer_id');
 
-        console.log('Shopify proxy parameters:');
-        console.log('- shop:', shop);
-        console.log('- path_prefix:', pathPrefix);
-        console.log('- timestamp:', timestamp);
-        console.log('- signature:', signature ? 'present' : 'missing');
-        console.log('- logged_in_customer_id:', loggedInCustomerId);
-
         if (!shop) {
             console.log('ERROR: Shop parameter required');
             return json({ error: 'Shop parameter required' }, { status: 400 });
         }
-
-        console.log('Loading settings from database for shop:', shop);
 
         // Import the getSetting function
         const { getSetting } = await import("../models/settings.server");
@@ -81,9 +68,6 @@ export const loader = async ({ request }) => {
             sticky_custom_css: await getSetting("sticky_custom_css"),
         };
 
-        console.log('=== RAW DATABASE SETTINGS ===');
-        console.log(JSON.stringify(settings, null, 2));
-
         // Convert to a clean settings object with default values
         const cleanSettings = {
             sticky_bar_color: settings.sticky_bar_color?.value || '#fff',
@@ -128,9 +112,6 @@ export const loader = async ({ request }) => {
             sticky_button_bg_color: settings.sticky_button_bg_color?.value || '#141414',
             sticky_custom_css: settings.sticky_custom_css?.value || '',
         };
-
-        console.log('=== CLEAN SETTINGS TO RETURN ===');
-        console.log(JSON.stringify(cleanSettings, null, 2));
 
         return json(cleanSettings);
 
@@ -181,9 +162,6 @@ export const loader = async ({ request }) => {
             sticky_button_bg_color: '#141414',
             sticky_custom_css: '',
         };
-
-        console.log('=== FALLBACK SETTINGS TO RETURN ===');
-        console.log(JSON.stringify(fallbackSettings, null, 2));
 
         return json(fallbackSettings);
     }

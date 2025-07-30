@@ -2,27 +2,19 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
-    console.log('=== METAFIELDS FALLBACK REQUEST ===');
-    console.log('Request URL:', request.url);
-    console.log('Request method:', request.method);
 
     try {
         // Try to authenticate the request
         const { admin } = await authenticate.admin(request);
-        console.log('Admin authentication successful');
 
         // Get the shop from the request
         const url = new URL(request.url);
         const shop = url.searchParams.get('shop');
 
-        console.log('Shop parameter:', shop);
-
         if (!shop) {
             console.log('ERROR: Shop parameter required');
             return json({ error: 'Shop parameter required' }, { status: 400 });
         }
-
-        console.log('Loading settings from metafields for shop:', shop);
 
         // Get shop metafields
         const metafieldsResponse = await admin.graphql(`
@@ -42,7 +34,6 @@ export const loader = async ({ request }) => {
         `);
 
         const metafieldsData = await metafieldsResponse.json();
-        console.log('Metafields response:', metafieldsData);
 
         // Convert metafields to settings object
         const metafields = metafieldsData.data.shop.metafields.edges;
@@ -69,9 +60,6 @@ export const loader = async ({ request }) => {
                 settings[node.key] = value;
             }
         });
-
-        console.log('=== METAFIELDS SETTINGS ===');
-        console.log(JSON.stringify(settings, null, 2));
 
         // Convert to clean settings object with defaults
         const cleanSettings = {
@@ -117,10 +105,6 @@ export const loader = async ({ request }) => {
             sticky_button_bg_color: settings.sticky_button_bg_color || '#141414',
             sticky_custom_css: settings.sticky_custom_css || '',
         };
-
-        console.log('=== CLEAN METAFIELDS SETTINGS ===');
-        console.log(JSON.stringify(cleanSettings, null, 2));
-        console.log('=== END METAFIELDS FALLBACK ===');
 
         // Return settings with CORS headers for storefront access
         return json(cleanSettings, {

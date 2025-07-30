@@ -129,14 +129,6 @@ export const action = async ({ request }) => {
     await authenticate.admin(request);
     const formData = await request.formData();
 
-    // Debug: Log all form data
-    console.log('=== FORM DATA RECEIVED ===');
-    for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-    }
-    // Debug mobile cart icon specifically
-    console.log('sticky_enable_mobile_cart_icon from formData:', formData.get("sticky_enable_mobile_cart_icon"));
-
     const { upsertSetting } = await import("../models/settings.server");
     const { setShopMetafields } = await import("../utils/metafields.server");
 
@@ -155,10 +147,6 @@ export const action = async ({ request }) => {
             sticky_visibility: formData.get("sticky_visibility") || "all",
             sticky_trigger: formData.get("sticky_trigger") || "after-summary",
         };
-
-        console.log('=== GENERAL SETTINGS TO SAVE ===');
-        console.log(JSON.stringify(generalSettings, null, 2));
-        console.log('=== END GENERAL SETTINGS ===');
 
         // Save to database
         await upsertSetting("sticky_visibility", generalSettings.sticky_visibility);
@@ -215,10 +203,6 @@ export const action = async ({ request }) => {
         sticky_custom_css: formData.get("sticky_custom_css") || '',
     };
 
-    console.log('=== APPEARANCE SETTINGS TO SAVE ===');
-    console.log(JSON.stringify(settings, null, 2));
-    console.log('=== END APPEARANCE SETTINGS ===');
-
     // Save to database
     await upsertSetting("sticky_bar_color", settings.sticky_bar_color);
     await upsertSetting("sticky_visibility", settings.sticky_visibility);
@@ -258,9 +242,6 @@ export const action = async ({ request }) => {
     await upsertSetting("sticky_button_text", settings.sticky_button_text);
     await upsertSetting("sticky_enable_cart_icon", settings.sticky_enable_cart_icon);
     await upsertSetting("sticky_enable_mobile_cart_icon", settings.sticky_enable_mobile_cart_icon);
-    console.log('=== SAVING MOBILE CART ICON ===');
-    console.log('saving sticky_enable_mobile_cart_icon:', settings.sticky_enable_mobile_cart_icon);
-    console.log('=== END SAVING MOBILE CART ICON ===');
     await upsertSetting("sticky_button_text_color", settings.sticky_button_text_color);
     await upsertSetting("sticky_button_bg_color", settings.sticky_button_bg_color);
     await upsertSetting("sticky_custom_css", settings.sticky_custom_css);
@@ -318,10 +299,10 @@ export default function Customize() {
     const [customCss, setCustomCss] = useState(savedSettings.sticky_custom_css);
     const [showResetModal, setShowResetModal] = useState(false);
     const [previewQuantity, setPreviewQuantity] = useState(1);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     const shopify = useAppBridge();
     const fetcher = useFetcher();
-    const generalFetcher = useFetcher();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -330,143 +311,10 @@ export default function Customize() {
         }
     }, [fetcher.data, shopify]);
 
+    // Set initialization flag after component mounts
     useEffect(() => {
-        if (generalFetcher.data?.ok) {
-            shopify.toast.show("General settings saved!");
-        }
-    }, [generalFetcher.data, shopify]);
-
-    // Auto-save mobile cart icon setting when it changes
-    useEffect(() => {
-        if (appearanceView === 'mobile') {
-            const formData = new FormData();
-            // Add all required form fields
-            formData.append("sticky_bar_color", savedSettings.sticky_bar_color);
-            formData.append("sticky_visibility", visibility);
-            formData.append("sticky_trigger", trigger);
-            formData.append("sticky_content_display_image", imageDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_title", titleDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_price", priceDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_quantity", quantityDisplay ? 'on' : 'off');
-            formData.append("sticky_bar_width", barWidth);
-            formData.append("sticky_max_width", maxWidth);
-            formData.append("sticky_max_width_unit", maxWidthUnit);
-            formData.append("sticky_alignment", alignment);
-            formData.append("sticky_outer_spacing", outerSpacing);
-            formData.append("sticky_outer_spacing_unit", outerSpacingUnit);
-            formData.append("sticky_inner_spacing", innerSpacing);
-            formData.append("sticky_inner_spacing_unit", innerSpacingUnit);
-            formData.append("sticky_background_color", backgroundColor);
-            formData.append("sticky_border_color", borderColor);
-            formData.append("sticky_border_radius", borderRadius);
-            formData.append("sticky_product_name_color", productNameColor);
-            formData.append("sticky_image_size", imageSize);
-            formData.append("sticky_quantity_color", quantityColor);
-            formData.append("sticky_quantity_border_color", quantityBorderColor);
-            formData.append("sticky_button_behavior", buttonBehavior);
-            formData.append("sticky_button_text", buttonText);
-            formData.append("sticky_enable_cart_icon", enableCartIcon ? 'on' : 'off');
-            formData.append("sticky_enable_mobile_cart_icon", enableMobileCartIcon ? 'on' : 'off');
-            formData.append("sticky_button_text_color", buttonTextColor);
-            formData.append("sticky_button_bg_color", buttonBgColor);
-            formData.append("sticky_custom_css", customCss);
-
-            // Submit the form
-            fetcher.submit(formData, { method: 'post' });
-        }
-    }, [enableMobileCartIcon, appearanceView]);
-
-    // Auto-save desktop cart icon setting when it changes
-    useEffect(() => {
-        if (appearanceView === 'desktop') {
-            const formData = new FormData();
-            // Add all required form fields
-            formData.append("sticky_bar_color", savedSettings.sticky_bar_color);
-            formData.append("sticky_visibility", visibility);
-            formData.append("sticky_trigger", trigger);
-            formData.append("sticky_content_display_image", imageDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_title", titleDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_price", priceDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_quantity", quantityDisplay ? 'on' : 'off');
-            formData.append("sticky_bar_width", barWidth);
-            formData.append("sticky_max_width", maxWidth);
-            formData.append("sticky_max_width_unit", maxWidthUnit);
-            formData.append("sticky_alignment", alignment);
-            formData.append("sticky_outer_spacing", outerSpacing);
-            formData.append("sticky_outer_spacing_unit", outerSpacingUnit);
-            formData.append("sticky_inner_spacing", innerSpacing);
-            formData.append("sticky_inner_spacing_unit", innerSpacingUnit);
-            formData.append("sticky_background_color", backgroundColor);
-            formData.append("sticky_border_color", borderColor);
-            formData.append("sticky_border_radius", borderRadius);
-            formData.append("sticky_product_name_color", productNameColor);
-            formData.append("sticky_image_size", imageSize);
-            formData.append("sticky_quantity_color", quantityColor);
-            formData.append("sticky_quantity_border_color", quantityBorderColor);
-            formData.append("sticky_button_behavior", buttonBehavior);
-            formData.append("sticky_button_text", buttonText);
-            formData.append("sticky_enable_cart_icon", enableCartIcon ? 'on' : 'off');
-            formData.append("sticky_enable_mobile_cart_icon", enableMobileCartIcon ? 'on' : 'off');
-            formData.append("sticky_button_text_color", buttonTextColor);
-            formData.append("sticky_button_bg_color", buttonBgColor);
-            formData.append("sticky_custom_css", customCss);
-
-            // Submit the form
-            fetcher.submit(formData, { method: 'post' });
-        }
-    }, [enableCartIcon, appearanceView]);
-
-    // Auto-save mobile display settings when they change
-    useEffect(() => {
-        if (appearanceView === 'mobile') {
-            const formData = new FormData();
-            // Add all required form fields
-            formData.append("sticky_bar_color", savedSettings.sticky_bar_color);
-            formData.append("sticky_visibility", visibility);
-            formData.append("sticky_trigger", trigger);
-            formData.append("sticky_content_display_image", imageDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_title", titleDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_price", priceDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_quantity", quantityDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_mobile_image", mobileImageDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_mobile_title", mobileTitleDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_mobile_price", mobilePriceDisplay ? 'on' : 'off');
-            formData.append("sticky_content_display_mobile_quantity", mobileQuantityDisplay ? 'on' : 'off');
-            formData.append("sticky_bar_width", barWidth);
-            formData.append("sticky_bar_width_mobile", mobileBarWidth);
-            formData.append("sticky_max_width_mobile", mobileMaxWidth);
-            formData.append("sticky_max_width_mobile_unit", mobileMaxWidthUnit);
-            formData.append("sticky_alignment_mobile", mobileAlignment);
-            formData.append("sticky_outer_spacing_mobile", mobileOuterSpacing);
-            formData.append("sticky_outer_spacing_mobile_unit", mobileOuterSpacingUnit);
-            formData.append("sticky_inner_spacing_mobile", mobileInnerSpacing);
-            formData.append("sticky_max_width", maxWidth);
-            formData.append("sticky_max_width_unit", maxWidthUnit);
-            formData.append("sticky_alignment", alignment);
-            formData.append("sticky_outer_spacing", outerSpacing);
-            formData.append("sticky_outer_spacing_unit", outerSpacingUnit);
-            formData.append("sticky_inner_spacing", innerSpacing);
-            formData.append("sticky_inner_spacing_unit", innerSpacingUnit);
-            formData.append("sticky_background_color", backgroundColor);
-            formData.append("sticky_border_color", borderColor);
-            formData.append("sticky_border_radius", borderRadius);
-            formData.append("sticky_product_name_color", productNameColor);
-            formData.append("sticky_image_size", imageSize);
-            formData.append("sticky_image_size_mobile", mobileImageSize);
-            formData.append("sticky_quantity_color", quantityColor);
-            formData.append("sticky_quantity_border_color", quantityBorderColor);
-            formData.append("sticky_button_behavior", buttonBehavior);
-            formData.append("sticky_button_text", buttonText);
-            formData.append("sticky_enable_cart_icon", enableCartIcon ? 'on' : 'off');
-            formData.append("sticky_enable_mobile_cart_icon", enableMobileCartIcon ? 'on' : 'off');
-            formData.append("sticky_button_text_color", buttonTextColor);
-            formData.append("sticky_button_bg_color", buttonBgColor);
-            formData.append("sticky_custom_css", customCss);
-
-            // Submit the form
-            fetcher.submit(formData, { method: 'post' });
-        }
-    }, [mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay, mobileBarWidth, mobileInnerSpacing, mobileImageSize, appearanceView]);
+        setIsInitialized(true);
+    }, []);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -585,9 +433,6 @@ export default function Customize() {
             }
         });
 
-        console.log('Resetting to defaults for:', appearanceView);
-        console.log('Default settings:', defaultSettings);
-
         // Submit the form data to trigger save bar
         fetcher.submit(formData, { method: 'post' });
 
@@ -607,35 +452,8 @@ export default function Customize() {
         { id: 'advanced', content: 'Advanced', panelID: 'advanced-content' },
     ];
 
-    const editingViewTabs = [
-        { id: 'desktop', content: 'Desktop', panelID: 'desktop' },
-        { id: 'mobile', content: 'Mobile', panelID: 'mobile' },
-    ];
-
-    let alignmentStyles = {};
-    if (alignment === 'left') {
-        alignmentStyles = {
-            left: 0,
-            right: 'auto',
-
-        };
-    } else if (alignment === 'center') {
-        alignmentStyles = {
-            left: '50%',
-            transform: 'translateX(-50%)'
-        };
-    } else if (alignment === 'right') {
-        alignmentStyles = {
-            left: 'auto',
-            right: 0
-        };
-    }
-
-
-
     return (
         <Page fullWidth>
-            {/* Header Section */}
             <Box paddingBlockEnd="400">
                 <InlineStack align="space-between" gap="400">
                     <InlineStack gap="200" blockAlign="center">
@@ -648,7 +466,7 @@ export default function Customize() {
                 <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange}>
                     <div style={{ marginBottom: '8px' }}></div>
                     {selectedTab === 0 && (
-                        <generalFetcher.Form method="post" data-save-bar>
+                        <fetcher.Form method="post" data-save-bar>
                             <Layout>
                                 <Layout.Section>
                                     <BlockStack gap="400">
@@ -713,7 +531,7 @@ export default function Customize() {
                                     </BlockStack>
                                 </Layout.Section>
                             </Layout>
-                        </generalFetcher.Form>
+                        </fetcher.Form>
                     )}
                     {selectedTab === 1 && (
                         <BlockStack gap="400">

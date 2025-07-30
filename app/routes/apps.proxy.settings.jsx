@@ -2,15 +2,10 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
-    console.log('=== APP PROXY SETTINGS REQUEST ===');
-    console.log('Request URL:', request.url);
-    console.log('Request method:', request.method);
-    console.log('Request headers:', Object.fromEntries(request.headers.entries()));
 
     try {
         // Try to authenticate the request using Shopify's app proxy authentication
         const { storefront, liquid } = await authenticate.public.appProxy(request);
-        console.log('App proxy authentication successful');
 
         // Get the shop from the request parameters (as per Shopify docs)
         const url = new URL(request.url);
@@ -20,19 +15,10 @@ export const loader = async ({ request }) => {
         const signature = url.searchParams.get('signature');
         const loggedInCustomerId = url.searchParams.get('logged_in_customer_id');
 
-        console.log('Shopify proxy parameters:');
-        console.log('- shop:', shop);
-        console.log('- path_prefix:', pathPrefix);
-        console.log('- timestamp:', timestamp);
-        console.log('- signature:', signature ? 'present' : 'missing');
-        console.log('- logged_in_customer_id:', loggedInCustomerId);
-
         if (!shop) {
             console.log('ERROR: Shop parameter required');
             return json({ error: 'Shop parameter required' }, { status: 400 });
         }
-
-        console.log('Loading settings from database for shop:', shop);
 
         // Import the getSetting function
         const { getSetting } = await import("../models/settings.server");
@@ -75,16 +61,6 @@ export const loader = async ({ request }) => {
             sticky_custom_css: await getSetting("sticky_custom_css"),
         };
 
-        console.log('=== RAW DATABASE SETTINGS ===');
-        console.log(JSON.stringify(settings, null, 2));
-
-        // Log each setting individually for debugging
-        console.log('=== INDIVIDUAL SETTINGS DEBUG ===');
-        for (const [key, value] of Object.entries(settings)) {
-            console.log(`${key}:`, value);
-        }
-        console.log('=== END INDIVIDUAL SETTINGS ===');
-
         // Convert to a clean settings object with default values
         const cleanSettings = {
             sticky_bar_color: settings.sticky_bar_color?.value || '#fff',
@@ -123,10 +99,6 @@ export const loader = async ({ request }) => {
             sticky_custom_css: settings.sticky_custom_css?.value || '',
         };
 
-        console.log('=== CLEAN SETTINGS TO RETURN ===');
-        console.log(JSON.stringify(cleanSettings, null, 2));
-        console.log('=== END APP PROXY SETTINGS REQUEST ===');
-
         // Return settings with CORS headers for storefront access
         return json(cleanSettings, {
             headers: {
@@ -155,8 +127,6 @@ export const loader = async ({ request }) => {
             if (!shop) {
                 return json({ error: 'Shop parameter required' }, { status: 400 });
             }
-
-            console.log('Loading settings with fallback for shop:', shop);
 
             // Import the getSetting function
             const { getSetting } = await import("../models/settings.server");
@@ -206,9 +176,6 @@ export const loader = async ({ request }) => {
                 sticky_custom_css: await getSetting("sticky_custom_css"),
             };
 
-            console.log('=== FALLBACK DATABASE SETTINGS ===');
-            console.log(JSON.stringify(settings, null, 2));
-
             // Convert to a clean settings object with default values
             const cleanSettings = {
                 sticky_bar_color: settings.sticky_bar_color?.value || '#fff',
@@ -254,9 +221,6 @@ export const loader = async ({ request }) => {
                 sticky_custom_css: settings.sticky_custom_css?.value || '',
             };
 
-            console.log('=== FALLBACK SETTINGS TO RETURN ===');
-            console.log(JSON.stringify(cleanSettings, null, 2));
-
             // Return settings with CORS headers for storefront access
             return json(cleanSettings, {
                 headers: {
@@ -279,9 +243,6 @@ export const loader = async ({ request }) => {
 
 // Handle OPTIONS requests for CORS
 export const action = async ({ request }) => {
-    console.log('=== APP PROXY OPTIONS REQUEST ===');
-    console.log('Request URL:', request.url);
-    console.log('Request method:', request.method);
 
     if (request.method === 'OPTIONS') {
         console.log('Handling OPTIONS request for CORS');

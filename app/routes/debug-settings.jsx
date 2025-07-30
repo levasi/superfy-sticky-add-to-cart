@@ -52,10 +52,6 @@ export const loader = async ({ request }) => {
         sticky_custom_css: await getSetting("sticky_custom_css"),
     };
 
-    console.log('=== DEBUG SETTINGS FROM DATABASE ===');
-    console.log(JSON.stringify(settings, null, 2));
-    console.log('=== END DEBUG SETTINGS ===');
-
     return json({
         message: "Database settings debug",
         settings: settings,
