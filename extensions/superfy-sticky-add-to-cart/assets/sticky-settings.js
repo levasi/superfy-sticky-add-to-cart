@@ -83,34 +83,66 @@ class StickyBarSettings {
     // Get CSS styles based on settings
     getStyles() {
         const settings = this.getAll();
+        const isMobile = window.innerWidth <= 768;
 
         // Calculate width and positioning based on bar width setting
         let width, maxWidth, left, right, transform;
 
-        if (settings.sticky_bar_width === 'full') {
-            // Full width: spans the entire width with margins
-            width = 'calc(100% - 40px)'; // Account for outer spacing
-            maxWidth = 'none';
-            left = '20px';
-            right = '20px';
-            transform = 'none';
-        } else {
-            // Contained width: respects max width and alignment
-            maxWidth = settings.sticky_max_width ? `${settings.sticky_max_width}${settings.sticky_max_width_unit}` : '600px';
-
-            // Handle alignment for contained width
-            if (settings.sticky_alignment === 'left') {
+        if (isMobile) {
+            // Mobile settings
+            if (settings.sticky_bar_width_mobile === 'full') {
+                // Full width: spans the entire width with margins
+                width = 'calc(100% - 40px)'; // Account for outer spacing
+                maxWidth = 'none';
                 left = '20px';
-                right = 'auto';
-                transform = 'none';
-            } else if (settings.sticky_alignment === 'center') {
-                left = '50%';
-                right = 'auto';
-                transform = 'translateX(-50%)';
-            } else if (settings.sticky_alignment === 'right') {
-                left = 'auto';
                 right = '20px';
                 transform = 'none';
+            } else {
+                // Contained width: respects max width and alignment
+                maxWidth = settings.sticky_max_width_mobile ? `${settings.sticky_max_width_mobile}${settings.sticky_max_width_mobile_unit}` : '600px';
+
+                // Handle alignment for contained width
+                if (settings.sticky_alignment_mobile === 'left') {
+                    left = '20px';
+                    right = 'auto';
+                    transform = 'none';
+                } else if (settings.sticky_alignment_mobile === 'center') {
+                    left = '50%';
+                    right = 'auto';
+                    transform = 'translateX(-50%)';
+                } else if (settings.sticky_alignment_mobile === 'right') {
+                    left = 'auto';
+                    right = '20px';
+                    transform = 'none';
+                }
+            }
+        } else {
+            // Desktop settings
+            if (settings.sticky_bar_width === 'full') {
+                // Full width: spans the entire width with margins
+                width = 'calc(100% - 40px)'; // Account for outer spacing
+                maxWidth = 'none';
+                left = '20px';
+                right = '20px';
+                transform = 'none';
+            } else {
+                // Contained width: respects max width and alignment
+                maxWidth = settings.sticky_max_width ? `${settings.sticky_max_width}${settings.sticky_max_width_unit}` : '600px';
+
+                // Handle alignment for contained width
+                if (settings.sticky_alignment === 'left') {
+                    left = '20px';
+                    right = 'auto';
+                    transform = 'none';
+                } else if (settings.sticky_alignment === 'center') {
+                    left = '50%';
+                    right = 'auto';
+                    transform = 'translateX(-50%)';
+                } else if (settings.sticky_alignment === 'right') {
+                    left = 'auto';
+                    right = '20px';
+                    transform = 'none';
+                }
             }
         }
 
@@ -123,8 +155,12 @@ class StickyBarSettings {
             left: left,
             right: right,
             transform: transform,
-            margin: settings.sticky_outer_spacing ? `${settings.sticky_outer_spacing}${settings.sticky_outer_spacing_unit}` : 'unset',
-            padding: `${settings.sticky_inner_spacing}${settings.sticky_inner_spacing_unit}`,
+            margin: isMobile ?
+                (settings.sticky_outer_spacing_mobile ? `${settings.sticky_outer_spacing_mobile}${settings.sticky_outer_spacing_mobile_unit}` : 'unset') :
+                (settings.sticky_outer_spacing ? `${settings.sticky_outer_spacing}${settings.sticky_outer_spacing_unit}` : 'unset'),
+            padding: isMobile ?
+                `${settings.sticky_inner_spacing_mobile}px` :
+                `${settings.sticky_inner_spacing}${settings.sticky_inner_spacing_unit}`,
             border: `1px solid ${settings.sticky_border_color}`,
             borderRadius: `${settings.sticky_border_radius || '12'}px`,
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',

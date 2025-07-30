@@ -108,7 +108,7 @@ export const loader = async ({ request }) => {
         sticky_inner_spacing: innerSpacingSetting?.value || '12',
         sticky_inner_spacing_unit: innerSpacingUnitSetting?.value || 'px',
         sticky_background_color: backgroundColorSetting?.value || '#FFFFFF',
-        sticky_border_color: borderColorSetting?.value || '#000000',
+        sticky_border_color: borderColorSetting?.value || '#DFDFDF',
         sticky_border_radius: borderRadiusSetting?.value || '12',
         sticky_product_name_color: productNameColorSetting?.value || '#141414',
         sticky_image_size: imageSizeSetting?.value || 'medium',
@@ -552,7 +552,7 @@ export default function Customize() {
                     sticky_inner_spacing: '16',
                     sticky_inner_spacing_unit: 'px',
                     sticky_background_color: '#FFFFFF',
-                    sticky_border_color: '#000000',
+                    sticky_border_color: '#DFDFDF',
                     sticky_border_radius: '12',
                     sticky_product_name_color: '#141414',
                     sticky_image_size: 'medium',
@@ -1513,7 +1513,6 @@ export default function Customize() {
                             position: 'relative',
                             borderRadius: '8px',
                             background: '#f8f9fa',
-                            padding: '20px',
                             width: appearanceView === 'mobile' ? '375px' : '100%',
                             margin: appearanceView === 'mobile' ? '0 auto' : '0'
                         }}>
