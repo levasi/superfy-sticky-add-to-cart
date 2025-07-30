@@ -1558,18 +1558,34 @@ export default function Customize() {
                                 style={{
                                     position: 'absolute',
                                     bottom: '20px',
-                                    right: barWidth === 'contained' ?
-                                        (alignment === 'left' ? 'auto' : alignment === 'center' ? 'auto' : '20px') : '20px',
-                                    left: barWidth === 'contained' ?
-                                        (alignment === 'left' ? '20px' : alignment === 'center' ? '50%' : 'auto') : '20px',
-                                    transform: barWidth === 'contained' && alignment === 'center' ? 'translateX(-50%)' : 'none',
+                                    right: appearanceView === 'mobile' ?
+                                        (mobileBarWidth === 'contained' ?
+                                            (mobileAlignment === 'left' ? 'auto' : mobileAlignment === 'center' ? 'auto' : '20px') : '20px') :
+                                        (barWidth === 'contained' ?
+                                            (alignment === 'left' ? 'auto' : alignment === 'center' ? 'auto' : '20px') : '20px'),
+                                    left: appearanceView === 'mobile' ?
+                                        (mobileBarWidth === 'contained' ?
+                                            (mobileAlignment === 'left' ? '20px' : mobileAlignment === 'center' ? '50%' : 'auto') : '20px') :
+                                        (barWidth === 'contained' ?
+                                            (alignment === 'left' ? '20px' : alignment === 'center' ? '50%' : 'auto') : '20px'),
+                                    transform: appearanceView === 'mobile' ?
+                                        (mobileBarWidth === 'contained' && mobileAlignment === 'center' ? 'translateX(-50%)' : 'none') :
+                                        (barWidth === 'contained' && alignment === 'center' ? 'translateX(-50%)' : 'none'),
                                     borderRadius: borderRadius + 'px' || '12px',
                                     border: `1px solid ${borderColor}`,
                                     backgroundColor: backgroundColor,
-                                    padding: `${innerSpacing}${innerSpacingUnit}`,
-                                    width: barWidth === 'full' ? 'calc(100% - 40px)' : 'auto',
-                                    maxWidth: barWidth === 'contained' ? (maxWidth === '' ? '600px' : `${maxWidth}${maxWidthUnit}`) : 'none',
-                                    margin: outerSpacing === '' ? 'unset' : `${outerSpacing}${outerSpacingUnit}`,
+                                    padding: appearanceView === 'mobile' ?
+                                        `${mobileInnerSpacing}px` :
+                                        `${innerSpacing}${innerSpacingUnit}`,
+                                    width: appearanceView === 'mobile' ?
+                                        (mobileBarWidth === 'full' ? 'calc(100% - 40px)' : 'auto') :
+                                        (barWidth === 'full' ? 'calc(100% - 40px)' : 'auto'),
+                                    maxWidth: appearanceView === 'mobile' ?
+                                        (mobileBarWidth === 'contained' ? (mobileMaxWidth === '' ? '600px' : `${mobileMaxWidth}${mobileMaxWidthUnit}`) : 'none') :
+                                        (barWidth === 'contained' ? (maxWidth === '' ? '600px' : `${maxWidth}${maxWidthUnit}`) : 'none'),
+                                    margin: appearanceView === 'mobile' ?
+                                        (mobileOuterSpacing === '' ? 'unset' : `${mobileOuterSpacing}${mobileOuterSpacingUnit}`) :
+                                        (outerSpacing === '' ? 'unset' : `${outerSpacing}${outerSpacingUnit}`),
                                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -1582,8 +1598,8 @@ export default function Customize() {
                                             src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
                                             alt="Product"
                                             style={{
-                                                width: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
-                                                height: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                                width: mobileImageSize === 'small' ? '48px' : mobileImageSize === 'medium' ? '60px' : '72px',
+                                                height: mobileImageSize === 'small' ? '48px' : mobileImageSize === 'medium' ? '60px' : '72px',
                                                 objectFit: 'cover',
                                                 borderRadius: '8px',
                                                 border: '1px solid #e1e3e5'
