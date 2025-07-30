@@ -460,7 +460,7 @@ export default function Customize() {
             // Submit the form
             fetcher.submit(formData, { method: 'post' });
         }
-    }, [mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay, mobileBarWidth, mobileMaxWidth, mobileMaxWidthUnit, mobileAlignment, mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, appearanceView]);
+    }, [mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay, mobileBarWidth, mobileInnerSpacing, appearanceView]);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -873,15 +873,16 @@ export default function Customize() {
                                                                         value={outerSpacing}
                                                                         onChange={setOuterSpacing}
                                                                     />
-                                                                    <select
+                                                                    <Select
+                                                                        options={[
+                                                                            { label: 'px', value: 'px' },
+                                                                            { label: '%', value: '%' }
+                                                                        ]}
+                                                                        onChange={setOuterSpacingUnit}
                                                                         value={outerSpacingUnit}
-                                                                        onChange={e => setOuterSpacingUnit(e.target.value)}
                                                                         name="sticky_outer_spacing_unit"
                                                                         style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                                    >
-                                                                        <option value="px">px</option>
-                                                                        <option value="%">%</option>
-                                                                    </select>
+                                                                    />
                                                                 </div>
                                                                 <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
                                                             </BlockStack>
@@ -903,15 +904,15 @@ export default function Customize() {
                                                             value={innerSpacing}
                                                             onChange={setInnerSpacing}
                                                         />
-                                                        <select
-                                                            value={innerSpacingUnit}
-                                                            onChange={e => setInnerSpacingUnit(e.target.value)}
+                                                        <Select
+                                                            options={[
+                                                                { label: 'px', value: 'px' }
+                                                            ]}
+                                                            value="px"
+                                                            disabled
                                                             name="sticky_inner_spacing_unit"
                                                             style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                        >
-                                                            <option value="px">px</option>
-                                                            <option value="%">%</option>
-                                                        </select>
+                                                        />
                                                     </div>
                                                     <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                                 </BlockStack>
@@ -1226,122 +1227,58 @@ export default function Customize() {
                                 <fetcher.Form method="post" data-save-bar>
                                     <BlockStack gap="400">
                                         <Card>
-                                            <BlockStack gap="400">
+                                            <Box style={{ marginBottom: '16px' }}>
                                                 <BlockStack gap="100">
-                                                    <Text as="h3" variant="headingMd">Content</Text>
+                                                    <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
                                                     <Text variant="bodySm" tone="subdued">
-                                                        Choose what content to display in the sticky bar.
+                                                        Control which product elements are displayed.
                                                     </Text>
                                                 </BlockStack>
-                                                <BlockStack gap="200">
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_content_display_mobile_image"
-                                                            value={mobileImageDisplay ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show product image"
-                                                            labelHidden
-                                                            checked={mobileImageDisplay}
-                                                            onChange={setMobileImageDisplay}
-                                                        />
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show product image</Text>
-                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
-                                                                Display the product image in the sticky bar
-                                                            </Text>
-                                                        </div>
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_content_display_mobile_title"
-                                                            value={mobileTitleDisplay ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show product title"
-                                                            labelHidden
-                                                            checked={mobileTitleDisplay}
-                                                            onChange={setMobileTitleDisplay}
-                                                        />
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show product title</Text>
-                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
-                                                                Display the product title in the sticky bar
-                                                            </Text>
-                                                        </div>
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_content_display_mobile_price"
-                                                            value={mobilePriceDisplay ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show product price"
-                                                            labelHidden
-                                                            checked={mobilePriceDisplay}
-                                                            onChange={setMobilePriceDisplay}
-                                                        />
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show product price</Text>
-                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
-                                                                Display the product price in the sticky bar
-                                                            </Text>
-                                                        </div>
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_content_display_mobile_quantity"
-                                                            value={mobileQuantityDisplay ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show quantity selector"
-                                                            labelHidden
-                                                            checked={mobileQuantityDisplay}
-                                                            onChange={setMobileQuantityDisplay}
-                                                        />
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show quantity selector</Text>
-                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
-                                                                Display the quantity selector in the sticky bar
-                                                            </Text>
-                                                        </div>
-                                                    </div>
-                                                </BlockStack>
-                                            </BlockStack>
-                                        </Card>
-                                        <Card>
-                                            <BlockStack gap="400">
-                                                <BlockStack gap="100">
-                                                    <Text as="h3" variant="headingMd">Button settings</Text>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Configure the appearance and behavior of the add to cart button.
-                                                    </Text>
-                                                </BlockStack>
-                                                <BlockStack gap="200">
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_enable_mobile_cart_icon"
-                                                            value={enableMobileCartIcon ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show cart icon"
-                                                            labelHidden
-                                                            checked={enableMobileCartIcon}
-                                                            onChange={setEnableMobileCartIcon}
-                                                        />
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
-                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
-                                                                Choose whether to display the icon or not
-                                                            </Text>
-                                                        </div>
-                                                    </div>
-                                                </BlockStack>
+                                            </Box>
+                                            <BlockStack gap="0">
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_image"
+                                                    value={mobileImageDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show image"
+                                                    checked={mobileImageDisplay}
+                                                    onChange={(checked) => setMobileImageDisplay(checked)}
+                                                />
+
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_title"
+                                                    value={mobileTitleDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show title"
+                                                    checked={mobileTitleDisplay}
+                                                    onChange={(checked) => setMobileTitleDisplay(checked)}
+                                                />
+
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_price"
+                                                    value={mobilePriceDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show price"
+                                                    checked={mobilePriceDisplay}
+                                                    onChange={(checked) => setMobilePriceDisplay(checked)}
+                                                />
+
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_quantity"
+                                                    value={mobileQuantityDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show quantity selector"
+                                                    checked={mobileQuantityDisplay}
+                                                    onChange={(checked) => setMobileQuantityDisplay(checked)}
+                                                />
                                             </BlockStack>
                                         </Card>
                                         <Card>
@@ -1352,7 +1289,7 @@ export default function Customize() {
                                                         Manage layout, spacing, and visual design for the sticky bar container.
                                                     </Text>
                                                 </BlockStack>
-                                                <Box paddingBlock="400">
+                                                <Box>
                                                     <Box style={{ marginBottom: '8px' }}>
                                                         <ChoiceList
                                                             title="Width"
@@ -1431,15 +1368,16 @@ export default function Customize() {
                                                                             value={mobileOuterSpacing}
                                                                             onChange={setMobileOuterSpacing}
                                                                         />
-                                                                        <select
+                                                                        <Select
+                                                                            options={[
+                                                                                { label: 'px', value: 'px' },
+                                                                                { label: '%', value: '%' }
+                                                                            ]}
+                                                                            onChange={setMobileOuterSpacingUnit}
                                                                             value={mobileOuterSpacingUnit}
-                                                                            onChange={e => setMobileOuterSpacingUnit(e.target.value)}
                                                                             name="sticky_outer_spacing_mobile_unit"
                                                                             style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                                        >
-                                                                            <option value="px">px</option>
-                                                                            <option value="%">%</option>
-                                                                        </select>
+                                                                        />
                                                                     </div>
                                                                     <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
                                                                 </BlockStack>
@@ -1461,18 +1399,50 @@ export default function Customize() {
                                                                 value={mobileInnerSpacing}
                                                                 onChange={setMobileInnerSpacing}
                                                             />
-                                                            <select
+                                                            <Select
+                                                                options={[
+                                                                    { label: 'px', value: 'px' }
+                                                                ]}
                                                                 value="px"
                                                                 disabled
                                                                 name="sticky_inner_spacing_mobile_unit"
                                                                 style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                            >
-                                                                <option value="px">px</option>
-                                                            </select>
+                                                            />
                                                         </div>
                                                         <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                                     </BlockStack>
                                                 </Box>
+                                            </BlockStack>
+                                        </Card>
+                                        <Card>
+                                            <BlockStack gap="400">
+                                                <BlockStack gap="100">
+                                                    <Text as="h3" variant="headingMd">Button settings</Text>
+                                                    <Text variant="bodySm" tone="subdued">
+                                                        Configure the appearance and behavior of the add to cart button.
+                                                    </Text>
+                                                </BlockStack>
+                                                <BlockStack gap="200">
+                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                                        <input
+                                                            type="hidden"
+                                                            name="sticky_enable_mobile_cart_icon"
+                                                            value={enableMobileCartIcon ? 'on' : 'off'}
+                                                        />
+                                                        <Checkbox
+                                                            label="Show cart icon"
+                                                            labelHidden
+                                                            checked={enableMobileCartIcon}
+                                                            onChange={setEnableMobileCartIcon}
+                                                        />
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
+                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
+                                                                Choose whether to display the icon or not
+                                                            </Text>
+                                                        </div>
+                                                    </div>
+                                                </BlockStack>
                                             </BlockStack>
                                         </Card>
                                     </BlockStack>
