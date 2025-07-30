@@ -318,8 +318,8 @@ class StickyBarSettings {
         const productImage = stickyBar.querySelector('.sticky-product-image');
         if (productImage) {
             const isMobile = window.innerWidth <= 768;
-            const imageSize = isMobile ? 
-                (settings.sticky_image_size_mobile || 'medium') : 
+            const imageSize = isMobile ?
+                (settings.sticky_image_size_mobile || 'medium') :
                 (settings.sticky_image_size || 'medium');
             let width, height;
 
