@@ -158,135 +158,19 @@ export const action = async ({ request }) => {
         return Response.json({ ok: true });
     }
 
-    // Handle appearance settings - only save settings that are actually submitted
+    // Handle appearance settings - save all settings that are present in the form
     const settings = {};
 
-    // Always include visibility and trigger if present
-    if (formData.has("sticky_visibility")) {
-        settings.sticky_visibility = formData.get("sticky_visibility") || "all";
-    }
-    if (formData.has("sticky_trigger")) {
-        settings.sticky_trigger = formData.get("sticky_trigger") || "after-summary";
-    }
-
-    // Desktop settings
-    if (formData.has("sticky_content_display_image")) {
-        settings.sticky_content_display_image = formData.get("sticky_content_display_image") === 'on' ? 'true' : 'false';
-    }
-    if (formData.has("sticky_content_display_title")) {
-        settings.sticky_content_display_title = formData.get("sticky_content_display_title") === 'on' ? 'true' : 'false';
-    }
-    if (formData.has("sticky_content_display_price")) {
-        settings.sticky_content_display_price = formData.get("sticky_content_display_price") === 'on' ? 'true' : 'false';
-    }
-    if (formData.has("sticky_content_display_quantity")) {
-        settings.sticky_content_display_quantity = formData.get("sticky_content_display_quantity") === 'on' ? 'true' : 'false';
-    }
-    if (formData.has("sticky_bar_width")) {
-        settings.sticky_bar_width = formData.get("sticky_bar_width") || "contained";
-    }
-    if (formData.has("sticky_max_width")) {
-        settings.sticky_max_width = formData.get("sticky_max_width") || "";
-    }
-    if (formData.has("sticky_max_width_unit")) {
-        settings.sticky_max_width_unit = formData.get("sticky_max_width_unit") || "px";
-    }
-    if (formData.has("sticky_alignment")) {
-        settings.sticky_alignment = formData.get("sticky_alignment") || "right";
-    }
-    if (formData.has("sticky_outer_spacing")) {
-        settings.sticky_outer_spacing = formData.get("sticky_outer_spacing") || "";
-    }
-    if (formData.has("sticky_outer_spacing_unit")) {
-        settings.sticky_outer_spacing_unit = formData.get("sticky_outer_spacing_unit") || "px";
-    }
-    if (formData.has("sticky_inner_spacing")) {
-        settings.sticky_inner_spacing = formData.get("sticky_inner_spacing") || "16";
-    }
-    if (formData.has("sticky_inner_spacing_unit")) {
-        settings.sticky_inner_spacing_unit = formData.get("sticky_inner_spacing_unit") || "px";
-    }
-    if (formData.has("sticky_background_color")) {
-        settings.sticky_background_color = formData.get("sticky_background_color") || "#FFFFFF";
-    }
-    if (formData.has("sticky_border_color")) {
-        settings.sticky_border_color = formData.get("sticky_border_color") || "#000000";
-    }
-    if (formData.has("sticky_border_radius")) {
-        settings.sticky_border_radius = formData.get("sticky_border_radius") || "12";
-    }
-    if (formData.has("sticky_product_name_color")) {
-        settings.sticky_product_name_color = formData.get("sticky_product_name_color") || "#141414";
-    }
-    if (formData.has("sticky_image_size")) {
-        settings.sticky_image_size = formData.get("sticky_image_size") || "medium";
-    }
-    if (formData.has("sticky_quantity_color")) {
-        settings.sticky_quantity_color = formData.get("sticky_quantity_color") || "#141414";
-    }
-    if (formData.has("sticky_quantity_border_color")) {
-        settings.sticky_quantity_border_color = formData.get("sticky_quantity_border_color") || "#DFDFDF";
-    }
-    if (formData.has("sticky_button_behavior")) {
-        settings.sticky_button_behavior = formData.get("sticky_button_behavior") || "add";
-    }
-    if (formData.has("sticky_button_text")) {
-        settings.sticky_button_text = formData.get("sticky_button_text") || "Add to cart";
-    }
-    if (formData.has("sticky_enable_cart_icon")) {
-        settings.sticky_enable_cart_icon = formData.get("sticky_enable_cart_icon") === 'on' ? 'true' : 'false';
-    }
-    if (formData.has("sticky_button_text_color")) {
-        settings.sticky_button_text_color = formData.get("sticky_button_text_color") || "#FFFFFF";
-    }
-    if (formData.has("sticky_button_bg_color")) {
-        settings.sticky_button_bg_color = formData.get("sticky_button_bg_color") || "#141414";
-    }
-
-    // Mobile settings
-    if (formData.has("sticky_content_display_mobile_image")) {
-        settings.sticky_content_display_mobile_image = formData.get("sticky_content_display_mobile_image") === 'on' ? 'true' : 'false';
-    }
-    if (formData.has("sticky_content_display_mobile_title")) {
-        settings.sticky_content_display_mobile_title = formData.get("sticky_content_display_mobile_title") === 'on' ? 'true' : 'false';
-    }
-    if (formData.has("sticky_content_display_mobile_price")) {
-        settings.sticky_content_display_mobile_price = formData.get("sticky_content_display_mobile_price") === 'on' ? 'true' : 'false';
-    }
-    if (formData.has("sticky_content_display_mobile_quantity")) {
-        settings.sticky_content_display_mobile_quantity = formData.get("sticky_content_display_mobile_quantity") === 'on' ? 'true' : 'false';
-    }
-    if (formData.has("sticky_bar_width_mobile")) {
-        settings.sticky_bar_width_mobile = formData.get("sticky_bar_width_mobile") || "full";
-    }
-    if (formData.has("sticky_max_width_mobile")) {
-        settings.sticky_max_width_mobile = formData.get("sticky_max_width_mobile") || "";
-    }
-    if (formData.has("sticky_max_width_mobile_unit")) {
-        settings.sticky_max_width_mobile_unit = formData.get("sticky_max_width_mobile_unit") || "px";
-    }
-    if (formData.has("sticky_alignment_mobile")) {
-        settings.sticky_alignment_mobile = formData.get("sticky_alignment_mobile") || "right";
-    }
-    if (formData.has("sticky_outer_spacing_mobile")) {
-        settings.sticky_outer_spacing_mobile = formData.get("sticky_outer_spacing_mobile") || "";
-    }
-    if (formData.has("sticky_outer_spacing_mobile_unit")) {
-        settings.sticky_outer_spacing_mobile_unit = formData.get("sticky_outer_spacing_mobile_unit") || "px";
-    }
-    if (formData.has("sticky_inner_spacing_mobile")) {
-        settings.sticky_inner_spacing_mobile = formData.get("sticky_inner_spacing_mobile") || "16";
-    }
-    if (formData.has("sticky_image_size_mobile")) {
-        settings.sticky_image_size_mobile = formData.get("sticky_image_size_mobile") || "medium";
-    }
-    if (formData.has("sticky_enable_mobile_cart_icon")) {
-        settings.sticky_enable_mobile_cart_icon = formData.get("sticky_enable_mobile_cart_icon") === 'on' ? 'true' : 'false';
-    }
-
-    // Advanced settings
-    if (formData.has("sticky_custom_css")) {
-        settings.sticky_custom_css = formData.get("sticky_custom_css") || '';
+    // Get all form data entries
+    for (const [key, value] of formData.entries()) {
+        if (key.startsWith('sticky_')) {
+            // Convert checkbox values to string format
+            if (typeof value === 'string' && (value === 'on' || value === 'off')) {
+                settings[key] = value === 'on' ? 'true' : 'false';
+            } else {
+                settings[key] = value || '';
+            }
+        }
     }
 
     // Save to database - only save settings that are present
@@ -348,10 +232,219 @@ export default function Customize() {
     const [showResetModal, setShowResetModal] = useState(false);
     const [previewQuantity, setPreviewQuantity] = useState(1);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
     const shopify = useAppBridge();
     const fetcher = useFetcher();
     const navigate = useNavigate();
+
+    // Function to check if settings have changed from saved values
+    const checkForChanges = useCallback(() => {
+        const currentSettings = {
+            sticky_visibility: visibility,
+            sticky_trigger: trigger,
+            sticky_content_display_image: imageDisplay,
+            sticky_content_display_title: titleDisplay,
+            sticky_content_display_price: priceDisplay,
+            sticky_content_display_quantity: quantityDisplay,
+            sticky_content_display_mobile_image: mobileImageDisplay,
+            sticky_content_display_mobile_title: mobileTitleDisplay,
+            sticky_content_display_mobile_price: mobilePriceDisplay,
+            sticky_content_display_mobile_quantity: mobileQuantityDisplay,
+            sticky_bar_width: barWidth,
+            sticky_bar_width_mobile: mobileBarWidth,
+            sticky_max_width_mobile: mobileMaxWidth,
+            sticky_max_width_mobile_unit: mobileMaxWidthUnit,
+            sticky_alignment_mobile: mobileAlignment,
+            sticky_outer_spacing_mobile: mobileOuterSpacing,
+            sticky_outer_spacing_mobile_unit: mobileOuterSpacingUnit,
+            sticky_inner_spacing_mobile: mobileInnerSpacing,
+            sticky_max_width: maxWidth,
+            sticky_max_width_unit: maxWidthUnit,
+            sticky_alignment: alignment,
+            sticky_outer_spacing: outerSpacing,
+            sticky_outer_spacing_unit: outerSpacingUnit,
+            sticky_inner_spacing: innerSpacing,
+            sticky_inner_spacing_unit: innerSpacingUnit,
+            sticky_background_color: backgroundColor,
+            sticky_border_color: borderColor,
+            sticky_border_radius: borderRadius,
+            sticky_product_name_color: productNameColor,
+            sticky_image_size: imageSize,
+            sticky_image_size_mobile: mobileImageSize,
+            sticky_quantity_color: quantityColor,
+            sticky_quantity_border_color: quantityBorderColor,
+            sticky_button_behavior: buttonBehavior,
+            sticky_button_text: buttonText,
+            sticky_enable_cart_icon: enableCartIcon,
+            sticky_enable_mobile_cart_icon: enableMobileCartIcon,
+            sticky_button_text_color: buttonTextColor,
+            sticky_button_bg_color: buttonBgColor,
+            sticky_custom_css: customCss,
+        };
+
+        const savedSettingsObj = {
+            sticky_visibility: savedSettings.sticky_visibility,
+            sticky_trigger: savedSettings.sticky_trigger,
+            sticky_content_display_image: savedSettings.sticky_content_display_image,
+            sticky_content_display_title: savedSettings.sticky_content_display_title,
+            sticky_content_display_price: savedSettings.sticky_content_display_price,
+            sticky_content_display_quantity: savedSettings.sticky_content_display_quantity,
+            sticky_content_display_mobile_image: savedSettings.sticky_content_display_mobile_image,
+            sticky_content_display_mobile_title: savedSettings.sticky_content_display_mobile_title,
+            sticky_content_display_mobile_price: savedSettings.sticky_content_display_mobile_price,
+            sticky_content_display_mobile_quantity: savedSettings.sticky_content_display_mobile_quantity,
+            sticky_bar_width: savedSettings.sticky_bar_width,
+            sticky_bar_width_mobile: savedSettings.sticky_bar_width_mobile,
+            sticky_max_width_mobile: savedSettings.sticky_max_width_mobile,
+            sticky_max_width_mobile_unit: savedSettings.sticky_max_width_mobile_unit,
+            sticky_alignment_mobile: savedSettings.sticky_alignment_mobile,
+            sticky_outer_spacing_mobile: savedSettings.sticky_outer_spacing_mobile,
+            sticky_outer_spacing_mobile_unit: savedSettings.sticky_outer_spacing_mobile_unit,
+            sticky_inner_spacing_mobile: savedSettings.sticky_inner_spacing_mobile,
+            sticky_max_width: savedSettings.sticky_max_width,
+            sticky_max_width_unit: savedSettings.sticky_max_width_unit,
+            sticky_alignment: savedSettings.sticky_alignment,
+            sticky_outer_spacing: savedSettings.sticky_outer_spacing,
+            sticky_outer_spacing_unit: savedSettings.sticky_outer_spacing_unit,
+            sticky_inner_spacing: savedSettings.sticky_inner_spacing,
+            sticky_inner_spacing_unit: savedSettings.sticky_inner_spacing_unit,
+            sticky_background_color: savedSettings.sticky_background_color,
+            sticky_border_color: savedSettings.sticky_border_color,
+            sticky_border_radius: savedSettings.sticky_border_radius,
+            sticky_product_name_color: savedSettings.sticky_product_name_color,
+            sticky_image_size: savedSettings.sticky_image_size,
+            sticky_image_size_mobile: savedSettings.sticky_image_size_mobile,
+            sticky_quantity_color: savedSettings.sticky_quantity_color,
+            sticky_quantity_border_color: savedSettings.sticky_quantity_border_color,
+            sticky_button_behavior: savedSettings.sticky_button_behavior,
+            sticky_button_text: savedSettings.sticky_button_text,
+            sticky_enable_cart_icon: savedSettings.sticky_enable_cart_icon,
+            sticky_enable_mobile_cart_icon: savedSettings.sticky_enable_mobile_cart_icon,
+            sticky_button_text_color: savedSettings.sticky_button_text_color,
+            sticky_button_bg_color: savedSettings.sticky_button_bg_color,
+            sticky_custom_css: savedSettings.sticky_custom_css,
+        };
+
+        const hasChanges = JSON.stringify(currentSettings) !== JSON.stringify(savedSettingsObj);
+        setHasUnsavedChanges(hasChanges);
+
+        // SaveBar will be rendered conditionally in the JSX
+    }, [
+        visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
+        mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay,
+        barWidth, mobileBarWidth, mobileMaxWidth, mobileMaxWidthUnit, mobileAlignment,
+        mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, maxWidth,
+        maxWidthUnit, alignment, outerSpacing, outerSpacingUnit, innerSpacing,
+        innerSpacingUnit, backgroundColor, borderColor, borderRadius, productNameColor,
+        imageSize, mobileImageSize, quantityColor, quantityBorderColor, buttonBehavior,
+        buttonText, enableCartIcon, enableMobileCartIcon, buttonTextColor, buttonBgColor,
+        customCss, savedSettings
+    ]);
+
+    // Handle save action
+    const handleSave = useCallback(async () => {
+        const formData = new FormData();
+
+        // Add all current settings to form data
+        formData.append('sticky_visibility', visibility);
+        formData.append('sticky_trigger', trigger);
+        formData.append('sticky_content_display_image', imageDisplay ? 'on' : 'off');
+        formData.append('sticky_content_display_title', titleDisplay ? 'on' : 'off');
+        formData.append('sticky_content_display_price', priceDisplay ? 'on' : 'off');
+        formData.append('sticky_content_display_quantity', quantityDisplay ? 'on' : 'off');
+        formData.append('sticky_content_display_mobile_image', mobileImageDisplay ? 'on' : 'off');
+        formData.append('sticky_content_display_mobile_title', mobileTitleDisplay ? 'on' : 'off');
+        formData.append('sticky_content_display_mobile_price', mobilePriceDisplay ? 'on' : 'off');
+        formData.append('sticky_content_display_mobile_quantity', mobileQuantityDisplay ? 'on' : 'off');
+        formData.append('sticky_bar_width', barWidth);
+        formData.append('sticky_bar_width_mobile', mobileBarWidth);
+        formData.append('sticky_max_width_mobile', mobileMaxWidth);
+        formData.append('sticky_max_width_mobile_unit', mobileMaxWidthUnit);
+        formData.append('sticky_alignment_mobile', mobileAlignment);
+        formData.append('sticky_outer_spacing_mobile', mobileOuterSpacing);
+        formData.append('sticky_outer_spacing_mobile_unit', mobileOuterSpacingUnit);
+        formData.append('sticky_inner_spacing_mobile', mobileInnerSpacing);
+        formData.append('sticky_max_width', maxWidth);
+        formData.append('sticky_max_width_unit', maxWidthUnit);
+        formData.append('sticky_alignment', alignment);
+        formData.append('sticky_outer_spacing', outerSpacing);
+        formData.append('sticky_outer_spacing_unit', outerSpacingUnit);
+        formData.append('sticky_inner_spacing', innerSpacing);
+        formData.append('sticky_inner_spacing_unit', innerSpacingUnit);
+        formData.append('sticky_background_color', backgroundColor);
+        formData.append('sticky_border_color', borderColor);
+        formData.append('sticky_border_radius', borderRadius);
+        formData.append('sticky_product_name_color', productNameColor);
+        formData.append('sticky_image_size', imageSize);
+        formData.append('sticky_image_size_mobile', mobileImageSize);
+        formData.append('sticky_quantity_color', quantityColor);
+        formData.append('sticky_quantity_border_color', quantityBorderColor);
+        formData.append('sticky_button_behavior', buttonBehavior);
+        formData.append('sticky_button_text', buttonText);
+        formData.append('sticky_enable_cart_icon', enableCartIcon ? 'on' : 'off');
+        formData.append('sticky_enable_mobile_cart_icon', enableMobileCartIcon ? 'on' : 'off');
+        formData.append('sticky_button_text_color', buttonTextColor);
+        formData.append('sticky_button_bg_color', buttonBgColor);
+        formData.append('sticky_custom_css', customCss);
+
+        fetcher.submit(formData, { method: 'post' });
+    }, [
+        visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
+        mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay,
+        barWidth, mobileBarWidth, mobileMaxWidth, mobileMaxWidthUnit, mobileAlignment,
+        mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, maxWidth,
+        maxWidthUnit, alignment, outerSpacing, outerSpacingUnit, innerSpacing,
+        innerSpacingUnit, backgroundColor, borderColor, borderRadius, productNameColor,
+        imageSize, mobileImageSize, quantityColor, quantityBorderColor, buttonBehavior,
+        buttonText, enableCartIcon, enableMobileCartIcon, buttonTextColor, buttonBgColor,
+        customCss, fetcher
+    ]);
+
+    // Handle discard action
+    const handleDiscard = useCallback(() => {
+        // Reset all settings to saved values
+        setVisibility(savedSettings.sticky_visibility);
+        setTrigger(savedSettings.sticky_trigger);
+        setImageDisplay(savedSettings.sticky_content_display_image);
+        setTitleDisplay(savedSettings.sticky_content_display_title);
+        setPriceDisplay(savedSettings.sticky_content_display_price);
+        setQuantityDisplay(savedSettings.sticky_content_display_quantity);
+        setMobileImageDisplay(savedSettings.sticky_content_display_mobile_image);
+        setMobileTitleDisplay(savedSettings.sticky_content_display_mobile_title);
+        setMobilePriceDisplay(savedSettings.sticky_content_display_mobile_price);
+        setMobileQuantityDisplay(savedSettings.sticky_content_display_mobile_quantity);
+        setBarWidth(savedSettings.sticky_bar_width);
+        setMobileBarWidth(savedSettings.sticky_bar_width_mobile);
+        setMobileMaxWidth(savedSettings.sticky_max_width_mobile);
+        setMobileMaxWidthUnit(savedSettings.sticky_max_width_mobile_unit);
+        setMobileAlignment(savedSettings.sticky_alignment_mobile);
+        setMobileOuterSpacing(savedSettings.sticky_outer_spacing_mobile);
+        setMobileOuterSpacingUnit(savedSettings.sticky_outer_spacing_mobile_unit);
+        setMobileInnerSpacing(savedSettings.sticky_inner_spacing_mobile);
+        setMaxWidth(savedSettings.sticky_max_width);
+        setMaxWidthUnit(savedSettings.sticky_max_width_unit);
+        setAlignment(savedSettings.sticky_alignment);
+        setOuterSpacing(savedSettings.sticky_outer_spacing);
+        setOuterSpacingUnit(savedSettings.sticky_outer_spacing_unit);
+        setInnerSpacing(savedSettings.sticky_inner_spacing);
+        setInnerSpacingUnit(savedSettings.sticky_inner_spacing_unit);
+        setBackgroundColor(savedSettings.sticky_background_color);
+        setBorderColor(savedSettings.sticky_border_color);
+        setBorderRadius(savedSettings.sticky_border_radius);
+        setProductNameColor(savedSettings.sticky_product_name_color);
+        setImageSize(savedSettings.sticky_image_size);
+        setMobileImageSize(savedSettings.sticky_image_size_mobile);
+        setQuantityColor(savedSettings.sticky_quantity_color);
+        setQuantityBorderColor(savedSettings.sticky_quantity_border_color);
+        setButtonBehavior(savedSettings.sticky_button_behavior);
+        setButtonText(savedSettings.sticky_button_text);
+        setEnableCartIcon(savedSettings.sticky_enable_cart_icon);
+        setEnableMobileCartIcon(savedSettings.sticky_enable_mobile_cart_icon);
+        setButtonTextColor(savedSettings.sticky_button_text_color);
+        setButtonBgColor(savedSettings.sticky_button_bg_color);
+        setCustomCss(savedSettings.sticky_custom_css);
+    }, [savedSettings]);
 
     useEffect(() => {
         if (fetcher.data?.ok) {
@@ -363,6 +456,13 @@ export default function Customize() {
     useEffect(() => {
         setIsInitialized(true);
     }, []);
+
+    // Check for changes whenever any setting changes
+    useEffect(() => {
+        if (isInitialized) {
+            checkForChanges();
+        }
+    }, [isInitialized, checkForChanges]);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -501,7 +601,7 @@ export default function Customize() {
     ];
 
     return (
-        <Page fullWidth>
+        <Page fullWidth style={{ paddingBottom: hasUnsavedChanges ? '80px' : '0' }}>
             <Box paddingBlockEnd="400">
                 <InlineStack align="space-between" gap="400">
                     <InlineStack gap="200" blockAlign="center">
@@ -513,73 +613,62 @@ export default function Customize() {
             <InlineGrid columns={['oneThird', 'twoThirds']} alignItems="start" gap="400">
                 <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange}>
                     <div style={{ marginBottom: '8px' }}></div>
-                    {selectedTab === 0 && (
-                        <fetcher.Form method="post" data-save-bar>
-                            <Layout>
-                                <Layout.Section>
-                                    <BlockStack gap="400">
-                                        <Card>
-                                            <InlineStack gap="400" align="space-between" blockAlign="center">
-                                                <Text variant="headingSm" tone="success">Sticky Bar <span style={{ marginLeft: 8 }}><span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span></span></Text>
-                                                <Button tone="critical">Pause</Button>
-                                            </InlineStack>
-                                        </Card>
-                                        <Card>
-                                            <Box>
-                                                <div style={{ marginBottom: '16px' }}>
-                                                    <Text variant="headingSm" as="h3">Visibility</Text>
-                                                </div>
-                                                <Box style={{ margin: '4px 0' }}>
-                                                    <input
-                                                        type="hidden"
-                                                        name="sticky_visibility"
-                                                        value={visibility}
-                                                    />
-                                                    <Select
-                                                        label="Show on"
-                                                        options={[
-                                                            { label: 'All devices', value: 'all' },
-                                                            { label: 'Desktop only', value: 'desktop' },
-                                                            { label: 'Mobile only', value: 'mobile' },
-                                                        ]}
-                                                        value={visibility}
-                                                        onChange={setVisibility}
-                                                    />
-                                                </Box>
 
-                                                <Text variant="bodySm" tone="subdued" style={{ marginTop: 4 }}>Control where the Sticky Bar is shown.</Text>
-                                            </Box>
-                                            <Box style={{ margin: '16px 0' }}>
-                                                <Divider />
-                                            </Box>
-                                            <BlockStack >
-                                                <Box style={{ marginBottom: '16px' }}>
-                                                    <Text variant="headingSm" as="h3">Trigger</Text>
-                                                </Box>
-                                                <input
-                                                    type="hidden"
-                                                    name="sticky_trigger"
-                                                    value={trigger}
-                                                />
-                                                <ChoiceList
-                                                    title="Display trigger"
-                                                    choices={[
-                                                        { label: 'Always visible', value: 'always' },
-                                                        { label: 'On scroll up', value: 'scroll-up' },
-                                                        { label: 'After X seconds', value: 'after-x-seconds' },
-                                                        { label: 'After scrolling down X pixels', value: 'after-x-pixels' },
-                                                        { label: 'After product summary', value: 'after-summary' },
-                                                        { label: 'When add to cart button is out of view', value: 'out-of-view' },
+                    {selectedTab === 0 && (
+                        <Layout>
+                            <Layout.Section>
+                                <BlockStack gap="400">
+                                    <Card>
+                                        <InlineStack gap="400" align="space-between" blockAlign="center">
+                                            <Text variant="headingSm" tone="success">Sticky Bar <span style={{ marginLeft: 8 }}><span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span></span></Text>
+                                            <Button tone="critical">Pause</Button>
+                                        </InlineStack>
+                                    </Card>
+                                    <Card>
+                                        <Box>
+                                            <div style={{ marginBottom: '16px' }}>
+                                                <Text variant="headingSm" as="h3">Visibility</Text>
+                                            </div>
+                                            <Box style={{ margin: '4px 0' }}>
+                                                <Select
+                                                    label="Show on"
+                                                    options={[
+                                                        { label: 'All devices', value: 'all' },
+                                                        { label: 'Desktop only', value: 'desktop' },
+                                                        { label: 'Mobile only', value: 'mobile' },
                                                     ]}
-                                                    selected={[trigger]}
-                                                    onChange={([value]) => setTrigger(value)}
+                                                    value={visibility}
+                                                    onChange={setVisibility}
                                                 />
-                                            </BlockStack>
-                                        </Card>
-                                    </BlockStack>
-                                </Layout.Section>
-                            </Layout>
-                        </fetcher.Form>
+                                            </Box>
+
+                                            <Text variant="bodySm" tone="subdued" style={{ marginTop: 4 }}>Control where the Sticky Bar is shown.</Text>
+                                        </Box>
+                                        <Box style={{ margin: '16px 0' }}>
+                                            <Divider />
+                                        </Box>
+                                        <BlockStack >
+                                            <Box style={{ marginBottom: '16px' }}>
+                                                <Text variant="headingSm" as="h3">Trigger</Text>
+                                            </Box>
+                                            <ChoiceList
+                                                title="Display trigger"
+                                                choices={[
+                                                    { label: 'Always visible', value: 'always' },
+                                                    { label: 'On scroll up', value: 'scroll-up' },
+                                                    { label: 'After X seconds', value: 'after-x-seconds' },
+                                                    { label: 'After scrolling down X pixels', value: 'after-x-pixels' },
+                                                    { label: 'After product summary', value: 'after-summary' },
+                                                    { label: 'When add to cart button is out of view', value: 'out-of-view' },
+                                                ]}
+                                                selected={[trigger]}
+                                                onChange={([value]) => setTrigger(value)}
+                                            />
+                                        </BlockStack>
+                                    </Card>
+                                </BlockStack>
+                            </Layout.Section>
+                        </Layout>
                     )}
                     {selectedTab === 1 && (
                         <BlockStack gap="400">
@@ -603,71 +692,534 @@ export default function Customize() {
                                 </InlineStack>
                             </Card>
                             {appearanceView === 'desktop' && (
-                                <fetcher.Form method="post" data-save-bar>
-                                    <BlockStack gap="400">
-                                        <Card>
-                                            <Box style={{ marginBottom: '16px' }}>
-                                                <BlockStack gap="100">
-                                                    <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Control which product elements are displayed.
+                                <BlockStack gap="400">
+                                    <Card>
+                                        <Box style={{ marginBottom: '16px' }}>
+                                            <BlockStack gap="100">
+                                                <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
+                                                <Text variant="bodySm" tone="subdued">
+                                                    Control which product elements are displayed.
+                                                </Text>
+                                            </BlockStack>
+                                        </Box>
+                                        <BlockStack gap="0">
+                                            <Checkbox
+                                                label="Show image"
+                                                checked={imageDisplay}
+                                                onChange={(checked) => setImageDisplay(checked)}
+                                            />
+                                            <Checkbox
+                                                label="Show title"
+                                                checked={titleDisplay}
+                                                onChange={(checked) => setTitleDisplay(checked)}
+                                            />
+                                            <Checkbox
+                                                label="Show price"
+                                                checked={priceDisplay}
+                                                onChange={(checked) => setPriceDisplay(checked)}
+                                            />
+                                            <Checkbox
+                                                label="Show quantity selector"
+                                                checked={quantityDisplay}
+                                                onChange={(checked) => setQuantityDisplay(checked)}
+                                            />
+                                        </BlockStack>
+                                    </Card>
+                                    <Card>
+                                        <BlockStack gap="100">
+                                            <Text as="h3" variant="headingMd">Bar</Text>
+                                            <Text variant="bodySm" tone="subdued">
+                                                Manage layout, spacing, and visual design for the sticky bar container.
+                                            </Text>
+                                        </BlockStack>
+                                        <Box paddingBlock="400">
+                                            <Box style={{ marginBottom: '8px' }}>
+                                                <ChoiceList
+                                                    title="Width"
+                                                    choices={[
+                                                        { label: 'Full', value: 'full' },
+                                                        { label: 'Contained', value: 'contained' },
+                                                    ]}
+                                                    selected={[barWidth]}
+                                                    onChange={([value]) => setBarWidth(value)}
+                                                    allowMultiple={false}
+                                                />
+                                            </Box>
+                                            {barWidth === 'contained' && (
+                                                <>
+                                                    <Box style={{ marginBottom: '8px' }}>
+                                                        <BlockStack gap="100">
+                                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
+                                                            <div className='input-and-unit-wrapper'>
+                                                                <TextField
+                                                                    className='max-width-input-type-number'
+                                                                    type="number"
+                                                                    placeholder="e.g., 600"
+                                                                    value={maxWidth}
+                                                                    onChange={setMaxWidth}
+                                                                    style={{ flex: 1 }}
+                                                                />
+                                                                <Select
+                                                                    options={[
+                                                                        { label: 'px', value: 'px' },
+                                                                        { label: '%', value: '%' }
+                                                                    ]}
+                                                                    onChange={setMaxWidthUnit}
+                                                                    value={maxWidthUnit}
+                                                                    style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                />
+                                                            </div>
+                                                            <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
+                                                        </BlockStack>
+                                                    </Box>
+                                                    <Box style={{ marginBottom: "16px" }}>
+                                                        <BlockStack gap="100">
+                                                            <Text variant="bodySm" as="div">Alignment</Text>
+                                                            <Select
+                                                                options={[
+                                                                    { label: 'Left', value: 'left' },
+                                                                    { label: 'Center', value: 'center' },
+                                                                    { label: 'Right', value: 'right' }
+                                                                ]}
+                                                                onChange={setAlignment}
+                                                                value={alignment}
+                                                                name="sticky_alignment"
+                                                                style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            />
+                                                        </BlockStack>
+                                                    </Box>
+                                                    <Box style={{ marginBottom: "16px" }}>
+                                                        <BlockStack gap="100">
+                                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
+                                                            <div className='input-and-unit-wrapper'>
+                                                                <input
+                                                                    type="hidden"
+                                                                    name="sticky_outer_spacing"
+                                                                    value={outerSpacing}
+                                                                />
+                                                                <TextField
+                                                                    className='outer-spacing-input-type-number'
+                                                                    type="number"
+                                                                    placeholder="e.g., 20"
+                                                                    value={outerSpacing}
+                                                                    onChange={setOuterSpacing}
+                                                                />
+                                                                <Select
+                                                                    options={[
+                                                                        { label: 'px', value: 'px' },
+                                                                        { label: '%', value: '%' }
+                                                                    ]}
+                                                                    onChange={setOuterSpacingUnit}
+                                                                    value={outerSpacingUnit}
+                                                                    name="sticky_outer_spacing_unit"
+                                                                    style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                />
+                                                            </div>
+                                                            <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
+                                                        </BlockStack>
+                                                    </Box>
+                                                </>
+                                            )}
+                                            <BlockStack gap="100">
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Inner spacing</Text>
+                                                <div className='input-and-unit-wrapper'>
+                                                    <input
+                                                        type="hidden"
+                                                        name="sticky_inner_spacing"
+                                                        value={innerSpacing}
+                                                    />
+                                                    <TextField
+                                                        className='inner-spacing-input-type-number'
+                                                        type="number"
+                                                        placeholder="e.g., 16"
+                                                        value={innerSpacing}
+                                                        onChange={setInnerSpacing}
+                                                    />
+                                                    <Select
+                                                        options={[
+                                                            { label: 'px', value: 'px' }
+                                                        ]}
+                                                        value="px"
+                                                        disabled
+                                                        name="sticky_inner_spacing_unit"
+                                                        style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                    />
+                                                </div>
+                                                <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
+                                            </BlockStack>
+                                        </Box>
+                                        <BlockStack gap="400">
+                                            <BlockStack gap="100">
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
+                                                <div
+                                                    className='color-input-wrapper'
+                                                >
+                                                    <input
+                                                        className='color-input-type-color'
+                                                        type="color"
+                                                        value={backgroundColor}
+                                                        onChange={e => setBackgroundColor(e.target.value)}
+                                                        name="sticky_background_color"
+                                                    />
+                                                    <input
+                                                        className='color-input-type-text'
+                                                        type="text"
+                                                        value={backgroundColor}
+                                                        onChange={e => setBackgroundColor(e.target.value)}
+                                                        name="sticky_background_color"
+                                                    />
+                                                </div>
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Border color</Text>
+                                                <div
+                                                    className='color-input-wrapper'
+                                                >
+                                                    <input
+                                                        className='color-input-type-color'
+                                                        type="color"
+                                                        value={borderColor}
+                                                        onChange={e => setBorderColor(e.target.value)}
+                                                        name="sticky_border_color"
+                                                    />
+                                                    <input
+                                                        className='color-input-type-text'
+                                                        type="text"
+                                                        value={borderColor}
+                                                        onChange={e => setBorderColor(e.target.value)}
+                                                        name="sticky_border_color"
+                                                    />
+                                                </div>
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Corner radius</Text>
+                                                <div
+                                                    className='sy-range-slider-wrapper'
+                                                >
+                                                    <RangeSlider
+                                                        label="Corner radius"
+                                                        labelHidden
+                                                        value={parseInt(borderRadius) || 12}
+                                                        min={0}
+                                                        max={24}
+                                                        step={1}
+                                                        onChange={value => setBorderRadius(value.toString())}
+                                                        name="sticky_border_radius"
+                                                        style={{ flex: 1 }}
+                                                    />
+                                                    <div className='sy-range-slider-unit-wrapper'>
+                                                        <input
+                                                            className='sy-border-radius-input-number'
+                                                            type="number"
+                                                            min="0"
+                                                            max="24"
+                                                            value={borderRadius || '12'}
+                                                            onChange={e => setBorderRadius(e.target.value)}
+                                                            name="sticky_border_radius"
+                                                        />
+                                                        <span className='unit'>px</span>
+                                                    </div>
+                                                </div>
+                                            </BlockStack>
+                                        </BlockStack>
+                                    </Card>
+                                    <Card>
+                                        <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <Text as="h3" variant="headingMd">Content</Text>
+                                            <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                                Customize fonts, colors, and spacing for product content inside the sticky bar.
+                                            </Text>
+                                        </Box>
+                                        <Box style={{ margin: '16px 0' }}>
+                                            <Divider />
+                                        </Box>
+                                        <Box>
+                                            <Box style={{ marginBottom: '8px' }}>
+                                                <Text as="h4" variant="headingSm">Product name</Text>
+                                            </Box>
+                                            <Box style={{ marginBottom: '4px' }}>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Color</Text>
+                                            </Box>
+                                            <div
+                                                className='color-input-wrapper'
+                                            >
+                                                <input
+                                                    className='color-input-type-color'
+                                                    type="color"
+                                                    value={productNameColor}
+                                                    onChange={e => setProductNameColor(e.target.value)}
+                                                    name="sticky_product_name_color"
+                                                />
+                                                <input
+                                                    className='color-input-type-text'
+                                                    type="text"
+                                                    value={productNameColor}
+                                                    onChange={e => setProductNameColor(e.target.value)}
+                                                    name="sticky_product_name_color"
+                                                />
+                                            </div>
+                                        </Box>
+                                        <Box style={{ margin: '16px 0' }}>
+                                            <Divider />
+                                        </Box>
+                                        <Box style={{ marginBottom: 8 }}>
+                                            <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
+                                        </Box>
+                                        <Box style={{ marginBottom: 4 }}>
+                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
+                                        </Box>
+                                        <input
+                                            type="hidden"
+                                            name="sticky_image_size"
+                                            value={imageSize}
+                                        />
+                                        <Select
+                                            options={[
+                                                { label: 'Small', value: 'small' },
+                                                { label: 'Medium', value: 'medium' },
+                                                { label: 'Large', value: 'large' }
+                                            ]}
+                                            onChange={setImageSize}
+                                            value={imageSize}
+                                        />
+                                        <Box style={{ margin: '16px 0' }}>
+                                            <Divider />
+                                        </Box>
+                                        <Box style={{ marginBottom: 8 }}>
+                                            <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Quantity</Text>
+                                        </Box>
+                                        <Box style={{ marginBottom: 4 }}>
+                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Color</Text>
+                                        </Box>
+                                        <Box style={{ marginBottom: 8 }}>
+                                            <div
+                                                className='color-input-wrapper'
+                                            >
+                                                <input
+                                                    className='color-input-type-color'
+                                                    type="color"
+                                                    value={quantityColor}
+                                                    onChange={e => setQuantityColor(e.target.value)}
+                                                    name="sticky_quantity_color"
+                                                />
+                                                <input
+                                                    className='color-input-type-text'
+                                                    type="text"
+                                                    value={quantityColor}
+                                                    onChange={e => setQuantityColor(e.target.value)}
+                                                    name="sticky_quantity_color"
+                                                    style={{ flex: 1, borderRadius: 8, fontSize: 16 }}
+                                                />
+                                            </div>
+                                        </Box>
+                                        <Box style={{ marginBottom: 4 }}>
+                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
+                                        </Box>
+                                        <div
+                                            className='color-input-wrapper'
+                                        >
+                                            <input
+                                                className='color-input-type-color'
+                                                type="color"
+                                                value={quantityBorderColor}
+                                                onChange={e => setQuantityBorderColor(e.target.value)}
+                                                name="sticky_quantity_border_color"
+                                            />
+                                            <input
+                                                className='color-input-type-text'
+                                                type="text"
+                                                value={quantityBorderColor}
+                                                onChange={e => setQuantityBorderColor(e.target.value)}
+                                                name="sticky_quantity_border_color"
+                                            />
+                                        </div>
+                                    </Card>
+                                    <Card>
+                                        <BlockStack gap="400">
+                                            <Box>
+                                                <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Button</Text>
+                                                <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                                    Customize the look and behavior of "Add to cart" button inside the sticky bar.
+                                                </Text>
+                                            </Box>
+                                            <Box>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>On click behavior</Text>
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_button_behavior"
+                                                    value={buttonBehavior}
+                                                />
+                                                <Select
+                                                    options={[
+                                                        { label: 'Add to cart', value: 'add' },
+                                                        { label: 'Buy now', value: 'buy' },
+                                                        { label: 'Custom action', value: 'custom' }
+                                                    ]}
+                                                    onChange={setButtonBehavior}
+                                                    value={buttonBehavior}
+                                                />
+                                            </Box>
+                                            <Box>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text</Text>
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_button_text"
+                                                    value={buttonText}
+                                                />
+                                                <div style={{ position: 'relative', marginBottom: 4 }}>
+                                                    <TextField
+                                                        type="text"
+                                                        value={buttonText}
+                                                        onChange={setButtonText}
+                                                        maxLength={40}
+                                                        placeholder="Add to cart"
+                                                    />
+                                                    <span style={{ position: 'absolute', right: 12, top: 8, color: '#6D7175', fontSize: 14 }}>{buttonText.length}/40</span>
+                                                </div>
+                                                <Text variant="bodySm" tone="subdued">
+                                                    To add the price inline, use {'{price}'} token
+                                                </Text>
+                                            </Box>
+                                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_enable_cart_icon"
+                                                    value={enableCartIcon ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show cart icon"
+                                                    labelHidden
+                                                    checked={enableCartIcon}
+                                                    onChange={setEnableCartIcon}
+                                                />
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                    <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
+                                                    <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
+                                                        Choose whether to display the icon or not
                                                     </Text>
+                                                </div>
+                                            </div>
+                                            <Box>
+                                                <BlockStack gap="100">
+                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text color</Text>
+                                                    <div
+                                                        className='color-input-wrapper'
+                                                    >
+                                                        <input
+                                                            className='color-input-type-color'
+                                                            type="color"
+                                                            value={buttonTextColor}
+                                                            onChange={e => setButtonTextColor(e.target.value)}
+                                                            name="sticky_button_text_color"
+                                                        />
+                                                        <input
+                                                            className='color-input-type-text'
+                                                            type="text"
+                                                            value={buttonTextColor}
+                                                            onChange={e => setButtonTextColor(e.target.value)}
+                                                            name="sticky_button_text_color"
+                                                        />
+                                                    </div>
                                                 </BlockStack>
                                             </Box>
-                                            <BlockStack gap="0">
-                                                <input
-                                                    type="hidden"
-                                                    name="sticky_content_display_image"
-                                                    value={imageDisplay ? 'on' : 'off'}
-                                                />
-                                                <Checkbox
-                                                    label="Show image"
-                                                    checked={imageDisplay}
-                                                    onChange={(checked) => setImageDisplay(checked)}
-                                                />
+                                            <Box>
+                                                <BlockStack gap="100">
+                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
+                                                    <div className='color-input-wrapper'>
+                                                        <input
+                                                            className='color-input-type-color'
+                                                            type="color"
+                                                            value={buttonBgColor}
+                                                            onChange={e => setButtonBgColor(e.target.value)}
+                                                            name="sticky_button_bg_color"
+                                                        />
+                                                        <input
+                                                            className='color-input-type-text'
+                                                            type="text"
+                                                            value={buttonBgColor}
+                                                            onChange={e => setButtonBgColor(e.target.value)}
+                                                            name="sticky_button_bg_color"
+                                                        />
+                                                    </div>
+                                                </BlockStack>
+                                            </Box>
+                                            <Box background="bg-surface-secondary" padding="200" borderRadius="200">
+                                                <Text variant="bodySm" tone="subdued">
+                                                    Hover styles apply a slight opacity to the background automatically.
+                                                </Text>
+                                            </Box>
+                                        </BlockStack>
+                                    </Card>
+                                </BlockStack>
 
-                                                <input
-                                                    type="hidden"
-                                                    name="sticky_content_display_title"
-                                                    value={titleDisplay ? 'on' : 'off'}
-                                                />
-                                                <Checkbox
-                                                    label="Show title"
-                                                    checked={titleDisplay}
-                                                    onChange={(checked) => setTitleDisplay(checked)}
-                                                />
-
-                                                <input
-                                                    type="hidden"
-                                                    name="sticky_content_display_price"
-                                                    value={priceDisplay ? 'on' : 'off'}
-                                                />
-                                                <Checkbox
-                                                    label="Show price"
-                                                    checked={priceDisplay}
-                                                    onChange={(checked) => setPriceDisplay(checked)}
-                                                />
-
-                                                <input
-                                                    type="hidden"
-                                                    name="sticky_content_display_quantity"
-                                                    value={quantityDisplay ? 'on' : 'off'}
-                                                />
-                                                <Checkbox
-                                                    label="Show quantity selector"
-                                                    checked={quantityDisplay}
-                                                    onChange={(checked) => setQuantityDisplay(checked)}
-                                                />
+                            )}
+                            {appearanceView === 'mobile' && (
+                                <BlockStack gap="400">
+                                    <Card>
+                                        <Box style={{ marginBottom: '16px' }}>
+                                            <BlockStack gap="100">
+                                                <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
+                                                <Text variant="bodySm" tone="subdued">
+                                                    Control which product elements are displayed.
+                                                </Text>
                                             </BlockStack>
-                                        </Card>
-                                        <Card>
+                                        </Box>
+                                        <BlockStack gap="0">
+                                            <input
+                                                type="hidden"
+                                                name="sticky_content_display_mobile_image"
+                                                value={mobileImageDisplay ? 'on' : 'off'}
+                                            />
+                                            <Checkbox
+                                                label="Show image"
+                                                checked={mobileImageDisplay}
+                                                onChange={(checked) => setMobileImageDisplay(checked)}
+                                            />
+
+                                            <input
+                                                type="hidden"
+                                                name="sticky_content_display_mobile_title"
+                                                value={mobileTitleDisplay ? 'on' : 'off'}
+                                            />
+                                            <Checkbox
+                                                label="Show title"
+                                                checked={mobileTitleDisplay}
+                                                onChange={(checked) => setMobileTitleDisplay(checked)}
+                                            />
+
+                                            <input
+                                                type="hidden"
+                                                name="sticky_content_display_mobile_price"
+                                                value={mobilePriceDisplay ? 'on' : 'off'}
+                                            />
+                                            <Checkbox
+                                                label="Show price"
+                                                checked={mobilePriceDisplay}
+                                                onChange={(checked) => setMobilePriceDisplay(checked)}
+                                            />
+
+                                            <input
+                                                type="hidden"
+                                                name="sticky_content_display_mobile_quantity"
+                                                value={mobileQuantityDisplay ? 'on' : 'off'}
+                                            />
+                                            <Checkbox
+                                                label="Show quantity selector"
+                                                checked={mobileQuantityDisplay}
+                                                onChange={(checked) => setMobileQuantityDisplay(checked)}
+                                            />
+                                        </BlockStack>
+                                    </Card>
+
+                                    <Card>
+                                        <BlockStack gap="400">
                                             <BlockStack gap="100">
                                                 <Text as="h3" variant="headingMd">Bar</Text>
                                                 <Text variant="bodySm" tone="subdued">
                                                     Manage layout, spacing, and visual design for the sticky bar container.
                                                 </Text>
                                             </BlockStack>
-                                            <Box paddingBlock="400">
+                                            <Box>
                                                 <Box style={{ marginBottom: '8px' }}>
                                                     <ChoiceList
                                                         title="Width"
@@ -675,13 +1227,13 @@ export default function Customize() {
                                                             { label: 'Full', value: 'full' },
                                                             { label: 'Contained', value: 'contained' },
                                                         ]}
-                                                        selected={[barWidth]}
-                                                        onChange={([value]) => setBarWidth(value)}
+                                                        selected={[mobileBarWidth]}
+                                                        onChange={([value]) => setMobileBarWidth(value)}
                                                         allowMultiple={false}
-                                                        name="sticky_bar_width"
+                                                        name="sticky_bar_width_mobile"
                                                     />
                                                 </Box>
-                                                {barWidth === 'contained' && (
+                                                {mobileBarWidth === 'contained' && (
                                                     <>
                                                         <Box style={{ marginBottom: '8px' }}>
                                                             <BlockStack gap="100">
@@ -689,15 +1241,15 @@ export default function Customize() {
                                                                 <div className='input-and-unit-wrapper'>
                                                                     <input
                                                                         type="hidden"
-                                                                        name="sticky_max_width"
-                                                                        value={maxWidth}
+                                                                        name="sticky_max_width_mobile"
+                                                                        value={mobileMaxWidth}
                                                                     />
                                                                     <TextField
                                                                         className='max-width-input-type-number'
                                                                         type="number"
                                                                         placeholder="e.g., 600"
-                                                                        value={maxWidth}
-                                                                        onChange={setMaxWidth}
+                                                                        value={mobileMaxWidth}
+                                                                        onChange={setMobileMaxWidth}
                                                                         style={{ flex: 1 }}
                                                                     />
                                                                     <Select
@@ -705,9 +1257,9 @@ export default function Customize() {
                                                                             { label: 'px', value: 'px' },
                                                                             { label: '%', value: '%' }
                                                                         ]}
-                                                                        onChange={setMaxWidthUnit}
-                                                                        value={maxWidthUnit}
-                                                                        name="sticky_max_width_unit"
+                                                                        onChange={setMobileMaxWidthUnit}
+                                                                        value={mobileMaxWidthUnit}
+                                                                        name="sticky_max_width_mobile_unit"
                                                                         style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                                     />
                                                                 </div>
@@ -723,9 +1275,9 @@ export default function Customize() {
                                                                         { label: 'Center', value: 'center' },
                                                                         { label: 'Right', value: 'right' }
                                                                     ]}
-                                                                    onChange={setAlignment}
-                                                                    value={alignment}
-                                                                    name="sticky_alignment"
+                                                                    onChange={setMobileAlignment}
+                                                                    value={mobileAlignment}
+                                                                    name="sticky_alignment_mobile"
                                                                     style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                                 />
                                                             </BlockStack>
@@ -736,24 +1288,24 @@ export default function Customize() {
                                                                 <div className='input-and-unit-wrapper'>
                                                                     <input
                                                                         type="hidden"
-                                                                        name="sticky_outer_spacing"
-                                                                        value={outerSpacing}
+                                                                        name="sticky_outer_spacing_mobile"
+                                                                        value={mobileOuterSpacing}
                                                                     />
                                                                     <TextField
                                                                         className='outer-spacing-input-type-number'
                                                                         type="number"
                                                                         placeholder="e.g., 20"
-                                                                        value={outerSpacing}
-                                                                        onChange={setOuterSpacing}
+                                                                        value={mobileOuterSpacing}
+                                                                        onChange={setMobileOuterSpacing}
                                                                     />
                                                                     <Select
                                                                         options={[
                                                                             { label: 'px', value: 'px' },
                                                                             { label: '%', value: '%' }
                                                                         ]}
-                                                                        onChange={setOuterSpacingUnit}
-                                                                        value={outerSpacingUnit}
-                                                                        name="sticky_outer_spacing_unit"
+                                                                        onChange={setMobileOuterSpacingUnit}
+                                                                        value={mobileOuterSpacingUnit}
+                                                                        name="sticky_outer_spacing_mobile_unit"
                                                                         style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                                     />
                                                                 </div>
@@ -767,15 +1319,15 @@ export default function Customize() {
                                                     <div className='input-and-unit-wrapper'>
                                                         <input
                                                             type="hidden"
-                                                            name="sticky_inner_spacing"
-                                                            value={innerSpacing}
+                                                            name="sticky_inner_spacing_mobile"
+                                                            value={mobileInnerSpacing}
                                                         />
                                                         <TextField
                                                             className='inner-spacing-input-type-number'
                                                             type="number"
                                                             placeholder="e.g., 16"
-                                                            value={innerSpacing}
-                                                            onChange={setInnerSpacing}
+                                                            value={mobileInnerSpacing}
+                                                            onChange={setMobileInnerSpacing}
                                                         />
                                                         <Select
                                                             options={[
@@ -783,256 +1335,68 @@ export default function Customize() {
                                                             ]}
                                                             value="px"
                                                             disabled
-                                                            name="sticky_inner_spacing_unit"
+                                                            name="sticky_inner_spacing_mobile_unit"
                                                             style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                         />
                                                     </div>
                                                     <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                                 </BlockStack>
                                             </Box>
-                                            <BlockStack gap="400">
-                                                <BlockStack gap="100">
-                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
-                                                    <div
-                                                        className='color-input-wrapper'
-                                                    >
-                                                        <input
-                                                            className='color-input-type-color'
-                                                            type="color"
-                                                            value={backgroundColor}
-                                                            onChange={e => setBackgroundColor(e.target.value)}
-                                                            name="sticky_background_color"
-                                                        />
-                                                        <input
-                                                            className='color-input-type-text'
-                                                            type="text"
-                                                            value={backgroundColor}
-                                                            onChange={e => setBackgroundColor(e.target.value)}
-                                                            name="sticky_background_color"
-                                                        />
-                                                    </div>
-                                                </BlockStack>
-                                                <BlockStack gap="100">
-                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Border color</Text>
-                                                    <div
-                                                        className='color-input-wrapper'
-                                                    >
-                                                        <input
-                                                            className='color-input-type-color'
-                                                            type="color"
-                                                            value={borderColor}
-                                                            onChange={e => setBorderColor(e.target.value)}
-                                                            name="sticky_border_color"
-                                                        />
-                                                        <input
-                                                            className='color-input-type-text'
-                                                            type="text"
-                                                            value={borderColor}
-                                                            onChange={e => setBorderColor(e.target.value)}
-                                                            name="sticky_border_color"
-                                                        />
-                                                    </div>
-                                                </BlockStack>
-                                                <BlockStack gap="100">
-                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Corner radius</Text>
-                                                    <div
-                                                        className='sy-range-slider-wrapper'
-                                                    >
-                                                        <RangeSlider
-                                                            label="Corner radius"
-                                                            labelHidden
-                                                            value={parseInt(borderRadius) || 12}
-                                                            min={0}
-                                                            max={24}
-                                                            step={1}
-                                                            onChange={value => setBorderRadius(value.toString())}
-                                                            name="sticky_border_radius"
-                                                            style={{ flex: 1 }}
-                                                        />
-                                                        <div className='sy-range-slider-unit-wrapper'>
-                                                            <input
-                                                                className='sy-border-radius-input-number'
-                                                                type="number"
-                                                                min="0"
-                                                                max="24"
-                                                                value={borderRadius || '12'}
-                                                                onChange={e => setBorderRadius(e.target.value)}
-                                                                name="sticky_border_radius"
-                                                            />
-                                                            <span className='unit'>px</span>
-                                                        </div>
-                                                    </div>
-                                                </BlockStack>
-                                            </BlockStack>
-                                        </Card>
-                                        <Card>
-                                            <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <Text as="h3" variant="headingMd">Content</Text>
-                                                <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                                    Customize fonts, colors, and spacing for product content inside the sticky bar.
+                                        </BlockStack>
+                                    </Card>
+                                    <Card>
+                                        <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <Text as="h3" variant="headingMd">Content</Text>
+                                            <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                                Customize fonts, colors, and spacing for product content inside the sticky bar.
+                                            </Text>
+                                        </Box>
+                                        <Box style={{ margin: '16px 0' }}>
+                                            <Divider />
+                                        </Box>
+                                        <Box style={{ marginBottom: 8 }}>
+                                            <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
+                                        </Box>
+                                        <Box style={{ marginBottom: 4 }}>
+                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
+                                        </Box>
+                                        <input
+                                            type="hidden"
+                                            name="sticky_image_size_mobile"
+                                            value={mobileImageSize}
+                                        />
+                                        <Select
+                                            options={[
+                                                { label: 'Small', value: 'small' },
+                                                { label: 'Medium', value: 'medium' },
+                                                { label: 'Large', value: 'large' }
+                                            ]}
+                                            onChange={setMobileImageSize}
+                                            value={mobileImageSize}
+                                            name="sticky_image_size_mobile"
+                                            style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                        />
+                                    </Card>
+                                    <Card>
+                                        <BlockStack gap="400">
+                                            <BlockStack gap="100">
+                                                <Text as="h3" variant="headingMd">Button settings</Text>
+                                                <Text variant="bodySm" tone="subdued">
+                                                    Configure the appearance and behavior of the add to cart button.
                                                 </Text>
-                                            </Box>
-                                            <Box style={{ margin: '16px 0' }}>
-                                                <Divider />
-                                            </Box>
-                                            <Box>
-                                                <Box style={{ marginBottom: '8px' }}>
-                                                    <Text as="h4" variant="headingSm">Product name</Text>
-                                                </Box>
-                                                <Box style={{ marginBottom: '4px' }}>
-                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Color</Text>
-                                                </Box>
-                                                <div
-                                                    className='color-input-wrapper'
-                                                >
-                                                    <input
-                                                        className='color-input-type-color'
-                                                        type="color"
-                                                        value={productNameColor}
-                                                        onChange={e => setProductNameColor(e.target.value)}
-                                                        name="sticky_product_name_color"
-                                                    />
-                                                    <input
-                                                        className='color-input-type-text'
-                                                        type="text"
-                                                        value={productNameColor}
-                                                        onChange={e => setProductNameColor(e.target.value)}
-                                                        name="sticky_product_name_color"
-                                                    />
-                                                </div>
-                                            </Box>
-                                            <Box style={{ margin: '16px 0' }}>
-                                                <Divider />
-                                            </Box>
-                                            <Box style={{ marginBottom: 8 }}>
-                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
-                                            </Box>
-                                            <Box style={{ marginBottom: 4 }}>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
-                                            </Box>
-                                            <input
-                                                type="hidden"
-                                                name="sticky_image_size"
-                                                value={imageSize}
-                                            />
-                                            <Select
-                                                options={[
-                                                    { label: 'Small', value: 'small' },
-                                                    { label: 'Medium', value: 'medium' },
-                                                    { label: 'Large', value: 'large' }
-                                                ]}
-                                                onChange={setImageSize}
-                                                value={imageSize}
-                                            />
-                                            <Box style={{ margin: '16px 0' }}>
-                                                <Divider />
-                                            </Box>
-                                            <Box style={{ marginBottom: 8 }}>
-                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Quantity</Text>
-                                            </Box>
-                                            <Box style={{ marginBottom: 4 }}>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Color</Text>
-                                            </Box>
-                                            <Box style={{ marginBottom: 8 }}>
-                                                <div
-                                                    className='color-input-wrapper'
-                                                >
-                                                    <input
-                                                        className='color-input-type-color'
-                                                        type="color"
-                                                        value={quantityColor}
-                                                        onChange={e => setQuantityColor(e.target.value)}
-                                                        name="sticky_quantity_color"
-                                                    />
-                                                    <input
-                                                        className='color-input-type-text'
-                                                        type="text"
-                                                        value={quantityColor}
-                                                        onChange={e => setQuantityColor(e.target.value)}
-                                                        name="sticky_quantity_color"
-                                                        style={{ flex: 1, borderRadius: 8, fontSize: 16 }}
-                                                    />
-                                                </div>
-                                            </Box>
-                                            <Box style={{ marginBottom: 4 }}>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
-                                            </Box>
-                                            <div
-                                                className='color-input-wrapper'
-                                            >
-                                                <input
-                                                    className='color-input-type-color'
-                                                    type="color"
-                                                    value={quantityBorderColor}
-                                                    onChange={e => setQuantityBorderColor(e.target.value)}
-                                                    name="sticky_quantity_border_color"
-                                                />
-                                                <input
-                                                    className='color-input-type-text'
-                                                    type="text"
-                                                    value={quantityBorderColor}
-                                                    onChange={e => setQuantityBorderColor(e.target.value)}
-                                                    name="sticky_quantity_border_color"
-                                                />
-                                            </div>
-                                        </Card>
-                                        <Card>
-                                            <BlockStack gap="400">
-                                                <Box>
-                                                    <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Button</Text>
-                                                    <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                                        Customize the look and behavior of "Add to cart" button inside the sticky bar.
-                                                    </Text>
-                                                </Box>
-                                                <Box>
-                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>On click behavior</Text>
-                                                    <input
-                                                        type="hidden"
-                                                        name="sticky_button_behavior"
-                                                        value={buttonBehavior}
-                                                    />
-                                                    <Select
-                                                        options={[
-                                                            { label: 'Add to cart', value: 'add' },
-                                                            { label: 'Buy now', value: 'buy' },
-                                                            { label: 'Custom action', value: 'custom' }
-                                                        ]}
-                                                        onChange={setButtonBehavior}
-                                                        value={buttonBehavior}
-                                                    />
-                                                </Box>
-                                                <Box>
-                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text</Text>
-                                                    <input
-                                                        type="hidden"
-                                                        name="sticky_button_text"
-                                                        value={buttonText}
-                                                    />
-                                                    <div style={{ position: 'relative', marginBottom: 4 }}>
-                                                        <TextField
-                                                            type="text"
-                                                            value={buttonText}
-                                                            onChange={setButtonText}
-                                                            maxLength={40}
-                                                            placeholder="Add to cart"
-                                                        />
-                                                        <span style={{ position: 'absolute', right: 12, top: 8, color: '#6D7175', fontSize: 14 }}>{buttonText.length}/40</span>
-                                                    </div>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        To add the price inline, use {'{price}'} token
-                                                    </Text>
-                                                </Box>
+                                            </BlockStack>
+                                            <BlockStack gap="200">
                                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
                                                     <input
                                                         type="hidden"
-                                                        name="sticky_enable_cart_icon"
-                                                        value={enableCartIcon ? 'on' : 'off'}
+                                                        name="sticky_enable_mobile_cart_icon"
+                                                        value={enableMobileCartIcon ? 'on' : 'off'}
                                                     />
                                                     <Checkbox
                                                         label="Show cart icon"
                                                         labelHidden
-                                                        checked={enableCartIcon}
-                                                        onChange={setEnableCartIcon}
+                                                        checked={enableMobileCartIcon}
+                                                        onChange={setEnableMobileCartIcon}
                                                     />
                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                                         <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
@@ -1041,319 +1405,10 @@ export default function Customize() {
                                                         </Text>
                                                     </div>
                                                 </div>
-                                                <Box>
-                                                    <BlockStack gap="100">
-                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text color</Text>
-                                                        <div
-                                                            className='color-input-wrapper'
-                                                        >
-                                                            <input
-                                                                className='color-input-type-color'
-                                                                type="color"
-                                                                value={buttonTextColor}
-                                                                onChange={e => setButtonTextColor(e.target.value)}
-                                                                name="sticky_button_text_color"
-                                                            />
-                                                            <input
-                                                                className='color-input-type-text'
-                                                                type="text"
-                                                                value={buttonTextColor}
-                                                                onChange={e => setButtonTextColor(e.target.value)}
-                                                                name="sticky_button_text_color"
-                                                            />
-                                                        </div>
-                                                    </BlockStack>
-                                                </Box>
-                                                <Box>
-                                                    <BlockStack gap="100">
-                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
-                                                        <div className='color-input-wrapper'>
-                                                            <input
-                                                                className='color-input-type-color'
-                                                                type="color"
-                                                                value={buttonBgColor}
-                                                                onChange={e => setButtonBgColor(e.target.value)}
-                                                                name="sticky_button_bg_color"
-                                                            />
-                                                            <input
-                                                                className='color-input-type-text'
-                                                                type="text"
-                                                                value={buttonBgColor}
-                                                                onChange={e => setButtonBgColor(e.target.value)}
-                                                                name="sticky_button_bg_color"
-                                                            />
-                                                        </div>
-                                                    </BlockStack>
-                                                </Box>
-                                                <Box background="bg-surface-secondary" padding="200" borderRadius="200">
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Hover styles apply a slight opacity to the background automatically.
-                                                    </Text>
-                                                </Box>
                                             </BlockStack>
-                                        </Card>
-                                    </BlockStack>
-
-                                </fetcher.Form>
-                            )}
-                            {appearanceView === 'mobile' && (
-                                <fetcher.Form method="post" data-save-bar>
-                                    <BlockStack gap="400">
-                                        <Card>
-                                            <Box style={{ marginBottom: '16px' }}>
-                                                <BlockStack gap="100">
-                                                    <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Control which product elements are displayed.
-                                                    </Text>
-                                                </BlockStack>
-                                            </Box>
-                                            <BlockStack gap="0">
-                                                <input
-                                                    type="hidden"
-                                                    name="sticky_content_display_mobile_image"
-                                                    value={mobileImageDisplay ? 'on' : 'off'}
-                                                />
-                                                <Checkbox
-                                                    label="Show image"
-                                                    checked={mobileImageDisplay}
-                                                    onChange={(checked) => setMobileImageDisplay(checked)}
-                                                />
-
-                                                <input
-                                                    type="hidden"
-                                                    name="sticky_content_display_mobile_title"
-                                                    value={mobileTitleDisplay ? 'on' : 'off'}
-                                                />
-                                                <Checkbox
-                                                    label="Show title"
-                                                    checked={mobileTitleDisplay}
-                                                    onChange={(checked) => setMobileTitleDisplay(checked)}
-                                                />
-
-                                                <input
-                                                    type="hidden"
-                                                    name="sticky_content_display_mobile_price"
-                                                    value={mobilePriceDisplay ? 'on' : 'off'}
-                                                />
-                                                <Checkbox
-                                                    label="Show price"
-                                                    checked={mobilePriceDisplay}
-                                                    onChange={(checked) => setMobilePriceDisplay(checked)}
-                                                />
-
-                                                <input
-                                                    type="hidden"
-                                                    name="sticky_content_display_mobile_quantity"
-                                                    value={mobileQuantityDisplay ? 'on' : 'off'}
-                                                />
-                                                <Checkbox
-                                                    label="Show quantity selector"
-                                                    checked={mobileQuantityDisplay}
-                                                    onChange={(checked) => setMobileQuantityDisplay(checked)}
-                                                />
-                                            </BlockStack>
-                                        </Card>
-
-                                        <Card>
-                                            <BlockStack gap="400">
-                                                <BlockStack gap="100">
-                                                    <Text as="h3" variant="headingMd">Bar</Text>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Manage layout, spacing, and visual design for the sticky bar container.
-                                                    </Text>
-                                                </BlockStack>
-                                                <Box>
-                                                    <Box style={{ marginBottom: '8px' }}>
-                                                        <ChoiceList
-                                                            title="Width"
-                                                            choices={[
-                                                                { label: 'Full', value: 'full' },
-                                                                { label: 'Contained', value: 'contained' },
-                                                            ]}
-                                                            selected={[mobileBarWidth]}
-                                                            onChange={([value]) => setMobileBarWidth(value)}
-                                                            allowMultiple={false}
-                                                            name="sticky_bar_width_mobile"
-                                                        />
-                                                    </Box>
-                                                    {mobileBarWidth === 'contained' && (
-                                                        <>
-                                                            <Box style={{ marginBottom: '8px' }}>
-                                                                <BlockStack gap="100">
-                                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
-                                                                    <div className='input-and-unit-wrapper'>
-                                                                        <input
-                                                                            type="hidden"
-                                                                            name="sticky_max_width_mobile"
-                                                                            value={mobileMaxWidth}
-                                                                        />
-                                                                        <TextField
-                                                                            className='max-width-input-type-number'
-                                                                            type="number"
-                                                                            placeholder="e.g., 600"
-                                                                            value={mobileMaxWidth}
-                                                                            onChange={setMobileMaxWidth}
-                                                                            style={{ flex: 1 }}
-                                                                        />
-                                                                        <Select
-                                                                            options={[
-                                                                                { label: 'px', value: 'px' },
-                                                                                { label: '%', value: '%' }
-                                                                            ]}
-                                                                            onChange={setMobileMaxWidthUnit}
-                                                                            value={mobileMaxWidthUnit}
-                                                                            name="sticky_max_width_mobile_unit"
-                                                                            style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                                        />
-                                                                    </div>
-                                                                    <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
-                                                                </BlockStack>
-                                                            </Box>
-                                                            <Box style={{ marginBottom: "16px" }}>
-                                                                <BlockStack gap="100">
-                                                                    <Text variant="bodySm" as="div">Alignment</Text>
-                                                                    <Select
-                                                                        options={[
-                                                                            { label: 'Left', value: 'left' },
-                                                                            { label: 'Center', value: 'center' },
-                                                                            { label: 'Right', value: 'right' }
-                                                                        ]}
-                                                                        onChange={setMobileAlignment}
-                                                                        value={mobileAlignment}
-                                                                        name="sticky_alignment_mobile"
-                                                                        style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                                    />
-                                                                </BlockStack>
-                                                            </Box>
-                                                            <Box style={{ marginBottom: "16px" }}>
-                                                                <BlockStack gap="100">
-                                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
-                                                                    <div className='input-and-unit-wrapper'>
-                                                                        <input
-                                                                            type="hidden"
-                                                                            name="sticky_outer_spacing_mobile"
-                                                                            value={mobileOuterSpacing}
-                                                                        />
-                                                                        <TextField
-                                                                            className='outer-spacing-input-type-number'
-                                                                            type="number"
-                                                                            placeholder="e.g., 20"
-                                                                            value={mobileOuterSpacing}
-                                                                            onChange={setMobileOuterSpacing}
-                                                                        />
-                                                                        <Select
-                                                                            options={[
-                                                                                { label: 'px', value: 'px' },
-                                                                                { label: '%', value: '%' }
-                                                                            ]}
-                                                                            onChange={setMobileOuterSpacingUnit}
-                                                                            value={mobileOuterSpacingUnit}
-                                                                            name="sticky_outer_spacing_mobile_unit"
-                                                                            style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                                        />
-                                                                    </div>
-                                                                    <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
-                                                                </BlockStack>
-                                                            </Box>
-                                                        </>
-                                                    )}
-                                                    <BlockStack gap="100">
-                                                        <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Inner spacing</Text>
-                                                        <div className='input-and-unit-wrapper'>
-                                                            <input
-                                                                type="hidden"
-                                                                name="sticky_inner_spacing_mobile"
-                                                                value={mobileInnerSpacing}
-                                                            />
-                                                            <TextField
-                                                                className='inner-spacing-input-type-number'
-                                                                type="number"
-                                                                placeholder="e.g., 16"
-                                                                value={mobileInnerSpacing}
-                                                                onChange={setMobileInnerSpacing}
-                                                            />
-                                                            <Select
-                                                                options={[
-                                                                    { label: 'px', value: 'px' }
-                                                                ]}
-                                                                value="px"
-                                                                disabled
-                                                                name="sticky_inner_spacing_mobile_unit"
-                                                                style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                                            />
-                                                        </div>
-                                                        <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
-                                                    </BlockStack>
-                                                </Box>
-                                            </BlockStack>
-                                        </Card>
-                                        <Card>
-                                            <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <Text as="h3" variant="headingMd">Content</Text>
-                                                <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                                    Customize fonts, colors, and spacing for product content inside the sticky bar.
-                                                </Text>
-                                            </Box>
-                                            <Box style={{ margin: '16px 0' }}>
-                                                <Divider />
-                                            </Box>
-                                            <Box style={{ marginBottom: 8 }}>
-                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
-                                            </Box>
-                                            <Box style={{ marginBottom: 4 }}>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
-                                            </Box>
-                                            <input
-                                                type="hidden"
-                                                name="sticky_image_size_mobile"
-                                                value={mobileImageSize}
-                                            />
-                                            <Select
-                                                options={[
-                                                    { label: 'Small', value: 'small' },
-                                                    { label: 'Medium', value: 'medium' },
-                                                    { label: 'Large', value: 'large' }
-                                                ]}
-                                                onChange={setMobileImageSize}
-                                                value={mobileImageSize}
-                                                name="sticky_image_size_mobile"
-                                                style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                            />
-                                        </Card>
-                                        <Card>
-                                            <BlockStack gap="400">
-                                                <BlockStack gap="100">
-                                                    <Text as="h3" variant="headingMd">Button settings</Text>
-                                                    <Text variant="bodySm" tone="subdued">
-                                                        Configure the appearance and behavior of the add to cart button.
-                                                    </Text>
-                                                </BlockStack>
-                                                <BlockStack gap="200">
-                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_enable_mobile_cart_icon"
-                                                            value={enableMobileCartIcon ? 'on' : 'off'}
-                                                        />
-                                                        <Checkbox
-                                                            label="Show cart icon"
-                                                            labelHidden
-                                                            checked={enableMobileCartIcon}
-                                                            onChange={setEnableMobileCartIcon}
-                                                        />
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                            <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
-                                                            <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
-                                                                Choose whether to display the icon or not
-                                                            </Text>
-                                                        </div>
-                                                    </div>
-                                                </BlockStack>
-                                            </BlockStack>
-                                        </Card>
-                                    </BlockStack>
-                                </fetcher.Form>
+                                        </BlockStack>
+                                    </Card>
+                                </BlockStack>
                             )}
                             <Card>
                                 <Text as="h3" variant="headingMd">Reset appearance settings</Text>
@@ -1713,6 +1768,34 @@ export default function Customize() {
                         </Text>
                     </Modal.Section>
                 </Modal>
+            )}
+
+            {hasUnsavedChanges && (
+                <div style={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    background: '#fff',
+                    borderTop: '1px solid #DFDFDF',
+                    padding: '16px 24px',
+                    zIndex: 1000,
+                    boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.1)'
+                }}>
+                    <InlineStack align="space-between" blockAlign="center">
+                        <Text variant="bodyMd" tone="subdued">
+                            You have unsaved changes
+                        </Text>
+                        <InlineStack gap="200">
+                            <Button variant="tertiary" onClick={handleDiscard}>
+                                Discard
+                            </Button>
+                            <Button variant="primary" onClick={handleSave}>
+                                Save
+                            </Button>
+                        </InlineStack>
+                    </InlineStack>
+                </div>
             )}
         </Page>
     );
