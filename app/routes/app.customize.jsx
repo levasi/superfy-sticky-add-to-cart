@@ -158,95 +158,143 @@ export const action = async ({ request }) => {
         return Response.json({ ok: true });
     }
 
-    // Handle appearance settings (existing logic)
-    const settings = {
-        sticky_bar_color: formData.get("sticky_bar_color") || "#fff",
-        sticky_visibility: formData.get("sticky_visibility") || "all",
-        sticky_trigger: formData.get("sticky_trigger") || "after-summary",
-        sticky_content_display_image: formData.get("sticky_content_display_image") === 'on' ? 'true' : 'false',
-        sticky_content_display_title: formData.get("sticky_content_display_title") === 'on' ? 'true' : 'false',
-        sticky_content_display_price: formData.get("sticky_content_display_price") === 'on' ? 'true' : 'false',
-        sticky_content_display_quantity: formData.get("sticky_content_display_quantity") === 'on' ? 'true' : 'false',
-        sticky_content_display_mobile_image: formData.get("sticky_content_display_mobile_image") === 'on' ? 'true' : 'false',
-        sticky_content_display_mobile_title: formData.get("sticky_content_display_mobile_title") === 'on' ? 'true' : 'false',
-        sticky_content_display_mobile_price: formData.get("sticky_content_display_mobile_price") === 'on' ? 'true' : 'false',
-        sticky_content_display_mobile_quantity: formData.get("sticky_content_display_mobile_quantity") === 'on' ? 'true' : 'false',
-        sticky_bar_width: formData.get("sticky_bar_width") || "contained",
-        sticky_bar_width_mobile: formData.get("sticky_bar_width_mobile") || "full",
-        sticky_max_width_mobile: formData.get("sticky_max_width_mobile") || "",
-        sticky_max_width_mobile_unit: formData.get("sticky_max_width_mobile_unit") || "px",
-        sticky_alignment_mobile: formData.get("sticky_alignment_mobile") || "right",
-        sticky_outer_spacing_mobile: formData.get("sticky_outer_spacing_mobile") || "",
-        sticky_outer_spacing_mobile_unit: formData.get("sticky_outer_spacing_mobile_unit") || "px",
-        sticky_inner_spacing_mobile: formData.get("sticky_inner_spacing_mobile") || "16",
-        sticky_max_width: formData.get("sticky_max_width") || "",
-        sticky_max_width_unit: formData.get("sticky_max_width_unit") || "px",
-        sticky_alignment: formData.get("sticky_alignment") || "right",
-        sticky_outer_spacing: formData.get("sticky_outer_spacing") || "",
-        sticky_outer_spacing_unit: formData.get("sticky_outer_spacing_unit") || "px",
-        sticky_inner_spacing: formData.get("sticky_inner_spacing") || "16",
-        sticky_inner_spacing_unit: formData.get("sticky_inner_spacing_unit") || "px",
-        sticky_background_color: formData.get("sticky_background_color") || "#FFFFFF",
-        sticky_border_color: formData.get("sticky_border_color") || "#000000",
-        sticky_border_radius: formData.get("sticky_border_radius") || "12",
-        sticky_product_name_color: formData.get("sticky_product_name_color") || "#141414",
-        sticky_image_size: formData.get("sticky_image_size") || "medium",
-        sticky_image_size_mobile: formData.get("sticky_image_size_mobile") || "medium",
-        sticky_quantity_color: formData.get("sticky_quantity_color") || "#141414",
-        sticky_quantity_border_color: formData.get("sticky_quantity_border_color") || "#DFDFDF",
-        sticky_button_behavior: formData.get("sticky_button_behavior") || "add",
-        sticky_button_text: formData.get("sticky_button_text") || "Add to cart",
-        sticky_enable_cart_icon: formData.get("sticky_enable_cart_icon") === 'on' ? 'true' : 'false',
-        sticky_enable_mobile_cart_icon: formData.get("sticky_enable_mobile_cart_icon") === 'on' ? 'true' : 'false',
-        sticky_button_text_color: formData.get("sticky_button_text_color") || "#FFFFFF",
-        sticky_button_bg_color: formData.get("sticky_button_bg_color") || "#141414",
-        sticky_custom_css: formData.get("sticky_custom_css") || '',
-    };
+    // Handle appearance settings - only save settings that are actually submitted
+    const settings = {};
 
-    // Save to database
-    await upsertSetting("sticky_bar_color", settings.sticky_bar_color);
-    await upsertSetting("sticky_visibility", settings.sticky_visibility);
-    await upsertSetting("sticky_trigger", settings.sticky_trigger);
-    await upsertSetting("sticky_content_display_image", settings.sticky_content_display_image);
-    await upsertSetting("sticky_content_display_title", settings.sticky_content_display_title);
-    await upsertSetting("sticky_content_display_price", settings.sticky_content_display_price);
-    await upsertSetting("sticky_content_display_quantity", settings.sticky_content_display_quantity);
-    await upsertSetting("sticky_content_display_mobile_image", settings.sticky_content_display_mobile_image);
-    await upsertSetting("sticky_content_display_mobile_title", settings.sticky_content_display_mobile_title);
-    await upsertSetting("sticky_content_display_mobile_price", settings.sticky_content_display_mobile_price);
-    await upsertSetting("sticky_content_display_mobile_quantity", settings.sticky_content_display_mobile_quantity);
-    await upsertSetting("sticky_bar_width", settings.sticky_bar_width);
-    await upsertSetting("sticky_bar_width_mobile", settings.sticky_bar_width_mobile);
-    await upsertSetting("sticky_max_width_mobile", settings.sticky_max_width_mobile);
-    await upsertSetting("sticky_max_width_mobile_unit", settings.sticky_max_width_mobile_unit);
-    await upsertSetting("sticky_alignment_mobile", settings.sticky_alignment_mobile);
-    await upsertSetting("sticky_outer_spacing_mobile", settings.sticky_outer_spacing_mobile);
-    await upsertSetting("sticky_outer_spacing_mobile_unit", settings.sticky_outer_spacing_mobile_unit);
-    await upsertSetting("sticky_inner_spacing_mobile", settings.sticky_inner_spacing_mobile);
-    await upsertSetting("sticky_max_width", settings.sticky_max_width);
-    await upsertSetting("sticky_max_width_unit", settings.sticky_max_width_unit);
-    await upsertSetting("sticky_alignment", settings.sticky_alignment);
-    await upsertSetting("sticky_outer_spacing", settings.sticky_outer_spacing);
-    await upsertSetting("sticky_outer_spacing_unit", settings.sticky_outer_spacing_unit);
-    await upsertSetting("sticky_inner_spacing", settings.sticky_inner_spacing);
-    await upsertSetting("sticky_inner_spacing_unit", settings.sticky_inner_spacing_unit);
-    await upsertSetting("sticky_background_color", settings.sticky_background_color);
-    await upsertSetting("sticky_border_color", settings.sticky_border_color);
-    await upsertSetting("sticky_border_radius", settings.sticky_border_radius);
-    await upsertSetting("sticky_product_name_color", settings.sticky_product_name_color);
-    await upsertSetting("sticky_image_size", settings.sticky_image_size);
-    await upsertSetting("sticky_image_size_mobile", settings.sticky_image_size_mobile);
-    await upsertSetting("sticky_quantity_color", settings.sticky_quantity_color);
-    await upsertSetting("sticky_quantity_border_color", settings.sticky_quantity_border_color);
-    await upsertSetting("sticky_button_behavior", settings.sticky_button_behavior);
-    await upsertSetting("sticky_button_text", settings.sticky_button_text);
-    await upsertSetting("sticky_enable_cart_icon", settings.sticky_enable_cart_icon);
-    await upsertSetting("sticky_enable_mobile_cart_icon", settings.sticky_enable_mobile_cart_icon);
-    await upsertSetting("sticky_button_text_color", settings.sticky_button_text_color);
-    await upsertSetting("sticky_button_bg_color", settings.sticky_button_bg_color);
-    await upsertSetting("sticky_custom_css", settings.sticky_custom_css);
+    // Always include visibility and trigger if present
+    if (formData.has("sticky_visibility")) {
+        settings.sticky_visibility = formData.get("sticky_visibility") || "all";
+    }
+    if (formData.has("sticky_trigger")) {
+        settings.sticky_trigger = formData.get("sticky_trigger") || "after-summary";
+    }
 
-    // Save to metafields for backward compatibility
+    // Desktop settings
+    if (formData.has("sticky_content_display_image")) {
+        settings.sticky_content_display_image = formData.get("sticky_content_display_image") === 'on' ? 'true' : 'false';
+    }
+    if (formData.has("sticky_content_display_title")) {
+        settings.sticky_content_display_title = formData.get("sticky_content_display_title") === 'on' ? 'true' : 'false';
+    }
+    if (formData.has("sticky_content_display_price")) {
+        settings.sticky_content_display_price = formData.get("sticky_content_display_price") === 'on' ? 'true' : 'false';
+    }
+    if (formData.has("sticky_content_display_quantity")) {
+        settings.sticky_content_display_quantity = formData.get("sticky_content_display_quantity") === 'on' ? 'true' : 'false';
+    }
+    if (formData.has("sticky_bar_width")) {
+        settings.sticky_bar_width = formData.get("sticky_bar_width") || "contained";
+    }
+    if (formData.has("sticky_max_width")) {
+        settings.sticky_max_width = formData.get("sticky_max_width") || "";
+    }
+    if (formData.has("sticky_max_width_unit")) {
+        settings.sticky_max_width_unit = formData.get("sticky_max_width_unit") || "px";
+    }
+    if (formData.has("sticky_alignment")) {
+        settings.sticky_alignment = formData.get("sticky_alignment") || "right";
+    }
+    if (formData.has("sticky_outer_spacing")) {
+        settings.sticky_outer_spacing = formData.get("sticky_outer_spacing") || "";
+    }
+    if (formData.has("sticky_outer_spacing_unit")) {
+        settings.sticky_outer_spacing_unit = formData.get("sticky_outer_spacing_unit") || "px";
+    }
+    if (formData.has("sticky_inner_spacing")) {
+        settings.sticky_inner_spacing = formData.get("sticky_inner_spacing") || "16";
+    }
+    if (formData.has("sticky_inner_spacing_unit")) {
+        settings.sticky_inner_spacing_unit = formData.get("sticky_inner_spacing_unit") || "px";
+    }
+    if (formData.has("sticky_background_color")) {
+        settings.sticky_background_color = formData.get("sticky_background_color") || "#FFFFFF";
+    }
+    if (formData.has("sticky_border_color")) {
+        settings.sticky_border_color = formData.get("sticky_border_color") || "#000000";
+    }
+    if (formData.has("sticky_border_radius")) {
+        settings.sticky_border_radius = formData.get("sticky_border_radius") || "12";
+    }
+    if (formData.has("sticky_product_name_color")) {
+        settings.sticky_product_name_color = formData.get("sticky_product_name_color") || "#141414";
+    }
+    if (formData.has("sticky_image_size")) {
+        settings.sticky_image_size = formData.get("sticky_image_size") || "medium";
+    }
+    if (formData.has("sticky_quantity_color")) {
+        settings.sticky_quantity_color = formData.get("sticky_quantity_color") || "#141414";
+    }
+    if (formData.has("sticky_quantity_border_color")) {
+        settings.sticky_quantity_border_color = formData.get("sticky_quantity_border_color") || "#DFDFDF";
+    }
+    if (formData.has("sticky_button_behavior")) {
+        settings.sticky_button_behavior = formData.get("sticky_button_behavior") || "add";
+    }
+    if (formData.has("sticky_button_text")) {
+        settings.sticky_button_text = formData.get("sticky_button_text") || "Add to cart";
+    }
+    if (formData.has("sticky_enable_cart_icon")) {
+        settings.sticky_enable_cart_icon = formData.get("sticky_enable_cart_icon") === 'on' ? 'true' : 'false';
+    }
+    if (formData.has("sticky_button_text_color")) {
+        settings.sticky_button_text_color = formData.get("sticky_button_text_color") || "#FFFFFF";
+    }
+    if (formData.has("sticky_button_bg_color")) {
+        settings.sticky_button_bg_color = formData.get("sticky_button_bg_color") || "#141414";
+    }
+
+    // Mobile settings
+    if (formData.has("sticky_content_display_mobile_image")) {
+        settings.sticky_content_display_mobile_image = formData.get("sticky_content_display_mobile_image") === 'on' ? 'true' : 'false';
+    }
+    if (formData.has("sticky_content_display_mobile_title")) {
+        settings.sticky_content_display_mobile_title = formData.get("sticky_content_display_mobile_title") === 'on' ? 'true' : 'false';
+    }
+    if (formData.has("sticky_content_display_mobile_price")) {
+        settings.sticky_content_display_mobile_price = formData.get("sticky_content_display_mobile_price") === 'on' ? 'true' : 'false';
+    }
+    if (formData.has("sticky_content_display_mobile_quantity")) {
+        settings.sticky_content_display_mobile_quantity = formData.get("sticky_content_display_mobile_quantity") === 'on' ? 'true' : 'false';
+    }
+    if (formData.has("sticky_bar_width_mobile")) {
+        settings.sticky_bar_width_mobile = formData.get("sticky_bar_width_mobile") || "full";
+    }
+    if (formData.has("sticky_max_width_mobile")) {
+        settings.sticky_max_width_mobile = formData.get("sticky_max_width_mobile") || "";
+    }
+    if (formData.has("sticky_max_width_mobile_unit")) {
+        settings.sticky_max_width_mobile_unit = formData.get("sticky_max_width_mobile_unit") || "px";
+    }
+    if (formData.has("sticky_alignment_mobile")) {
+        settings.sticky_alignment_mobile = formData.get("sticky_alignment_mobile") || "right";
+    }
+    if (formData.has("sticky_outer_spacing_mobile")) {
+        settings.sticky_outer_spacing_mobile = formData.get("sticky_outer_spacing_mobile") || "";
+    }
+    if (formData.has("sticky_outer_spacing_mobile_unit")) {
+        settings.sticky_outer_spacing_mobile_unit = formData.get("sticky_outer_spacing_mobile_unit") || "px";
+    }
+    if (formData.has("sticky_inner_spacing_mobile")) {
+        settings.sticky_inner_spacing_mobile = formData.get("sticky_inner_spacing_mobile") || "16";
+    }
+    if (formData.has("sticky_image_size_mobile")) {
+        settings.sticky_image_size_mobile = formData.get("sticky_image_size_mobile") || "medium";
+    }
+    if (formData.has("sticky_enable_mobile_cart_icon")) {
+        settings.sticky_enable_mobile_cart_icon = formData.get("sticky_enable_mobile_cart_icon") === 'on' ? 'true' : 'false';
+    }
+
+    // Advanced settings
+    if (formData.has("sticky_custom_css")) {
+        settings.sticky_custom_css = formData.get("sticky_custom_css") || '';
+    }
+
+    // Save to database - only save settings that are present
+    for (const [key, value] of Object.entries(settings)) {
+        await upsertSetting(key, value);
+    }
+
+    // Save to metafields for backward compatibility - only include settings that are present
     await setShopMetafields(admin, shopId, settings);
 
     return Response.json({ ok: true });
