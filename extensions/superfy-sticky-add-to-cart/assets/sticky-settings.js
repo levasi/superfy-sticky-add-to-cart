@@ -83,31 +83,41 @@ class StickyBarSettings {
     // Get CSS styles based on settings
     getStyles() {
         const settings = this.getAll();
+        const isMobile = window.innerWidth <= 768;
+
+        // Use mobile settings if on mobile, otherwise use desktop settings
+        const barWidth = isMobile ? (settings.sticky_bar_width_mobile || settings.sticky_bar_width) : settings.sticky_bar_width;
+        const maxWidth = isMobile ? (settings.sticky_max_width_mobile || settings.sticky_max_width) : settings.sticky_max_width;
+        const maxWidthUnit = isMobile ? (settings.sticky_max_width_mobile_unit || settings.sticky_max_width_unit) : settings.sticky_max_width_unit;
+        const alignment = isMobile ? (settings.sticky_alignment_mobile || settings.sticky_alignment) : settings.sticky_alignment;
+        const outerSpacing = isMobile ? (settings.sticky_outer_spacing_mobile || settings.sticky_outer_spacing) : settings.sticky_outer_spacing;
+        const outerSpacingUnit = isMobile ? (settings.sticky_outer_spacing_mobile_unit || settings.sticky_outer_spacing_unit) : settings.sticky_outer_spacing_unit;
+        const innerSpacing = isMobile ? (settings.sticky_inner_spacing_mobile || settings.sticky_inner_spacing) : settings.sticky_inner_spacing;
 
         // Calculate width and positioning based on bar width setting
-        let width, maxWidth, left, right, transform;
+        let width, maxWidthValue, left, right, transform;
 
-        if (settings.sticky_bar_width === 'full') {
+        if (barWidth === 'full') {
             // Full width: spans the entire width with margins
             width = 'calc(100% - 40px)'; // Account for outer spacing
-            maxWidth = 'none';
+            maxWidthValue = 'none';
             left = '20px';
             right = '20px';
             transform = 'none';
         } else {
             // Contained width: respects max width and alignment
-            maxWidth = settings.sticky_max_width ? `${settings.sticky_max_width}${settings.sticky_max_width_unit}` : '600px';
+            maxWidthValue = maxWidth ? `${maxWidth}${maxWidthUnit}` : '600px';
 
             // Handle alignment for contained width
-            if (settings.sticky_alignment === 'left') {
+            if (alignment === 'left') {
                 left = '20px';
                 right = 'auto';
                 transform = 'none';
-            } else if (settings.sticky_alignment === 'center') {
+            } else if (alignment === 'center') {
                 left = '50%';
                 right = 'auto';
                 transform = 'translateX(-50%)';
-            } else if (settings.sticky_alignment === 'right') {
+            } else if (alignment === 'right') {
                 left = 'auto';
                 right = '20px';
                 transform = 'none';
@@ -119,12 +129,12 @@ class StickyBarSettings {
             borderColor: settings.sticky_border_color,
             color: settings.sticky_product_name_color,
             width: width,
-            maxWidth: maxWidth,
+            maxWidth: maxWidthValue,
             left: left,
             right: right,
             transform: transform,
-            margin: settings.sticky_outer_spacing ? `${settings.sticky_outer_spacing}${settings.sticky_outer_spacing_unit}` : 'unset',
-            padding: `${settings.sticky_inner_spacing}${settings.sticky_inner_spacing_unit}`,
+            margin: outerSpacing ? `${outerSpacing}${outerSpacingUnit}` : 'unset',
+            padding: isMobile ? `${innerSpacing}px` : `${innerSpacing}${settings.sticky_inner_spacing_unit || 'px'}`,
             border: `1px solid ${settings.sticky_border_color}`,
             borderRadius: `${settings.sticky_border_radius || '12'}px`,
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
@@ -237,12 +247,33 @@ class StickyBarSettings {
         console.log('=== MOBILE DISPLAY SETTINGS DEBUG ===');
         console.log('Window width:', window.innerWidth);
         console.log('Is mobile:', window.innerWidth <= 768);
-
-
+        console.log('Desktop image display:', settings.sticky_content_display_image);
+        console.log('Mobile image display:', settings.sticky_content_display_mobile_image);
+        console.log('Desktop title display:', settings.sticky_content_display_title);
+        console.log('Mobile title display:', settings.sticky_content_display_mobile_title);
+        console.log('Desktop price display:', settings.sticky_content_display_price);
+        console.log('Mobile price display:', settings.sticky_content_display_mobile_price);
+        console.log('Desktop quantity display:', settings.sticky_content_display_quantity);
+        console.log('Mobile quantity display:', settings.sticky_content_display_mobile_quantity);
         console.log('=== END MOBILE DISPLAY SETTINGS DEBUG ===');
+
+        // Debug bar settings
+        console.log('=== MOBILE BAR SETTINGS DEBUG ===');
+        console.log('Desktop bar width:', settings.sticky_bar_width);
+        console.log('Mobile bar width:', settings.sticky_bar_width_mobile);
+        console.log('Desktop max width:', settings.sticky_max_width);
+        console.log('Mobile max width:', settings.sticky_max_width_mobile);
+        console.log('Desktop alignment:', settings.sticky_alignment);
+        console.log('Mobile alignment:', settings.sticky_alignment_mobile);
+        console.log('Desktop inner spacing:', settings.sticky_inner_spacing);
+        console.log('Mobile inner spacing:', settings.sticky_inner_spacing_mobile);
+        console.log('Desktop outer spacing:', settings.sticky_outer_spacing);
+        console.log('Mobile outer spacing:', settings.sticky_outer_spacing_mobile);
+        console.log('=== END MOBILE BAR SETTINGS DEBUG ===');
 
         if (imageElement) {
             const isMobile = window.innerWidth <= 768;
+            // Use mobile setting if on mobile, otherwise use desktop setting
             const shouldShowImage = isMobile ?
                 (settings.sticky_content_display_mobile_image !== false) :
                 (settings.sticky_content_display_image !== false);
@@ -251,6 +282,7 @@ class StickyBarSettings {
         }
         if (titleElement) {
             const isMobile = window.innerWidth <= 768;
+            // Use mobile setting if on mobile, otherwise use desktop setting
             const shouldShowTitle = isMobile ?
                 (settings.sticky_content_display_mobile_title !== false) :
                 (settings.sticky_content_display_title !== false);
@@ -259,6 +291,7 @@ class StickyBarSettings {
         }
         if (priceElement) {
             const isMobile = window.innerWidth <= 768;
+            // Use mobile setting if on mobile, otherwise use desktop setting
             const shouldShowPrice = isMobile ?
                 (settings.sticky_content_display_mobile_price !== false) :
                 (settings.sticky_content_display_price !== false);
@@ -267,6 +300,7 @@ class StickyBarSettings {
         }
         if (quantityElement) {
             const isMobile = window.innerWidth <= 768;
+            // Use mobile setting if on mobile, otherwise use desktop setting
             const shouldShowQuantity = isMobile ?
                 (settings.sticky_content_display_mobile_quantity !== false) :
                 (settings.sticky_content_display_quantity !== false);
@@ -283,6 +317,7 @@ class StickyBarSettings {
 
             // Add cart icon if enabled
             const isMobile = window.innerWidth <= 768;
+            // Use mobile setting if on mobile, otherwise use desktop setting
             const shouldShowCartIcon = isMobile ?
                 (settings.sticky_enable_mobile_cart_icon !== false) :
                 (settings.sticky_enable_cart_icon !== false);
@@ -318,8 +353,9 @@ class StickyBarSettings {
         const productImage = stickyBar.querySelector('.sticky-product-image');
         if (productImage) {
             const isMobile = window.innerWidth <= 768;
+            // Use mobile setting if on mobile, otherwise use desktop setting
             const imageSize = isMobile ?
-                (settings.sticky_image_size_mobile || 'medium') :
+                (settings.sticky_image_size_mobile || settings.sticky_image_size || 'medium') :
                 (settings.sticky_image_size || 'medium');
             let width, height;
 
