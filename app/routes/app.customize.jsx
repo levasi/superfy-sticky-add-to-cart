@@ -238,6 +238,28 @@ export default function Customize() {
     const fetcher = useFetcher();
     const navigate = useNavigate();
 
+
+
+    // Placeholder functions that will be defined later
+    let handleSaveRef = null;
+    let handleDiscardRef = null;
+
+    // Function to show the Shopify save bar
+    const showSaveBar = useCallback(() => {
+        const saveBar = document.getElementById('shopify-save-bar');
+        if (saveBar) {
+            saveBar.show();
+        }
+    }, []);
+
+    // Function to hide the Shopify save bar
+    const hideSaveBar = useCallback(() => {
+        const saveBar = document.getElementById('shopify-save-bar');
+        if (saveBar) {
+            saveBar.hide();
+        }
+    }, []);
+
     // Function to check if settings have changed from saved values
     const checkForChanges = useCallback(() => {
         const currentSettings = {
@@ -329,7 +351,11 @@ export default function Customize() {
         const hasChanges = JSON.stringify(currentSettings) !== JSON.stringify(savedSettingsObj);
         setHasUnsavedChanges(hasChanges);
 
-        // SaveBar will be rendered conditionally in the JSX
+        if (hasChanges) {
+            showSaveBar();
+        } else {
+            hideSaveBar();
+        }
     }, [
         visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
         mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay,
@@ -339,7 +365,7 @@ export default function Customize() {
         innerSpacingUnit, backgroundColor, borderColor, borderRadius, productNameColor,
         imageSize, mobileImageSize, quantityColor, quantityBorderColor, buttonBehavior,
         buttonText, enableCartIcon, enableMobileCartIcon, buttonTextColor, buttonBgColor,
-        customCss, savedSettings
+        customCss, savedSettings, showSaveBar, hideSaveBar
     ]);
 
     // Handle save action
@@ -401,6 +427,9 @@ export default function Customize() {
         customCss, fetcher
     ]);
 
+    // Set the refs after handleSave is defined
+    handleSaveRef = handleSave;
+
     // Handle discard action
     const handleDiscard = useCallback(() => {
         // Reset all settings to saved values
@@ -444,13 +473,21 @@ export default function Customize() {
         setButtonTextColor(savedSettings.sticky_button_text_color);
         setButtonBgColor(savedSettings.sticky_button_bg_color);
         setCustomCss(savedSettings.sticky_custom_css);
-    }, [savedSettings]);
+        hideSaveBar();
+    }, [savedSettings, hideSaveBar]);
+
+    // Set the refs after both functions are defined
+    handleSaveRef = handleSave;
+    handleDiscardRef = handleDiscard;
+
+
 
     useEffect(() => {
         if (fetcher.data?.ok) {
             shopify.toast.show("Sticky bar settings saved!");
+            hideSaveBar();
         }
-    }, [fetcher.data, shopify]);
+    }, [fetcher.data, shopify, hideSaveBar]);
 
     // Set initialization flag after component mounts
     useEffect(() => {
@@ -601,7 +638,7 @@ export default function Customize() {
     ];
 
     return (
-        <Page fullWidth style={{ paddingBottom: hasUnsavedChanges ? '80px' : '0' }}>
+        <Page fullWidth>
             <Box paddingBlockEnd="400">
                 <InlineStack align="space-between" gap="400">
                     <InlineStack gap="200" blockAlign="center">
@@ -1770,33 +1807,11 @@ export default function Customize() {
                 </Modal>
             )}
 
-            {hasUnsavedChanges && (
-                <div style={{
-                    position: 'fixed',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    background: '#fff',
-                    borderTop: '1px solid #DFDFDF',
-                    padding: '16px 24px',
-                    zIndex: 1000,
-                    boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.1)'
-                }}>
-                    <InlineStack align="space-between" blockAlign="center">
-                        <Text variant="bodyMd" tone="subdued">
-                            You have unsaved changes
-                        </Text>
-                        <InlineStack gap="200">
-                            <Button variant="tertiary" onClick={handleDiscard}>
-                                Discard
-                            </Button>
-                            <Button variant="primary" onClick={handleSave}>
-                                Save
-                            </Button>
-                        </InlineStack>
-                    </InlineStack>
-                </div>
-            )}
+            {/* Shopify Save Bar Web Component */}
+            <ui-save-bar id="shopify-save-bar">
+                <button variant="primary" onClick={handleSave}>Save</button>
+                <button onClick={handleDiscard}>Discard</button>
+            </ui-save-bar>
         </Page>
     );
 }
