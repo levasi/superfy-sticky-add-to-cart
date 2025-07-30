@@ -1288,39 +1288,7 @@ export default function Customize() {
                                                 />
                                             </BlockStack>
                                         </Card>
-                                        <Card>
-                                            <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <Text as="h3" variant="headingMd">Content</Text>
-                                                <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                                    Customize fonts, colors, and spacing for product content inside the sticky bar.
-                                                </Text>
-                                            </Box>
-                                            <Box style={{ margin: '16px 0' }}>
-                                                <Divider />
-                                            </Box>
-                                            <Box style={{ marginBottom: 8 }}>
-                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
-                                            </Box>
-                                            <Box style={{ marginBottom: 4 }}>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
-                                            </Box>
-                                            <input
-                                                type="hidden"
-                                                name="sticky_image_size_mobile"
-                                                value={mobileImageSize}
-                                            />
-                                            <Select
-                                                options={[
-                                                    { label: 'Small', value: 'small' },
-                                                    { label: 'Medium', value: 'medium' },
-                                                    { label: 'Large', value: 'large' }
-                                                ]}
-                                                onChange={setMobileImageSize}
-                                                value={mobileImageSize}
-                                                name="sticky_image_size_mobile"
-                                                style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
-                                            />
-                                        </Card>
+
                                         <Card>
                                             <BlockStack gap="400">
                                                 <BlockStack gap="100">
@@ -1453,6 +1421,39 @@ export default function Customize() {
                                                     </BlockStack>
                                                 </Box>
                                             </BlockStack>
+                                        </Card>
+                                        <Card>
+                                            <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <Text as="h3" variant="headingMd">Content</Text>
+                                                <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                                    Customize fonts, colors, and spacing for product content inside the sticky bar.
+                                                </Text>
+                                            </Box>
+                                            <Box style={{ margin: '16px 0' }}>
+                                                <Divider />
+                                            </Box>
+                                            <Box style={{ marginBottom: 8 }}>
+                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
+                                            </Box>
+                                            <Box style={{ marginBottom: 4 }}>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
+                                            </Box>
+                                            <input
+                                                type="hidden"
+                                                name="sticky_image_size_mobile"
+                                                value={mobileImageSize}
+                                            />
+                                            <Select
+                                                options={[
+                                                    { label: 'Small', value: 'small' },
+                                                    { label: 'Medium', value: 'medium' },
+                                                    { label: 'Large', value: 'large' }
+                                                ]}
+                                                onChange={setMobileImageSize}
+                                                value={mobileImageSize}
+                                                name="sticky_image_size_mobile"
+                                                style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                            />
                                         </Card>
                                         <Card>
                                             <BlockStack gap="400">
