@@ -106,6 +106,7 @@ export const loader = async ({ request }) => {
             sticky_border_radius: settings.sticky_border_radius || '12',
             sticky_product_name_color: settings.sticky_product_name_color || '#141414',
             sticky_image_size: settings.sticky_image_size || 'medium',
+            sticky_image_size_mobile: settings.sticky_image_size_mobile || 'medium',
             sticky_quantity_color: settings.sticky_quantity_color || '#141414',
             sticky_quantity_border_color: settings.sticky_quantity_border_color || '#DFDFDF',
             sticky_button_behavior: settings.sticky_button_behavior || 'add',

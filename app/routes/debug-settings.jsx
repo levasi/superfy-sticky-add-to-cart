@@ -40,6 +40,7 @@ export const loader = async ({ request }) => {
         sticky_border_radius: await getSetting("sticky_border_radius"),
         sticky_product_name_color: await getSetting("sticky_product_name_color"),
         sticky_image_size: await getSetting("sticky_image_size"),
+        sticky_image_size_mobile: await getSetting("sticky_image_size_mobile"),
         sticky_quantity_color: await getSetting("sticky_quantity_color"),
         sticky_quantity_border_color: await getSetting("sticky_quantity_border_color"),
         sticky_button_behavior: await getSetting("sticky_button_behavior"),

@@ -69,6 +69,7 @@ export const loader = async ({ request }) => {
     const borderColorSetting = await getSetting("sticky_border_color");
     const productNameColorSetting = await getSetting("sticky_product_name_color");
     const imageSizeSetting = await getSetting("sticky_image_size");
+    const mobileImageSizeSetting = await getSetting("sticky_image_size_mobile");
     const quantityColorSetting = await getSetting("sticky_quantity_color");
     const quantityBorderColorSetting = await getSetting("sticky_quantity_border_color");
     const buttonBehaviorSetting = await getSetting("sticky_button_behavior");
@@ -111,6 +112,7 @@ export const loader = async ({ request }) => {
         sticky_border_radius: borderRadiusSetting?.value || '12',
         sticky_product_name_color: productNameColorSetting?.value || '#141414',
         sticky_image_size: imageSizeSetting?.value || 'medium',
+        sticky_image_size_mobile: mobileImageSizeSetting?.value || 'medium',
         sticky_quantity_color: quantityColorSetting?.value || '#141414',
         sticky_quantity_border_color: quantityBorderColorSetting?.value || '#DFDFDF',
         sticky_button_behavior: buttonBehaviorSetting?.value || 'add',
@@ -201,6 +203,7 @@ export const action = async ({ request }) => {
         sticky_border_radius: formData.get("sticky_border_radius") || "12",
         sticky_product_name_color: formData.get("sticky_product_name_color") || "#141414",
         sticky_image_size: formData.get("sticky_image_size") || "medium",
+        sticky_image_size_mobile: formData.get("sticky_image_size_mobile") || "medium",
         sticky_quantity_color: formData.get("sticky_quantity_color") || "#141414",
         sticky_quantity_border_color: formData.get("sticky_quantity_border_color") || "#DFDFDF",
         sticky_button_behavior: formData.get("sticky_button_behavior") || "add",
@@ -248,6 +251,7 @@ export const action = async ({ request }) => {
     await upsertSetting("sticky_border_radius", settings.sticky_border_radius);
     await upsertSetting("sticky_product_name_color", settings.sticky_product_name_color);
     await upsertSetting("sticky_image_size", settings.sticky_image_size);
+    await upsertSetting("sticky_image_size_mobile", settings.sticky_image_size_mobile);
     await upsertSetting("sticky_quantity_color", settings.sticky_quantity_color);
     await upsertSetting("sticky_quantity_border_color", settings.sticky_quantity_border_color);
     await upsertSetting("sticky_button_behavior", settings.sticky_button_behavior);
@@ -302,6 +306,7 @@ export default function Customize() {
     const [borderRadius, setBorderRadius] = useState(savedSettings.sticky_border_radius);
     const [productNameColor, setProductNameColor] = useState(savedSettings.sticky_product_name_color);
     const [imageSize, setImageSize] = useState(savedSettings.sticky_image_size);
+    const [mobileImageSize, setMobileImageSize] = useState(savedSettings.sticky_image_size_mobile);
     const [quantityColor, setQuantityColor] = useState(savedSettings.sticky_quantity_color);
     const [quantityBorderColor, setQuantityBorderColor] = useState(savedSettings.sticky_quantity_border_color);
     const [buttonBehavior, setButtonBehavior] = useState(savedSettings.sticky_button_behavior);
@@ -447,6 +452,7 @@ export default function Customize() {
             formData.append("sticky_border_radius", borderRadius);
             formData.append("sticky_product_name_color", productNameColor);
             formData.append("sticky_image_size", imageSize);
+            formData.append("sticky_image_size_mobile", mobileImageSize);
             formData.append("sticky_quantity_color", quantityColor);
             formData.append("sticky_quantity_border_color", quantityBorderColor);
             formData.append("sticky_button_behavior", buttonBehavior);
@@ -460,7 +466,7 @@ export default function Customize() {
             // Submit the form
             fetcher.submit(formData, { method: 'post' });
         }
-    }, [mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay, mobileBarWidth, mobileInnerSpacing, appearanceView]);
+    }, [mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay, mobileBarWidth, mobileInnerSpacing, mobileImageSize, appearanceView]);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -499,6 +505,7 @@ export default function Customize() {
                     sticky_border_radius: '12',
                     sticky_product_name_color: '#141414',
                     sticky_image_size: 'medium',
+                    sticky_image_size_mobile: 'medium',
                     sticky_quantity_color: '#141414',
                     sticky_quantity_border_color: '#DFDFDF',
                     sticky_button_behavior: 'add',
@@ -1280,6 +1287,39 @@ export default function Customize() {
                                                     onChange={(checked) => setMobileQuantityDisplay(checked)}
                                                 />
                                             </BlockStack>
+                                        </Card>
+                                        <Card>
+                                            <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <Text as="h3" variant="headingMd">Content</Text>
+                                                <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                                    Customize fonts, colors, and spacing for product content inside the sticky bar.
+                                                </Text>
+                                            </Box>
+                                            <Box style={{ margin: '16px 0' }}>
+                                                <Divider />
+                                            </Box>
+                                            <Box style={{ marginBottom: 8 }}>
+                                                <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
+                                            </Box>
+                                            <Box style={{ marginBottom: 4 }}>
+                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
+                                            </Box>
+                                            <input
+                                                type="hidden"
+                                                name="sticky_image_size_mobile"
+                                                value={mobileImageSize}
+                                            />
+                                            <Select
+                                                options={[
+                                                    { label: 'Small', value: 'small' },
+                                                    { label: 'Medium', value: 'medium' },
+                                                    { label: 'Large', value: 'large' }
+                                                ]}
+                                                onChange={setMobileImageSize}
+                                                value={mobileImageSize}
+                                                name="sticky_image_size_mobile"
+                                                style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                            />
                                         </Card>
                                         <Card>
                                             <BlockStack gap="400">

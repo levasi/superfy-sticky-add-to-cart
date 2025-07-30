@@ -45,6 +45,7 @@ class StickyBarSettings {
             sticky_border_color: '#000000',
             sticky_product_name_color: '#141414',
             sticky_image_size: 'medium',
+            sticky_image_size_mobile: 'medium',
             sticky_quantity_color: '#141414',
             sticky_quantity_border_color: '#DFDFDF',
             sticky_button_behavior: 'add',
@@ -316,7 +317,10 @@ class StickyBarSettings {
         // Apply image size
         const productImage = stickyBar.querySelector('.sticky-product-image');
         if (productImage) {
-            const imageSize = settings.sticky_image_size || 'medium';
+            const isMobile = window.innerWidth <= 768;
+            const imageSize = isMobile ? 
+                (settings.sticky_image_size_mobile || 'medium') : 
+                (settings.sticky_image_size || 'medium');
             let width, height;
 
             switch (imageSize) {
