@@ -187,7 +187,7 @@ export const action = async ({ request }) => {
 export default function Customize() {
     const savedSettings = useLoaderData();
 
-    const [selectedTab, setSelectedTab] = useState(1);
+    const [selectedTab, setSelectedTab] = useState(0);
     const [appearanceView, setAppearanceView] = useState('desktop');
     const [visibility, setVisibility] = useState(savedSettings.sticky_visibility);
     const [trigger, setTrigger] = useState(savedSettings.sticky_trigger);
