@@ -80,9 +80,6 @@ export const loader = async ({ request }) => {
     const buttonBgColorSetting = await getSetting("sticky_button_bg_color");
     const customCssSetting = await getSetting("sticky_custom_css");
     const borderRadiusSetting = await getSetting("sticky_border_radius");
-    const stickyBarStatusSetting = await getSetting("sticky_bar_status");
-    console.log('📥 Loading sticky bar status from database:', stickyBarStatusSetting?.value);
-
     return json({
         sticky_bar_color: barColorSetting?.value || '#fff',
         sticky_visibility: visibilitySetting?.value || 'all',
@@ -124,8 +121,7 @@ export const loader = async ({ request }) => {
         sticky_enable_mobile_cart_icon: enableMobileCartIconSetting?.value === 'true',
         sticky_button_text_color: buttonTextColorSetting?.value || '#FFFFFF',
         sticky_button_bg_color: buttonBgColorSetting?.value || '#141414',
-        sticky_custom_css: customCssSetting?.value || '<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>',
-        sticky_bar_status: stickyBarStatusSetting?.value || 'live'
+        sticky_custom_css: customCssSetting?.value || '<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>'
     });
 };
 
@@ -150,22 +146,14 @@ export const action = async ({ request }) => {
         const generalSettings = {
             sticky_visibility: formData.get("sticky_visibility") || "all",
             sticky_trigger: formData.get("sticky_trigger") || "after-summary",
-            sticky_bar_status: formData.get("sticky_bar_status") || "live",
         };
-
-        console.log('💾 Saving general settings:', generalSettings);
 
         // Save to database
         await upsertSetting("sticky_visibility", generalSettings.sticky_visibility);
         await upsertSetting("sticky_trigger", generalSettings.sticky_trigger);
-        await upsertSetting("sticky_bar_status", generalSettings.sticky_bar_status);
-
-        console.log('✅ Settings saved to database');
 
         // Save to metafields for backward compatibility
         await setShopMetafields(admin, shopId, generalSettings);
-
-        console.log('✅ Settings saved to metafields');
 
         return Response.json({ ok: true });
     }
@@ -203,7 +191,6 @@ export default function Customize() {
     const [appearanceView, setAppearanceView] = useState('desktop');
     const [visibility, setVisibility] = useState(savedSettings.sticky_visibility);
     const [trigger, setTrigger] = useState(savedSettings.sticky_trigger);
-    const [stickyBarStatus, setStickyBarStatus] = useState(savedSettings.sticky_bar_status);
     const [imageDisplay, setImageDisplay] = useState(savedSettings.sticky_content_display_image);
     const [titleDisplay, setTitleDisplay] = useState(savedSettings.sticky_content_display_title);
     const [priceDisplay, setPriceDisplay] = useState(savedSettings.sticky_content_display_price);
@@ -278,7 +265,6 @@ export default function Customize() {
         const currentSettings = {
             sticky_visibility: visibility,
             sticky_trigger: trigger,
-            sticky_bar_status: stickyBarStatus,
             sticky_content_display_image: imageDisplay,
             sticky_content_display_title: titleDisplay,
             sticky_content_display_price: priceDisplay,
@@ -322,7 +308,6 @@ export default function Customize() {
         const savedSettingsObj = {
             sticky_visibility: savedSettings.sticky_visibility,
             sticky_trigger: savedSettings.sticky_trigger,
-            sticky_bar_status: savedSettings.sticky_bar_status,
             sticky_content_display_image: savedSettings.sticky_content_display_image,
             sticky_content_display_title: savedSettings.sticky_content_display_title,
             sticky_content_display_price: savedSettings.sticky_content_display_price,
@@ -372,7 +357,7 @@ export default function Customize() {
             hideSaveBar();
         }
     }, [
-        visibility, trigger, stickyBarStatus, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
+        visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
         mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay,
         barWidth, mobileBarWidth, mobileMaxWidth, mobileMaxWidthUnit, mobileAlignment,
         mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, maxWidth,
@@ -407,7 +392,6 @@ export default function Customize() {
         // Add all current settings to form data
         formData.append('sticky_visibility', visibility);
         formData.append('sticky_trigger', trigger);
-        formData.append('sticky_bar_status', stickyBarStatus);
         formData.append('sticky_content_display_image', imageDisplay ? 'on' : 'off');
         formData.append('sticky_content_display_title', titleDisplay ? 'on' : 'off');
         formData.append('sticky_content_display_price', priceDisplay ? 'on' : 'off');
@@ -449,7 +433,7 @@ export default function Customize() {
 
         fetcher.submit(formData, { method: 'post' });
     }, [
-        visibility, trigger, stickyBarStatus, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
+        visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
         mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay,
         barWidth, mobileBarWidth, mobileMaxWidth, mobileMaxWidthUnit, mobileAlignment,
         mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, maxWidth,
@@ -468,7 +452,6 @@ export default function Customize() {
         // Reset all settings to saved values
         setVisibility(savedSettings.sticky_visibility);
         setTrigger(savedSettings.sticky_trigger);
-        setStickyBarStatus(savedSettings.sticky_bar_status);
         setImageDisplay(savedSettings.sticky_content_display_image);
         setTitleDisplay(savedSettings.sticky_content_display_title);
         setPriceDisplay(savedSettings.sticky_content_display_price);
@@ -698,28 +681,10 @@ export default function Customize() {
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
                                             <Text variant="headingSm" tone="success">Sticky Bar
                                                 <span style={{ marginLeft: 8 }}>
-                                                    <span style={{
-                                                        background: stickyBarStatus === 'live' ? '#E3F1DF' : '#FEF7E0',
-                                                        color: stickyBarStatus === 'live' ? '#108043' : '#916A00',
-                                                        borderRadius: 4,
-                                                        padding: '2px 8px',
-                                                        fontSize: 12
-                                                    }}>
-                                                        {stickyBarStatus === 'live' ? 'Live' : 'Paused'}
-                                                    </span>
+                                                    <span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span>
                                                 </span>
                                             </Text>
-                                            <Button
-                                                tone={stickyBarStatus === 'live' ? 'critical' : 'success'}
-                                                onClick={() => {
-                                                    const newStatus = stickyBarStatus === 'live' ? 'paused' : 'live';
-                                                    setStickyBarStatus(newStatus);
-                                                    // Trigger change detection to show save bar
-                                                    setTimeout(() => checkForChanges(), 0);
-                                                }}
-                                            >
-                                                {stickyBarStatus === 'live' ? 'Pause' : 'Activate'}
-                                            </Button>
+                                            <Button tone="critical">Pause</Button>
                                         </InlineStack>
                                     </Card>
                                     <Card>

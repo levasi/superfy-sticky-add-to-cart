@@ -10,30 +10,6 @@ class StickyBarSettings {
         this.callbacks = [];
         this.proxyUrl = '/apps/proxy/settings';
         this.metafieldsUrl = '/apps/proxy/metafields';
-
-        console.log('🔧 StickyBarSettings initialized with proxyUrl:', this.proxyUrl);
-
-        // Test the database connection
-        this.testDatabaseConnection();
-    }
-
-    async testDatabaseConnection() {
-        try {
-            const testUrl = `${this.proxyUrl}?test=status`;
-            console.log('🧪 Testing database connection with URL:', testUrl);
-            console.log('🧪 Full test URL:', window.location.origin + testUrl);
-
-            const response = await fetch(testUrl);
-            console.log('🧪 Test response status:', response.status);
-            console.log('🧪 Test response headers:', Object.fromEntries(response.headers.entries()));
-
-            const data = await response.json();
-            console.log('🧪 Database test result:', data);
-            console.log('🧪 Test result keys:', Object.keys(data));
-            console.log('🧪 Is this a test response?', data.test === 'status');
-        } catch (error) {
-            console.error('🧪 Database test failed:', error);
-        }
     }
 
     // Default settings fallback
@@ -42,7 +18,6 @@ class StickyBarSettings {
             sticky_bar_color: '#fff',
             sticky_visibility: 'all',
             sticky_trigger: 'after-summary',
-            sticky_bar_status: 'live',
             sticky_content_display_image: true,
             sticky_content_display_title: true,
             sticky_content_display_price: true,
@@ -87,24 +62,12 @@ class StickyBarSettings {
     // Get a specific setting
     get(key) {
         const value = this.settings?.[key] || this.getDefaultSettings()[key];
-        if (key === 'sticky_bar_status') {
-            console.log('🔍 Getting sticky_bar_status:', {
-                fromSettings: this.settings?.[key],
-                fromDefaults: this.getDefaultSettings()[key],
-                finalValue: value
-            });
-        }
         return value;
     }
 
     // Get all settings
     getAll() {
         const settings = this.settings || this.getDefaultSettings();
-        console.log('📋 Sticky Bar Settings loaded:', {
-            sticky_bar_status: settings.sticky_bar_status,
-            sticky_visibility: settings.sticky_visibility,
-            sticky_trigger: settings.sticky_trigger
-        });
         return settings;
     }
 
@@ -235,49 +198,17 @@ class StickyBarSettings {
         }
     }
 
-    // Force refresh settings (useful for status changes)
-    async forceRefresh() {
-        console.log('🔄 Force refreshing sticky bar settings...');
-        this.loaded = false;
-        this.settings = null;
-        await this.load();
-    }
-
     // Load settings and apply them
     async load() {
         try {
-            // Try to load from app proxy first with aggressive cache-busting
-            const timestamp = Date.now();
-            const random = Math.random();
-            const url = `${this.proxyUrl}?t=${timestamp}&r=${random}&nocache=true`;
-            console.log('🌐 Fetching from URL:', url);
-
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
-            });
-
-            console.log('🌐 Response status:', response.status);
-            console.log('🌐 Response headers:', Object.fromEntries(response.headers.entries()));
+            // Try to load from app proxy first
+            const response = await fetch(`${this.proxyUrl}?t=${Date.now()}`);
 
             if (response.ok) {
                 const data = await response.json();
                 this.settings = data;
-                console.log('🌐 Raw response from server:', data);
-                console.log('🌐 Sticky Bar Settings loaded from server:', {
-                    sticky_bar_status: data.sticky_bar_status,
-                    sticky_visibility: data.sticky_visibility,
-                    sticky_trigger: data.sticky_trigger
-                });
-                console.log('🌐 All keys in response:', Object.keys(data));
             } else {
                 // Fallback to metafields
-                console.log('⚠️ App proxy failed, falling back to metafields');
-                console.log('⚠️ Response error:', response.status, response.statusText);
                 await this.loadFromMetafields();
             }
 
@@ -289,26 +220,6 @@ class StickyBarSettings {
             // Call all registered callbacks
             this.callbacks.forEach(callback => callback(this.settings));
             this.callbacks = [];
-
-            // Set up periodic refresh every 30 seconds to catch status changes
-            setInterval(() => {
-                console.log('⏰ Periodic refresh of sticky bar settings...');
-                this.forceRefresh();
-            }, 30000);
-
-            // Refresh when page becomes visible (user switches back to tab)
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) {
-                    console.log('👁️ Page became visible, refreshing sticky bar settings...');
-                    this.forceRefresh();
-                }
-            });
-
-            // Make refresh function globally available for debugging
-            window.refreshStickyBarSettings = () => {
-                console.log('🔧 Manual refresh triggered from console');
-                this.forceRefresh();
-            };
 
         } catch (error) {
             console.error('Error loading sticky bar settings:', error);
@@ -340,20 +251,6 @@ class StickyBarSettings {
             stickyBar.classList.add('sticky-visible-desktop');
         } else if (visibility === 'mobile') {
             stickyBar.classList.add('sticky-visible-mobile');
-        }
-
-        // Apply sticky bar status
-        const status = this.get('sticky_bar_status');
-        console.log('🔄 Sticky Bar Status:', status);
-
-        if (status === 'paused') {
-            stickyBar.classList.add('sticky-paused');
-            stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile');
-            console.log('⏸️ Sticky Bar is PAUSED - hidden from customers');
-            return; // Don't apply other settings if paused
-        } else {
-            stickyBar.classList.remove('sticky-paused');
-            console.log('✅ Sticky Bar is LIVE - visible to customers');
         }
 
         const styles = this.getStyles();
@@ -437,22 +334,6 @@ class StickyBarSettings {
                 }
             }
         }
-
-        // Log final sticky bar state
-        const finalStatus = this.get('sticky_bar_status');
-        const finalVisibility = this.get('sticky_visibility');
-        const isPaused = stickyBar.classList.contains('sticky-paused');
-        const isVisible = stickyBar.classList.contains('sticky-visible-all') ||
-            stickyBar.classList.contains('sticky-visible-desktop') ||
-            stickyBar.classList.contains('sticky-visible-mobile');
-
-        console.log('🎯 Final Sticky Bar State:', {
-            status: finalStatus,
-            visibility: finalVisibility,
-            isPaused: isPaused,
-            isVisible: isVisible,
-            elementFound: !!stickyBar
-        });
 
         // Apply quantity input color - updated for new CSS classes
         const quantityInput = stickyBar.querySelector('.sfy-sb-qty input');

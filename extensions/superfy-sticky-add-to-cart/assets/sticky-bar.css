@@ -48,30 +48,6 @@
     }
 }
 
-/* Paused state - always hidden regardless of visibility settings */
-.sticky-paused,
-.sfy-sb.sticky-paused {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
-
-/* Add transition for smooth status changes */
-.sfy-sb {
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-/* Ensure paused state overrides all other visibility classes */
-.sticky-paused.sticky-visible-all,
-.sticky-paused.sticky-visible-desktop,
-.sticky-paused.sticky-visible-mobile {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
-
 /* CSS Variables for consistent theming */
 :root {
     --sfy-sb-outer-spacing: 16px;
