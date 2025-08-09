@@ -226,6 +226,11 @@
     font-size: 12px;
 }
 
+.sy-paused-badge {
+    background: #FEF7F0;
+    color: #B95000;
+}
+
 .sy-live-badge-wrapper {
     margin-left: 8px;
 }
@@ -234,7 +239,7 @@
     border-radius: 12px;
     border: none;
     cursor: pointer;
-    padding: 11px 16px;
+    height: 42px;
     font-size: 13px;
     font-weight: 600;
     display: flex;
