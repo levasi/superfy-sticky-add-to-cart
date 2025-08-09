@@ -679,7 +679,11 @@ export default function Customize() {
                                 <BlockStack gap="400">
                                     <Card>
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
-                                            <Text variant="headingSm" tone="success">Sticky Bar <span style={{ marginLeft: 8 }}><span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span></span></Text>
+                                            <Text variant="headingSm" tone="success">Sticky Bar
+                                                <span style={{ marginLeft: 8 }}>
+                                                    <span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span>
+                                                </span>
+                                            </Text>
                                             <Button tone="critical">Pause</Button>
                                         </InlineStack>
                                     </Card>
@@ -1553,235 +1557,139 @@ export default function Customize() {
                                         (outerSpacing === '' ? 'unset' : `${outerSpacing}${outerSpacingUnit}`),
                                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                                     display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px'
+                                    alignItems: 'center'
                                 }}>
+                                <div className="sy-sticky-add-to-cart-preview__content">
 
-                                {appearanceView === 'mobile' ?
-                                    (mobileImageDisplay && (
-                                        <img
-                                            src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
-                                            alt="Product"
-                                            style={{
-                                                width: mobileImageSize === 'small' ? '48px' : mobileImageSize === 'medium' ? '60px' : '72px',
-                                                height: mobileImageSize === 'small' ? '48px' : mobileImageSize === 'medium' ? '60px' : '72px',
-                                                objectFit: 'cover',
-                                                borderRadius: '8px',
-                                                border: '1px solid #e1e3e5'
-                                            }}
-                                        />
-                                    )) :
-                                    (imageDisplay && (
-                                        <img
-                                            src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
-                                            alt="Product"
-                                            style={{
-                                                width: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
-                                                height: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
-                                                objectFit: 'cover',
-                                                borderRadius: '8px',
-                                                border: '1px solid #e1e3e5'
-                                            }}
-                                        />
-                                    ))
-                                }
-
-                                <div style={{ flex: 1, minWidth: 0 }}>
                                     {appearanceView === 'mobile' ?
-                                        (mobileTitleDisplay && (
-                                            <div style={{
-                                                color: productNameColor,
-                                                fontWeight: 600,
-                                                fontSize: '14px',
-                                                marginBottom: '2px',
-                                                whiteSpace: 'nowrap',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis'
-                                            }}>
-                                                Taupe One Loafers
-                                            </div>
+                                        (mobileImageDisplay && (
+                                            <img
+                                                src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
+                                                alt="Product"
+                                                style={{
+                                                    width: mobileImageSize === 'small' ? '48px' : mobileImageSize === 'medium' ? '60px' : '72px',
+                                                    height: mobileImageSize === 'small' ? '48px' : mobileImageSize === 'medium' ? '60px' : '72px',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid #e1e3e5'
+                                                }}
+                                            />
                                         )) :
-                                        (titleDisplay && (
-                                            <div style={{
-                                                color: productNameColor,
-                                                fontWeight: 600,
-                                                fontSize: '14px',
-                                                marginBottom: '2px',
-                                                whiteSpace: 'nowrap',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis'
-                                            }}>
-                                                Taupe One Loafers
-                                            </div>
+                                        (imageDisplay && (
+                                            <img
+                                                src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2_large.png"
+                                                alt="Product"
+                                                style={{
+                                                    width: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                                    height: imageSize === 'small' ? '48px' : imageSize === 'medium' ? '60px' : '72px',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid #e1e3e5'
+                                                }}
+                                            />
                                         ))
                                     }
-                                    {appearanceView === 'mobile' ?
-                                        (mobilePriceDisplay && (
-                                            <div style={{ fontSize: '13px', color: '#6d7175' }}>
-                                                <span style={{ textDecoration: 'line-through', marginRight: '8px' }}>$296</span>
-                                                <span style={{ fontWeight: 600, color: '#141414' }}>$100</span>
-                                            </div>
-                                        )) :
-                                        (priceDisplay && (
-                                            <div style={{ fontSize: '13px', color: '#6d7175' }}>
-                                                <span style={{ textDecoration: 'line-through', marginRight: '8px' }}>$296</span>
-                                                <span style={{ fontWeight: 600, color: '#141414' }}>$100</span>
-                                            </div>
-                                        ))
-                                    }
+
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        {appearanceView === 'mobile' ?
+                                            (mobileTitleDisplay && (
+                                                <div style={{
+                                                    color: productNameColor,
+                                                    fontWeight: 600,
+                                                    fontSize: '14px',
+                                                    marginBottom: '2px',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis'
+                                                }}>
+                                                    Taupe One Loafers
+                                                </div>
+                                            )) :
+                                            (titleDisplay && (
+                                                <div style={{
+                                                    color: productNameColor,
+                                                    fontWeight: 600,
+                                                    fontSize: '14px',
+                                                    marginBottom: '2px',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis'
+                                                }}>
+                                                    Taupe One Loafers
+                                                </div>
+                                            ))
+                                        }
+                                        {appearanceView === 'mobile' ?
+                                            (mobilePriceDisplay && (
+                                                <div style={{ fontSize: '13px', color: '#6d7175' }}>
+                                                    <span style={{ textDecoration: 'line-through', marginRight: '8px' }}>$296</span>
+                                                    <span style={{ fontWeight: 600, color: '#141414' }}>$100</span>
+                                                </div>
+                                            )) :
+                                            (priceDisplay && (
+                                                <div style={{ fontSize: '13px', color: '#6d7175' }}>
+                                                    <span style={{ textDecoration: 'line-through', marginRight: '8px' }}>$296</span>
+                                                    <span style={{ fontWeight: 600, color: '#141414' }}>$100</span>
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
                                 </div>
-
-                                {appearanceView === 'mobile' ?
-                                    (mobileQuantityDisplay && (
-                                        <div className='sy-quantity-wrapper'
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                color: quantityColor,
-                                                border: `1px solid ${quantityBorderColor}`,
-                                                borderRadius: '20px',
-                                                overflow: 'hidden',
-                                                background: '#fff',
-                                                height: '36px',
-                                                minWidth: '120px'
-                                            }}
-                                        >
-                                            <button style={{
-                                                border: 'none',
-                                                background: 'transparent',
-                                                padding: '0 16px',
-                                                cursor: 'pointer',
-                                                fontSize: '16px',
-                                                fontWeight: '600',
-                                                height: '100%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                minWidth: '40px',
-                                                transition: 'background-color 0.2s'
-                                            }} onClick={handleQuantityDecrease}>
-                                                −
-                                            </button>
-                                            <span style={{
-                                                padding: '0 16px',
-                                                fontSize: '14px',
-                                                fontWeight: '600',
-                                                background: '#fff',
-                                                height: '100%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                minWidth: '40px',
-                                                flex: 1
-                                            }}>
-                                                {previewQuantity}
-                                            </span>
-                                            <button style={{
-                                                border: 'none',
-                                                background: 'transparent',
-                                                padding: '0 16px',
-                                                cursor: 'pointer',
-                                                fontSize: '16px',
-                                                fontWeight: '600',
-                                                height: '100%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                minWidth: '40px',
-                                                transition: 'background-color 0.2s'
-                                            }} onClick={handleQuantityIncrease}>
-                                                +
-                                            </button>
-                                        </div>
-                                    )) :
-                                    (quantityDisplay && (
-                                        <div className='sy-quantity-wrapper'
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                color: quantityColor,
-                                                border: `1px solid ${quantityBorderColor}`,
-                                                borderRadius: '20px',
-                                                overflow: 'hidden',
-                                                background: '#fff',
-                                                height: '36px',
-                                                minWidth: '120px'
-                                            }}
-                                        >
-                                            <button style={{
-                                                border: 'none',
-                                                background: 'transparent',
-                                                padding: '0 16px',
-                                                cursor: 'pointer',
-                                                fontSize: '16px',
-                                                fontWeight: '600',
-                                                height: '100%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                minWidth: '40px',
-                                                transition: 'background-color 0.2s'
-                                            }} onClick={handleQuantityDecrease}>
-                                                −
-                                            </button>
-                                            <span style={{
-                                                padding: '0 16px',
-                                                fontSize: '14px',
-                                                fontWeight: '600',
-                                                background: '#fff',
-                                                height: '100%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                minWidth: '40px',
-                                                flex: 1
-                                            }}>
-                                                {previewQuantity}
-                                            </span>
-                                            <button style={{
-                                                border: 'none',
-                                                background: 'transparent',
-                                                padding: '0 16px',
-                                                cursor: 'pointer',
-                                                fontSize: '16px',
-                                                fontWeight: '600',
-                                                height: '100%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                minWidth: '40px',
-                                                transition: 'background-color 0.2s'
-                                            }} onClick={handleQuantityIncrease}>
-                                                +
-                                            </button>
-                                        </div>
-                                    ))
-                                }
-
-                                <button style={{
-                                    color: buttonTextColor,
-                                    backgroundColor: buttonBgColor,
-                                    borderRadius: '8px',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    padding: '10px 16px',
-                                    fontSize: '13px',
-                                    fontWeight: '600',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    whiteSpace: 'nowrap'
-                                }}>
+                                <div className="sy-sticky-add-to-cart-preview__actions">
                                     {appearanceView === 'mobile' ?
-                                        (enableMobileCartIcon && (
-                                            <Icon source={CartIcon} color="base" />
+                                        (mobileQuantityDisplay && (
+                                            <div className='sy-quantity-wrapper'
+                                                style={{
+                                                    border: `1px solid ${quantityBorderColor}`,
+                                                }}
+                                            >
+                                                <button className="sy-sticky-add-to-cart-preview__quantity-button"
+                                                    onClick={handleQuantityDecrease}>
+                                                    −
+                                                </button>
+                                                <span
+                                                    className="sy-sticky-add-to-cart-preview__quantity-text"
+                                                >
+                                                    {previewQuantity}
+                                                </span>
+                                                <button
+                                                    className="sy-sticky-add-to-cart-preview__quantity-button"
+                                                    onClick={handleQuantityIncrease}>
+                                                    +
+                                                </button>
+                                            </div>
                                         )) :
-                                        (enableCartIcon && (
-                                            <Icon source={CartIcon} color="base" />
+                                        (quantityDisplay && (
+                                            <div className='sy-quantity-wrapper'>
+                                                <button className="sy-sticky-add-to-cart-preview__quantity-button"
+                                                    onClick={handleQuantityDecrease}>
+                                                    −
+                                                </button>
+                                                <span className="sy-sticky-add-to-cart-preview__quantity-text">
+                                                    {previewQuantity}
+                                                </span>
+                                                <button className="sy-sticky-add-to-cart-preview__quantity-button"
+                                                    onClick={handleQuantityIncrease}>
+                                                    +
+                                                </button>
+                                            </div>
                                         ))
                                     }
-                                    {buttonText}
-                                </button>
+                                    <button className="sy-sticky-add-to-cart-preview__button" style={{
+                                        color: buttonTextColor,
+                                        backgroundColor: buttonBgColor,
+                                    }}>
+                                        {appearanceView === 'mobile' ?
+                                            (enableMobileCartIcon && (
+                                                <Icon className="sy-sticky-add-to-cart-preview__cart-icon" source={CartIcon} color="base" />
+                                            )) :
+                                            (enableCartIcon && (
+                                                <Icon className="sy-sticky-add-to-cart-preview__cart-icon" source={CartIcon} color="base" />
+                                            ))
+                                        }
+                                        {buttonText}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </Card>
