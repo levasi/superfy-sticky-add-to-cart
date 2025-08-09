@@ -2,7 +2,29 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
+    // Simple test endpoint
+    const url = new URL(request.url);
+    console.log('🔍 Request URL:', request.url);
+    console.log('🔍 URL search params:', Object.fromEntries(url.searchParams.entries()));
 
+    if (url.searchParams.get('test') === 'status') {
+        console.log('🧪 TEST ENDPOINT TRIGGERED');
+        const { getSetting } = await import("../models/settings.server");
+        const statusSetting = await getSetting("sticky_bar_status");
+        console.log('🧪 TEST: sticky_bar_status from database:', statusSetting);
+
+        const testResponse = {
+            test: 'status',
+            sticky_bar_status: statusSetting?.value || 'not_found',
+            raw_setting: statusSetting,
+            timestamp: new Date().toISOString()
+        };
+
+        console.log('🧪 TEST: Returning test response:', testResponse);
+        return json(testResponse);
+    }
+
+    console.log('🔍 Regular endpoint triggered (not test)');
     try {
         // Try to authenticate the request using Shopify's app proxy authentication
         const { storefront, liquid } = await authenticate.public.appProxy(request);
@@ -28,6 +50,7 @@ export const loader = async ({ request }) => {
             sticky_bar_color: await getSetting("sticky_bar_color"),
             sticky_visibility: await getSetting("sticky_visibility"),
             sticky_trigger: await getSetting("sticky_trigger"),
+            sticky_bar_status: await getSetting("sticky_bar_status"),
             sticky_content_display_image: await getSetting("sticky_content_display_image"),
             sticky_content_display_title: await getSetting("sticky_content_display_title"),
             sticky_content_display_price: await getSetting("sticky_content_display_price"),
@@ -68,11 +91,16 @@ export const loader = async ({ request }) => {
             sticky_custom_css: await getSetting("sticky_custom_css"),
         };
 
+        console.log('📥 App proxy loading sticky bar status from database:', settings.sticky_bar_status?.value);
+        console.log('📥 Full sticky_bar_status object:', settings.sticky_bar_status);
+        console.log('📥 All settings keys:', Object.keys(settings));
+
         // Convert to a clean settings object with default values
         const cleanSettings = {
             sticky_bar_color: settings.sticky_bar_color?.value || '#fff',
             sticky_visibility: settings.sticky_visibility?.value || 'all',
             sticky_trigger: settings.sticky_trigger?.value || 'after-summary',
+            sticky_bar_status: settings.sticky_bar_status?.value || 'live',
             sticky_content_display_image: settings.sticky_content_display_image?.value === 'true',
             sticky_content_display_title: settings.sticky_content_display_title?.value === 'true',
             sticky_content_display_price: settings.sticky_content_display_price?.value === 'true',
@@ -113,15 +141,25 @@ export const loader = async ({ request }) => {
             sticky_custom_css: settings.sticky_custom_css?.value || '',
         };
 
-        // Return settings with CORS headers for storefront access
+        console.log('📤 Sending sticky bar settings to storefront:', {
+            sticky_bar_status: cleanSettings.sticky_bar_status,
+            sticky_visibility: cleanSettings.sticky_visibility,
+            sticky_trigger: cleanSettings.sticky_trigger
+        });
+        console.log('📤 Full cleanSettings object:', cleanSettings);
+        console.log('📤 cleanSettings keys:', Object.keys(cleanSettings));
+        console.log('📤 Does cleanSettings have sticky_bar_status?', 'sticky_bar_status' in cleanSettings);
+
         return json(cleanSettings, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
                 'Pragma': 'no-cache',
-                'Expires': '0'
+                'Expires': '0',
+                'Last-Modified': new Date().toUTCString(),
+                'ETag': `"${Date.now()}-${Math.random()}"`
             }
         });
 
@@ -150,6 +188,7 @@ export const loader = async ({ request }) => {
                 sticky_bar_color: await getSetting("sticky_bar_color"),
                 sticky_visibility: await getSetting("sticky_visibility"),
                 sticky_trigger: await getSetting("sticky_trigger"),
+                sticky_bar_status: await getSetting("sticky_bar_status"),
                 sticky_content_display_image: await getSetting("sticky_content_display_image"),
                 sticky_content_display_title: await getSetting("sticky_content_display_title"),
                 sticky_content_display_price: await getSetting("sticky_content_display_price"),
@@ -190,11 +229,16 @@ export const loader = async ({ request }) => {
                 sticky_custom_css: await getSetting("sticky_custom_css"),
             };
 
+            console.log('📥 Fallback loading sticky bar status from database:', settings.sticky_bar_status?.value);
+            console.log('📥 Full sticky_bar_status object:', settings.sticky_bar_status);
+            console.log('📥 All settings keys:', Object.keys(settings));
+
             // Convert to a clean settings object with default values
             const cleanSettings = {
                 sticky_bar_color: settings.sticky_bar_color?.value || '#fff',
                 sticky_visibility: settings.sticky_visibility?.value || 'all',
                 sticky_trigger: settings.sticky_trigger?.value || 'after-summary',
+                sticky_bar_status: settings.sticky_bar_status?.value || 'live',
                 sticky_content_display_image: settings.sticky_content_display_image?.value === 'true',
                 sticky_content_display_title: settings.sticky_content_display_title?.value === 'true',
                 sticky_content_display_price: settings.sticky_content_display_price?.value === 'true',
@@ -270,6 +314,16 @@ export const action = async ({ request }) => {
         });
     }
 
-    console.log('Method not allowed:', request.method);
-    return new Response('Method not allowed', { status: 405 });
+    // Simple test endpoint to verify database connection
+    const { getSetting } = await import("../models/settings.server");
+
+    console.log('🧪 Testing database connection...');
+    const testStatus = await getSetting("sticky_bar_status");
+    console.log('🧪 Test sticky_bar_status from database:', testStatus);
+
+    return Response.json({
+        test: true,
+        sticky_bar_status: testStatus?.value,
+        timestamp: new Date().toISOString()
+    });
 }; 

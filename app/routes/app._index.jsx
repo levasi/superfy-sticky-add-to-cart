@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import * as Polaris from "@shopify/polaris";
 
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
@@ -9,12 +9,15 @@ import { setShopMetafields } from "../utils/metafields.server";
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
-  // Fetch sticky bar color and position from settings
+  // Fetch sticky bar color, position, and status from settings
   const colorSetting = await getSetting("sticky_bar_color");
   const positionSetting = await getSetting("sticky_bar_position");
+  const statusSetting = await getSetting("sticky_bar_status");
+  console.log('📥 Dashboard loading sticky bar status:', statusSetting?.value);
   return Response.json({
     stickyBarColor: colorSetting?.value || "#fff",
     stickyBarPosition: positionSetting?.value || "bottom",
+    stickyBarStatus: statusSetting?.value || "live",
   });
 };
 
@@ -24,16 +27,32 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const color = formData.get("stickyColor");
   const position = formData.get("stickyPosition");
-  if (typeof color !== "string" || typeof position !== "string") return Response.json({ ok: false });
+  const status = formData.get("stickyStatus");
+  console.log('💾 Dashboard saving sticky bar status:', status);
 
-  await upsertSetting("sticky_bar_color", color);
-  await upsertSetting("sticky_bar_position", position);
+  // Handle status toggle if provided (this should always work)
+  if (typeof status === "string") {
+    await upsertSetting("sticky_bar_status", status);
+    console.log('✅ Dashboard saved sticky bar status to database:', status);
+  }
+
+  // Only update color and position if they are valid strings
+  if (typeof color === "string") {
+    await upsertSetting("sticky_bar_color", color);
+  }
+
+  if (typeof position === "string") {
+    await upsertSetting("sticky_bar_position", position);
+  }
 
   // Get the shop GID
   const shopIdResponse = await admin.graphql(`query { shop { id } }`);
   const { data: { shop: { id: shopId } } } = await shopIdResponse.json();
 
-  await setShopMetafields(admin, shopId, color, position);
+  // Only update metafields if we have valid color and position
+  if (typeof color === "string" && typeof position === "string") {
+    await setShopMetafields(admin, shopId, color, position);
+  }
 
   return Response.json({ ok: true });
 };
@@ -45,6 +64,7 @@ export default function Index() {
   const [cartCount, setCartCount] = useState(0);
   const [stickyColor, setStickyColor] = useState(loaderData.stickyBarColor || "#fff");
   const [stickyPosition, setStickyPosition] = useState(loaderData.stickyBarPosition || "bottom");
+  const [stickyStatus, setStickyStatus] = useState(loaderData.stickyBarStatus || "live");
 
   const product = fetcher.data?.product;
   const variant = fetcher.data?.variant?.[0];
@@ -54,6 +74,28 @@ export default function Index() {
       shopify.toast.show("Sticky bar settings saved!");
     }
   }, [fetcher.data, shopify]);
+
+  // Handle sticky bar status toggle
+  const handleStatusToggle = () => {
+    const newStatus = stickyStatus === "live" ? "paused" : "live";
+    console.log("Toggling status from", stickyStatus, "to", newStatus);
+
+    // Update local state immediately
+    setStickyStatus(newStatus);
+
+    const formData = new FormData();
+    formData.append("stickyColor", stickyColor);
+    formData.append("stickyPosition", stickyPosition);
+    formData.append("stickyStatus", newStatus);
+
+    fetcher.submit(formData, { method: "post" });
+  };
+
+  // Navigate to customize page
+  const navigate = useNavigate();
+  const handleCustomizeClick = () => {
+    navigate("/app/customize");
+  };
 
   return (
     <Polaris.Page fullWidth>
@@ -70,7 +112,7 @@ export default function Index() {
               </Polaris.InlineStack>
               <Polaris.InlineStack align="space-between">
                 <Polaris.Text>Customize the sticky bar</Polaris.Text>
-                <Polaris.Button>Open theme</Polaris.Button>
+                <Polaris.Button onClick={handleCustomizeClick}>Open theme</Polaris.Button>
                 <Polaris.Button variant="plain">Setup guide</Polaris.Button>
               </Polaris.InlineStack>
               <Polaris.InlineStack align="space-between">
@@ -119,12 +161,26 @@ export default function Index() {
                     <Polaris.BlockStack gap="100">
                       <Polaris.InlineStack gap="200">
                         <Polaris.Text variant="headingSm">Sticky bar</Polaris.Text>
-                        <Polaris.Badge status="success">Paused</Polaris.Badge>
+                        <Polaris.Badge status={stickyStatus === "live" ? "success" : "warning"}>
+                          {stickyStatus === "live" ? "Live" : "Paused"}
+                        </Polaris.Badge>
                       </Polaris.InlineStack>
-                      <Polaris.Text>Turn the sticky bar on or off without uninstalling the app.</Polaris.Text>
+                      <Polaris.Text>
+                        {stickyStatus === "live"
+                          ? "The sticky bar is currently active and visible to customers."
+                          : "The sticky bar is paused and hidden from customers."
+                        }
+                      </Polaris.Text>
                     </Polaris.BlockStack>
                     <Polaris.InlineStack>
-                      <Polaris.Button>Activate</Polaris.Button>
+                      <Polaris.Button
+                        onClick={handleStatusToggle}
+                        loading={fetcher.state === "submitting"}
+                        variant={stickyStatus === "live" ? "secondary" : "primary"}
+                      >
+                        {stickyStatus === "live" ? "Pause" : "Activate"}
+                      </Polaris.Button>
+                      <Polaris.Button variant="plain" onClick={handleCustomizeClick}>Customize</Polaris.Button>
                     </Polaris.InlineStack>
                   </Polaris.BlockStack>
                 </Polaris.Card>
