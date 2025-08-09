@@ -161,7 +161,6 @@ class StickyBarSettings {
             padding: isMobile ?
                 `${settings.sticky_inner_spacing_mobile}px` :
                 `${settings.sticky_inner_spacing}${settings.sticky_inner_spacing_unit}`,
-            border: `1px solid ${settings.sticky_border_color}`,
             borderRadius: `${settings.sticky_border_radius || '12'}px`,
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             position: 'fixed',
@@ -259,11 +258,11 @@ class StickyBarSettings {
         // Apply styles to the main sticky bar container
         Object.assign(stickyBar.style, styles);
 
-        // Apply content display settings
-        const imageElement = stickyBar.querySelector('.sticky-product-image');
-        const titleElement = stickyBar.querySelector('.sticky-product-title');
-        const priceElement = stickyBar.querySelector('.sticky-product-price');
-        const quantityElement = stickyBar.querySelector('.sticky-quantity-selector');
+        // Apply content display settings - updated for new CSS classes
+        const imageElement = stickyBar.querySelector('.sfy-sb-image');
+        const titleElement = stickyBar.querySelector('.sfy-sb-name');
+        const priceElement = stickyBar.querySelector('.sfy-sb-price');
+        const quantityElement = stickyBar.querySelector('.sfy-sb-qty');
 
         if (imageElement) {
             const isMobile = window.innerWidth <= 768;
@@ -298,10 +297,13 @@ class StickyBarSettings {
             quantityElement.style.display = display;
         }
 
-        // Apply button settings
-        const button = stickyBar.querySelector('.sticky-add-to-cart-btn');
+        // Apply button settings - updated for new CSS classes
+        const button = stickyBar.querySelector('.sfy-sb-add-to-cart-button');
         if (button) {
-            button.textContent = settings.sticky_button_text;
+            const buttonText = button.querySelector('.sfy-sb-add-to-cart-text__content');
+            if (buttonText) {
+                buttonText.textContent = settings.sticky_button_text;
+            }
             button.style.backgroundColor = settings.sticky_button_bg_color;
             button.style.color = settings.sticky_button_text_color;
 
@@ -313,59 +315,58 @@ class StickyBarSettings {
 
             if (shouldShowCartIcon) {
                 // Create cart icon if it doesn't exist
-                let cartIcon = button.querySelector('.cart-icon');
+                let cartIcon = button.querySelector('.sfy-sb-add-to-cart-icon');
                 if (!cartIcon) {
                     cartIcon = document.createElement('span');
-                    cartIcon.className = 'cart-icon';
-                    cartIcon.innerHTML = '🛒'; // Simple cart emoji as fallback
-                    cartIcon.style.marginRight = '6px';
-                    button.insertBefore(cartIcon, button.firstChild);
+                    cartIcon.className = 'sfy-sb-add-to-cart-icon sfy-svg';
+                    cartIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 14.25C18.4142 14.25 18.75 14.5858 18.75 15V17.25H21C21.4142 17.25 21.75 17.5858 21.75 18C21.75 18.4142 21.4142 18.75 21 18.75H18.75V21C18.75 21.4142 18.4142 21.75 18 21.75C17.5858 21.75 17.25 21.4142 17.25 21V18.75H15C14.5858 18.75 14.25 18.4142 14.25 18C14.25 17.5858 14.5858 17.25 15 17.25H17.25V15C17.25 14.5858 17.5858 14.25 18 14.25ZM12 3.25C14.3681 3.25 16.3308 4.98306 16.6904 7.25H17C19.0711 7.25 20.75 8.92893 20.75 11V12C20.75 12.4142 20.4142 12.75 20 12.75C19.5858 12.75 19.25 12.4142 19.25 12V11C19.25 9.75736 18.2426 8.75 17 8.75H7C5.75736 8.75 4.75 9.75736 4.75 11V17C4.75 18.2426 5.75736 19.25 7 19.25H12C12.4142 19.25 12.75 19.5858 12.75 20C12.75 20.4142 12.4142 20.75 12 20.75H7C4.92893 20.75 3.25 19.0711 3.25 17V11C3.25 8.92893 4.92893 7.25 7 7.25H7.30957C7.6692 4.98306 9.63189 3.25 12 3.25ZM12 4.75C10.4633 4.75 9.17655 5.81675 8.83789 7.25H15.1621C14.8235 5.81675 13.5367 4.75 12 4.75Z" fill="currentColor"/></svg>';
+                    const buttonTextSpan = button.querySelector('.sfy-sb-add-to-cart-text');
+                    if (buttonTextSpan) {
+                        buttonTextSpan.insertBefore(cartIcon, buttonTextSpan.firstChild);
+                    }
                 }
-                cartIcon.style.display = 'inline';
+                cartIcon.style.display = 'flex';
             } else {
                 // Remove cart icon if disabled
-                const cartIcon = button.querySelector('.cart-icon');
+                const cartIcon = button.querySelector('.sfy-sb-add-to-cart-icon');
                 if (cartIcon) {
                     cartIcon.style.display = 'none';
                 }
             }
-
         }
 
-        // Apply quantity input color
-        const quantityInput = stickyBar.querySelector('.sticky-quantity-input');
+        // Apply quantity input color - updated for new CSS classes
+        const quantityInput = stickyBar.querySelector('.sfy-sb-qty input');
         if (quantityInput) {
             quantityInput.style.color = settings.sticky_quantity_color;
         }
 
-        // Apply image size
-        const productImage = stickyBar.querySelector('.sticky-product-image');
-        if (productImage) {
+        // Apply image size - updated for new CSS classes
+        const productImageContainer = stickyBar.querySelector('.sfy-sb-image');
+        if (productImageContainer) {
             const isMobile = window.innerWidth <= 768;
             const imageSize = isMobile ?
                 (settings.sticky_image_size_mobile || 'medium') :
                 (settings.sticky_image_size || 'medium');
-            let width, height;
 
+            // Remove existing size classes
+            productImageContainer.classList.remove('--sfy-tiny', '--sfy-small', '--sfy-medium', '--sfy-large');
+
+            // Add new size class based on setting
             switch (imageSize) {
+                case 'tiny':
+                    productImageContainer.classList.add('--sfy-tiny');
+                    break;
                 case 'small':
-                    width = '48px';
-                    height = '48px';
+                    productImageContainer.classList.add('--sfy-small');
                     break;
                 case 'large':
-                    width = '72px';
-                    height = '72px';
+                    productImageContainer.classList.add('--sfy-large');
                     break;
                 default: // medium
-                    width = '60px';
-                    height = '60px';
+                    productImageContainer.classList.add('--sfy-medium');
                     break;
             }
-
-            productImage.style.width = width;
-            productImage.style.height = height;
-            productImage.style.objectFit = 'cover';
-            productImage.style.borderRadius = '8px';
         }
 
         // Apply custom CSS if provided
@@ -383,6 +384,7 @@ class StickyBarSettings {
                 styleElement.textContent = settings.sticky_custom_css;
                 document.head.appendChild(styleElement);
             } catch (error) {
+                console.error('Error applying custom CSS:', error);
             }
         }
     }

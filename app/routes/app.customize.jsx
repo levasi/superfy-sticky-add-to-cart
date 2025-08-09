@@ -368,6 +368,23 @@ export default function Customize() {
         customCss, savedSettings, showSaveBar, hideSaveBar
     ]);
 
+    // Helper function to generate positioning classes
+    const getPositioningClasses = () => {
+        const view = appearanceView === 'mobile' ? 'mobile' : 'desktop';
+        const barWidthValue = appearanceView === 'mobile' ? mobileBarWidth : barWidth;
+        const alignmentValue = appearanceView === 'mobile' ? mobileAlignment : alignment;
+
+        let classes = `sy-sticky-add-to-cart-preview sy-sticky-add-to-cart-preview--${view}`;
+
+        if (barWidthValue === 'full') {
+            classes += ` sy-sticky-add-to-cart-preview--${view}--full-width`;
+        } else if (barWidthValue === 'contained') {
+            classes += ` sy-sticky-add-to-cart-preview--${view}--contained--${alignmentValue}`;
+        }
+
+        return classes;
+    };
+
     // Handle save action
     const handleSave = useCallback(async () => {
         const formData = new FormData();
@@ -532,7 +549,7 @@ export default function Customize() {
                     sticky_alignment_mobile: 'right',
                     sticky_outer_spacing_mobile: '',
                     sticky_outer_spacing_mobile_unit: 'px',
-                    sticky_inner_spacing_mobile: '16',
+                    sticky_inner_spacing_mobile: '12',
                     sticky_image_size_mobile: 'medium',
                     sticky_enable_mobile_cart_icon: true
                 };
@@ -549,7 +566,7 @@ export default function Customize() {
                     sticky_alignment: 'right',
                     sticky_outer_spacing: '0',
                     sticky_outer_spacing_unit: 'px',
-                    sticky_inner_spacing: '16',
+                    sticky_inner_spacing: '12',
                     sticky_inner_spacing_unit: 'px',
                     sticky_background_color: '#FFFFFF',
                     sticky_border_color: '#DFDFDF',
@@ -1517,23 +1534,8 @@ export default function Customize() {
                             margin: appearanceView === 'mobile' ? '0 auto' : '0'
                         }}>
                             <div
-                                className='sy-sticky-add-to-cart-preview'
+                                className={getPositioningClasses()}
                                 style={{
-                                    position: 'absolute',
-                                    bottom: '20px',
-                                    right: appearanceView === 'mobile' ?
-                                        (mobileBarWidth === 'contained' ?
-                                            (mobileAlignment === 'left' ? 'auto' : mobileAlignment === 'center' ? 'auto' : '20px') : '20px') :
-                                        (barWidth === 'contained' ?
-                                            (alignment === 'left' ? 'auto' : alignment === 'center' ? 'auto' : '20px') : '20px'),
-                                    left: appearanceView === 'mobile' ?
-                                        (mobileBarWidth === 'contained' ?
-                                            (mobileAlignment === 'left' ? '20px' : mobileAlignment === 'center' ? '50%' : 'auto') : '20px') :
-                                        (barWidth === 'contained' ?
-                                            (alignment === 'left' ? '20px' : alignment === 'center' ? '50%' : 'auto') : '20px'),
-                                    transform: appearanceView === 'mobile' ?
-                                        (mobileBarWidth === 'contained' && mobileAlignment === 'center' ? 'translateX(-50%)' : 'none') :
-                                        (barWidth === 'contained' && alignment === 'center' ? 'translateX(-50%)' : 'none'),
                                     borderRadius: borderRadius + 'px' || '12px',
                                     border: `1px solid ${borderColor}`,
                                     backgroundColor: backgroundColor,
@@ -1541,8 +1543,8 @@ export default function Customize() {
                                         `${mobileInnerSpacing}px` :
                                         `${innerSpacing}${innerSpacingUnit}`,
                                     width: appearanceView === 'mobile' ?
-                                        (mobileBarWidth === 'full' ? 'calc(100% - 40px)' : 'auto') :
-                                        (barWidth === 'full' ? 'calc(100% - 40px)' : 'auto'),
+                                        (mobileBarWidth === 'full' ? '100%' : '100%') :
+                                        (barWidth === 'full' ? 'calc(100% - 40px)' : 'calc(100% - 40px)'),
                                     maxWidth: appearanceView === 'mobile' ?
                                         (mobileBarWidth === 'contained' ? (mobileMaxWidth === '' ? '600px' : `${mobileMaxWidth}${mobileMaxWidthUnit}`) : 'none') :
                                         (barWidth === 'contained' ? (maxWidth === '' ? '600px' : `${maxWidth}${maxWidthUnit}`) : 'none'),

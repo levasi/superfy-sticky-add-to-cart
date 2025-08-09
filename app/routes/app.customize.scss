@@ -136,3 +136,68 @@
         width: 100%;
     }
 }
+
+// Sticky preview positioning classes
+.sy-sticky-add-to-cart-preview {
+    position: absolute;
+    max-width: 100%;
+}
+
+.sy-sticky-add-to-cart-preview--mobile {
+    bottom: 0;
+    right: 0;
+}
+
+.sy-sticky-add-to-cart-preview--desktop {
+    bottom: 20px;
+}
+
+// Desktop positioning
+.sy-sticky-add-to-cart-preview--desktop--full-width {
+    right: 20px;
+    left: 20px;
+    transform: none;
+}
+
+.sy-sticky-add-to-cart-preview--desktop--contained--left {
+    right: auto;
+    left: 20px;
+    transform: none;
+}
+
+.sy-sticky-add-to-cart-preview--desktop--contained--center {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.sy-sticky-add-to-cart-preview--desktop--contained--right {
+    right: 20px;
+    left: auto;
+    transform: none;
+}
+
+// Mobile positioning
+.sy-sticky-add-to-cart-preview--mobile--full-width {
+    right: 0;
+    left: 0;
+    transform: none;
+}
+
+.sy-sticky-add-to-cart-preview--mobile--contained--left {
+    right: auto;
+    left: 0;
+    transform: none;
+}
+
+.sy-sticky-add-to-cart-preview--mobile--contained--center {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.sy-sticky-add-to-cart-preview--mobile--contained--right {
+    right: auto;
+    left: auto;
+    transform: none;
+}
