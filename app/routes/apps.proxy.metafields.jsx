@@ -66,6 +66,7 @@ export const loader = async ({ request }) => {
             sticky_bar_color: settings.sticky_bar_color || '#fff',
             sticky_visibility: settings.sticky_visibility || 'all',
             sticky_trigger: settings.sticky_trigger || 'after-summary',
+            sticky_bar_status: settings.sticky_bar_status || 'live',
             sticky_content_display_image: settings.sticky_content_display_image !== false,
             sticky_content_display_title: settings.sticky_content_display_title !== false,
             sticky_content_display_price: settings.sticky_content_display_price !== false,
