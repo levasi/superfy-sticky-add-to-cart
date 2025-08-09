@@ -49,10 +49,14 @@ export const action = async ({ request }) => {
   const shopIdResponse = await admin.graphql(`query { shop { id } }`);
   const { data: { shop: { id: shopId } } } = await shopIdResponse.json();
 
-  // Only update metafields if we have valid color and position
-  if (typeof color === "string" && typeof position === "string") {
-    await setShopMetafields(admin, shopId, color, position);
-  }
+  // Update metafields with all settings
+  const settings = {
+    sticky_bar_color: color,
+    sticky_bar_position: position,
+    sticky_bar_status: status,
+  };
+  
+  await setShopMetafields(admin, shopId, settings);
 
   return Response.json({ ok: true });
 };
