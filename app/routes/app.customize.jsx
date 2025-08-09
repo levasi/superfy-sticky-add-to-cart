@@ -58,6 +58,7 @@ export const loader = async ({ request }) => {
     const mobileOuterSpacingSetting = await getSetting("sticky_outer_spacing_mobile");
     const mobileOuterSpacingUnitSetting = await getSetting("sticky_outer_spacing_mobile_unit");
     const mobileInnerSpacingSetting = await getSetting("sticky_inner_spacing_mobile");
+    const mobileInnerSpacingUnitSetting = await getSetting("sticky_inner_spacing_mobile_unit");
     const maxWidthSetting = await getSetting("sticky_max_width");
     const maxWidthUnitSetting = await getSetting("sticky_max_width_unit");
     const alignmentSetting = await getSetting("sticky_alignment");
@@ -100,6 +101,7 @@ export const loader = async ({ request }) => {
         sticky_outer_spacing_mobile: mobileOuterSpacingSetting?.value || '',
         sticky_outer_spacing_mobile_unit: mobileOuterSpacingUnitSetting?.value || 'px',
         sticky_inner_spacing_mobile: mobileInnerSpacingSetting?.value || '16',
+        sticky_inner_spacing_mobile_unit: mobileInnerSpacingUnitSetting?.value || 'px',
         sticky_max_width: maxWidthSetting?.value || '',
         sticky_max_width_unit: maxWidthUnitSetting?.value || 'px',
         sticky_alignment: alignmentSetting?.value || 'right',
@@ -214,6 +216,7 @@ export default function Customize() {
     const [outerSpacingUnit, setOuterSpacingUnit] = useState(savedSettings.sticky_outer_spacing_unit);
     const [innerSpacing, setInnerSpacing] = useState(savedSettings.sticky_inner_spacing);
     const [innerSpacingUnit, setInnerSpacingUnit] = useState(savedSettings.sticky_inner_spacing_unit);
+    const [mobileInnerSpacingUnit, setMobileInnerSpacingUnit] = useState(savedSettings.sticky_inner_spacing_mobile_unit);
     const [backgroundColor, setBackgroundColor] = useState(savedSettings.sticky_background_color);
     const [borderColor, setBorderColor] = useState(savedSettings.sticky_border_color);
     const [borderRadius, setBorderRadius] = useState(savedSettings.sticky_border_radius);
@@ -281,6 +284,7 @@ export default function Customize() {
             sticky_outer_spacing_mobile: mobileOuterSpacing,
             sticky_outer_spacing_mobile_unit: mobileOuterSpacingUnit,
             sticky_inner_spacing_mobile: mobileInnerSpacing,
+            sticky_inner_spacing_mobile_unit: mobileInnerSpacingUnit,
             sticky_max_width: maxWidth,
             sticky_max_width_unit: maxWidthUnit,
             sticky_alignment: alignment,
@@ -324,6 +328,7 @@ export default function Customize() {
             sticky_outer_spacing_mobile: savedSettings.sticky_outer_spacing_mobile,
             sticky_outer_spacing_mobile_unit: savedSettings.sticky_outer_spacing_mobile_unit,
             sticky_inner_spacing_mobile: savedSettings.sticky_inner_spacing_mobile,
+            sticky_inner_spacing_mobile_unit: savedSettings.sticky_inner_spacing_mobile_unit,
             sticky_max_width: savedSettings.sticky_max_width,
             sticky_max_width_unit: savedSettings.sticky_max_width_unit,
             sticky_alignment: savedSettings.sticky_alignment,
@@ -408,6 +413,7 @@ export default function Customize() {
         formData.append('sticky_outer_spacing_mobile', mobileOuterSpacing);
         formData.append('sticky_outer_spacing_mobile_unit', mobileOuterSpacingUnit);
         formData.append('sticky_inner_spacing_mobile', mobileInnerSpacing);
+        formData.append('sticky_inner_spacing_mobile_unit', mobileInnerSpacingUnit);
         formData.append('sticky_max_width', maxWidth);
         formData.append('sticky_max_width_unit', maxWidthUnit);
         formData.append('sticky_alignment', alignment);
@@ -436,7 +442,7 @@ export default function Customize() {
         visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
         mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay,
         barWidth, mobileBarWidth, mobileMaxWidth, mobileMaxWidthUnit, mobileAlignment,
-        mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, maxWidth,
+        mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, mobileInnerSpacingUnit, maxWidth,
         maxWidthUnit, alignment, outerSpacing, outerSpacingUnit, innerSpacing,
         innerSpacingUnit, backgroundColor, borderColor, borderRadius, productNameColor,
         imageSize, mobileImageSize, quantityColor, quantityBorderColor, buttonBehavior,
@@ -468,6 +474,7 @@ export default function Customize() {
         setMobileOuterSpacing(savedSettings.sticky_outer_spacing_mobile);
         setMobileOuterSpacingUnit(savedSettings.sticky_outer_spacing_mobile_unit);
         setMobileInnerSpacing(savedSettings.sticky_inner_spacing_mobile);
+        setMobileInnerSpacingUnit(savedSettings.sticky_inner_spacing_mobile_unit);
         setMaxWidth(savedSettings.sticky_max_width);
         setMaxWidthUnit(savedSettings.sticky_max_width_unit);
         setAlignment(savedSettings.sticky_alignment);
@@ -903,7 +910,8 @@ export default function Customize() {
                                                             { label: 'px', value: 'px' },
                                                             { label: '%', value: '%' }
                                                         ]}
-                                                        value="px"
+                                                        onChange={setInnerSpacingUnit}
+                                                        value={innerSpacingUnit}
                                                         name="sticky_inner_spacing_unit"
                                                         style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                     />
@@ -1397,7 +1405,8 @@ export default function Customize() {
                                                                 { label: 'px', value: 'px' },
                                                                 { label: '%', value: '%' }
                                                             ]}
-                                                            value="px"
+                                                            onChange={setMobileInnerSpacingUnit}
+                                                            value={mobileInnerSpacingUnit}
                                                             name="sticky_inner_spacing_mobile_unit"
                                                             style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
                                                         />
