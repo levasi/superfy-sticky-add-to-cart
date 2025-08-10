@@ -14,7 +14,7 @@ export const NeedHelp = () => {
                 </InlineStack>
 
                 {/* Help Items */}
-                <BlockStack gap="0">
+                <InlineStack gap="400">
                     <div className="help-item">
                         <div className="help-item-content">
                             <div className="help-item-main">
@@ -56,7 +56,7 @@ export const NeedHelp = () => {
                             </div>
                         </div>
                     </div>
-                </BlockStack>
+                </InlineStack>
             </BlockStack>
         </Card>
     );

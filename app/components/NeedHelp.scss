@@ -2,10 +2,7 @@
     border: 1px solid #E1E3E5;
     border-radius: 8px;
     margin-bottom: 8px;
-
-    &:last-child {
-        margin-bottom: 0;
-    }
+    flex: 1;
 }
 
 .help-item-content {
