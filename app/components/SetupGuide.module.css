@@ -1,0 +1,46 @@
+/* If using CSS modules in Remix, make sure you have properly configured your project (https://remix.run/docs/en/main/styling/css-modules#css-modules) */
+
+.setupItem {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.setupItemExpanded {
+    background-color: #f6f6f7;
+}
+
+.completeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    border: 2px solid #c9cccf;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.completeButton:hover {
+    border-color: #008060;
+}
+
+.itemContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.itemImage {
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+@media (max-width: 700px) {
+    .itemImage {
+        display: none;
+    }
+}

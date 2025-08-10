@@ -1,0 +1,120 @@
+.general-settings-page {
+    .content-layout {
+        display: flex;
+        gap: 32px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .left-section {
+        flex: 1;
+        max-width: 400px;
+    }
+
+    .right-section {
+        flex: 1;
+        max-width: 500px;
+    }
+
+    .section-header {
+        padding: 20px 0;
+    }
+
+    .section-title {
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #202223;
+    }
+
+    .section-description {
+        color: #6d7175;
+        line-height: 1.5;
+    }
+
+    .app-embed-card {
+        padding: 24px;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .card-description {
+        color: #6d7175;
+        line-height: 1.5;
+        margin-bottom: 8px;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    /* Custom badge styling to match the design */
+    .card-header .Polaris-Badge {
+        background-color: #008060;
+        color: white;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    /* Button styling - light grey button as shown in image */
+    .check-status-button {
+        background: #F6F6F7;
+        border-color: #C9CCCF;
+        color: #202223;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .check-status-button:hover {
+        background: #E1E3E5;
+        border-color: #BABEC3;
+    }
+
+    /* Link styling */
+    .disable-link {
+        color: #6D7175;
+        font-weight: 400;
+        font-size: 14px;
+    }
+
+    .disable-link:hover {
+        color: #202223;
+        text-decoration: underline;
+    }
+
+    /* Responsive design for smaller screens */
+    @media (max-width: 768px) {
+        .content-layout {
+            flex-direction: column;
+            gap: 24px;
+            padding: 16px;
+        }
+
+        .left-section,
+        .right-section {
+            max-width: 100%;
+        }
+
+        .card-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+}

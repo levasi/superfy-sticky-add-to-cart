@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import * as Polaris from "@shopify/polaris";
 
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { getSetting, upsertSetting } from "../models/settings.server";
 import { setShopMetafields } from "../utils/metafields.server";
+import { SetupGuide } from "../components/SetupGuide";
+import { DashboardProgress } from "../components/DashboardProgress";
+import { Changelog } from "../components/Changelog";
+import { NeedHelp } from "../components/NeedHelp";
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
@@ -38,16 +42,140 @@ export const action = async ({ request }) => {
   return Response.json({ ok: true });
 };
 
+// Setup guide items
+const SETUP_ITEMS = [
+  {
+    id: 0,
+    title: "Enable app embed",
+    description:
+      "Enable the app embed to activate the Sticky Bar on your storefront. This allows the app to inject the sticky bar into your theme.",
+    image: {
+      url: "https://cdn.shopify.com/shopifycloud/shopify/assets/admin/home/onboarding/shop_pay_task-70830ae12d3f01fed1da23e607dc58bc726325144c29f96c949baca598ee3ef6.svg",
+      alt: "Illustration highlighting app embed integration",
+    },
+    complete: false,
+    primaryButton: {
+      content: "Enable embed",
+      props: {
+        onAction: () => console.log("enabling app embed..."),
+      },
+    },
+    secondaryButton: {
+      content: "Learn more",
+      props: {
+        url: "https://help.shopify.com/en/manual/apps/app-embed",
+        external: true,
+      },
+    },
+  },
+  {
+    id: 1,
+    title: "Customize sticky bar",
+    description:
+      "Customize the appearance and behavior of your sticky bar. Choose colors, position, and styling to match your store's design.",
+    image: {
+      url: "https://cdn.shopify.com/shopifycloud/shopify/assets/admin/home/onboarding/detail-images/home-onboard-share-store-b265242552d9ed38399455a5e4472c147e421cb43d72a0db26d2943b55bdb307.svg",
+      alt: "Illustration showing sticky bar customization",
+    },
+    complete: false,
+    primaryButton: {
+      content: "Customize",
+      props: {
+        onAction: () => console.log("navigating to customize..."),
+      },
+    },
+  },
+  {
+    id: 2,
+    title: "Preview and publish",
+    description:
+      "Preview how your sticky bar will look on your store and publish the changes when you're satisfied with the results.",
+    image: {
+      url: "https://cdn.shopify.com/b/shopify-guidance-dashboard-public/nqjyaxwdnkg722ml73r6dmci3cpn.svgz",
+      alt: "Illustration showing preview and publish",
+    },
+    complete: false,
+    primaryButton: {
+      content: "Preview",
+      props: {
+        onAction: () => console.log("opening preview..."),
+      },
+    },
+  },
+];
+
 export default function Index() {
   const fetcher = useFetcher();
   const loaderData = useLoaderData();
   const shopify = useAppBridge();
+  const navigate = useNavigate();
   const [cartCount, setCartCount] = useState(0);
   const [stickyColor, setStickyColor] = useState(loaderData.stickyBarColor || "#fff");
   const [stickyPosition, setStickyPosition] = useState(loaderData.stickyBarPosition || "bottom");
+  const [showGuide, setShowGuide] = useState(true);
+  const [showDashboardProgress, setShowDashboardProgress] = useState(true);
 
   const product = fetcher.data?.product;
   const variant = fetcher.data?.variant?.[0];
+
+
+
+  const onStepComplete = async (id) => {
+    try {
+      // API call to update completion state in DB, etc.
+      await new Promise((res) =>
+        setTimeout(() => {
+          res();
+        }, [1000])
+      );
+
+      setSetupItems((prev) => prev.map((item) => (item.id === id ? { ...item, complete: !item.complete } : item)));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Create setup items with navigation
+  const setupItemsWithNavigation = SETUP_ITEMS.map(item => {
+    if (item.id === 1) {
+      return {
+        ...item,
+        primaryButton: {
+          ...item.primaryButton,
+          props: {
+            onAction: () => navigate('/app/customize'),
+          },
+        },
+      };
+    }
+    return item;
+  });
+
+  const [setupItems, setSetupItems] = useState(setupItemsWithNavigation);
+
+  const changelogItems = [
+    {
+      id: 'enhanced-features-june-13',
+      title: 'Enhanced features & fixes',
+      date: 'June 13',
+      description: 'New Heritage/Pitch themes, fixed collection/checkout issues, improved Okrestro.',
+      isNew: true
+    },
+    {
+      id: 'enhanced-features-june-10',
+      title: 'Enhanced features & fixes',
+      date: 'June 10',
+      description: 'New Heritage/Pitch themes, fixed collection/checkout issues, improved Okrestro.',
+      isNew: false
+    },
+    {
+      id: 'enhanced-features-june-7',
+      title: 'Enhanced features & fixes',
+      date: 'June 7',
+      description: 'New Heritage/Pitch themes, fixed collection/checkout issues, improved Okrestro.',
+      isNew: false
+    }
+  ];
 
   useEffect(() => {
     if (fetcher.data?.ok) {
@@ -59,28 +187,44 @@ export default function Index() {
     <Polaris.Page fullWidth>
       <Polaris.Layout>
         <Polaris.Layout.Section>
-          {/* Task Progress */}
-          <Polaris.Card>
-            <Polaris.Text variant="headingMd">Get started</Polaris.Text>
-            <Polaris.ProgressBar progress={25} size="small" />
-            <Polaris.BlockStack gap="200">
-              <Polaris.InlineStack align="space-between">
-                <Polaris.Text>Enable the app embed</Polaris.Text>
-                <Polaris.Badge status="success">Done</Polaris.Badge>
-              </Polaris.InlineStack>
-              <Polaris.InlineStack align="space-between">
-                <Polaris.Text>Customize the sticky bar</Polaris.Text>
-                <Polaris.Button>Open theme</Polaris.Button>
-                <Polaris.Button variant="plain">Setup guide</Polaris.Button>
-              </Polaris.InlineStack>
-              <Polaris.InlineStack align="space-between">
-                <Polaris.Text>Choose where it appears</Polaris.Text>
-              </Polaris.InlineStack>
-              <Polaris.InlineStack align="space-between">
-                <Polaris.Text>Preview and publish</Polaris.Text>
-              </Polaris.InlineStack>
-            </Polaris.BlockStack>
-          </Polaris.Card>
+          {/* Dashboard Progress */}
+          {showDashboardProgress && (
+            <div style={{ marginBottom: '16px' }}>
+              <DashboardProgress
+                completedCount={setupItems.filter(item => item.complete).length}
+                totalCount={setupItems.length}
+                onDismiss={() => setShowDashboardProgress(false)}
+                onExpand={(expanded) => {
+                  if (expanded && !showGuide) {
+                    setShowGuide(true);
+                  }
+                }}
+              />
+            </div>
+          )}
+
+          {/* Setup Guide */}
+          {showGuide ? (
+            <SetupGuide
+              onDismiss={() => {
+                setShowGuide(false);
+                setSetupItems(setupItemsWithNavigation);
+              }}
+              onStepComplete={onStepComplete}
+              items={setupItems}
+            />
+          ) : (
+            <Polaris.Card>
+              <div style={{ padding: '24px', textAlign: 'center' }}>
+                <Polaris.Text variant="headingMd" style={{ marginBottom: '16px' }}>
+                  Setup guide hidden
+                </Polaris.Text>
+                <Polaris.Button onClick={() => setShowGuide(true)}>
+                  Show Setup Guide
+                </Polaris.Button>
+              </div>
+            </Polaris.Card>
+          )}
         </Polaris.Layout.Section>
         <Polaris.Layout.Section>
           <Polaris.BlockStack gap="200">
@@ -92,9 +236,6 @@ export default function Index() {
             <Polaris.Grid columns={{ xs: 2, sm: 2, md: 2, lg: 2, xl: 2 }}>
               <Polaris.Grid.Cell columnSpan={{ xs: 2, md: 1 }}>
                 <Polaris.Card>
-                  <Polaris.Text as="h2" variant="headingMd">
-                    App embed
-                  </Polaris.Text>
                   <Polaris.BlockStack gap="200">
                     <Polaris.BlockStack gap="100">
                       <Polaris.InlineStack gap="200">
@@ -112,9 +253,6 @@ export default function Index() {
 
               <Polaris.Grid.Cell columnSpan={{ xs: 2, md: 1 }}>
                 <Polaris.Card>
-                  <Polaris.Text as="h2" variant="headingMd">
-                    Sticky bar
-                  </Polaris.Text>
                   <Polaris.BlockStack gap="200">
                     <Polaris.BlockStack gap="100">
                       <Polaris.InlineStack gap="200">
@@ -132,36 +270,15 @@ export default function Index() {
             </Polaris.Grid>
           </Polaris.BlockStack>
         </Polaris.Layout.Section>
+
         <Polaris.Layout.Section>
-          <Polaris.Card title="What's new" sectioned>
-            <Polaris.List>
-              <Polaris.List.Item>
-                <Polaris.Text variant="bodyMd">
-                  <b>Enhanced features & fixes</b> • June 13 <Polaris.Badge status="new">New</Polaris.Badge>
-                  <br />
-                  New Heritage/Pitch themes, fixed collection/checkout issues, improved Okrestro.
-                </Polaris.Text>
-              </Polaris.List.Item>
-            </Polaris.List>
-            <Polaris.Button variant="plain">View changelog</Polaris.Button>
-          </Polaris.Card>
+          {/* What's New Section */}
+          <Changelog items={changelogItems} />
         </Polaris.Layout.Section>
+
         <Polaris.Layout.Section>
           {/* Need Help */}
-          <Polaris.Card sectioned>
-            <Polaris.InlineStack gap="400">
-              <Polaris.BlockStack>
-                <Polaris.Text variant="headingSm">Contact support</Polaris.Text>
-                <Polaris.Text>Have a question or hit a snag? We usually reply within 24 hours.</Polaris.Text>
-                <Polaris.Button>Send email</Polaris.Button>
-              </Polaris.BlockStack>
-              <Polaris.BlockStack>
-                <Polaris.Text variant="headingSm">Help center</Polaris.Text>
-                <Polaris.Text>All you need to get the sticky bar working on your store.</Polaris.Text>
-                <Polaris.Button>View docs</Polaris.Button>
-              </Polaris.BlockStack>
-            </Polaris.InlineStack>
-          </Polaris.Card>
+          <NeedHelp />
         </Polaris.Layout.Section>
       </Polaris.Layout>
 

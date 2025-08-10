@@ -1,84 +1,113 @@
 import {
   Box,
-  Link,
-  List,
   Page,
   BlockStack,
   Layout,
   Card,
-  Text
+  Text,
+  InlineStack,
+  Button,
+  Icon,
+  Divider,
+  Link
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
+import { SettingsIcon, LanguageIcon } from "@shopify/polaris-icons";
+import { useNavigate } from "@remix-run/react";
+import { Link as RemixLink } from "@remix-run/react";
+import "./app.settings.scss";
 
-export default function AdditionalPage() {
+export default function Settings() {
+  const navigate = useNavigate();
+
+  const handleGeneralSettings = () => {
+    console.log("General settings clicked - navigating to /app/settings-general");
+    navigate("/app/settings-general");
+  };
+
+  const handleTranslations = () => {
+    console.log("Navigate to translations");
+  };
+
   return (
     <Page>
       <TitleBar title="Settings" />
       <Layout>
         <Layout.Section>
           <Card>
-            <Text as="h2" variant="headingMd">
-              Additional Page
-            </Text>
-            <BlockStack gap="300">
-              <Text as="p" variant="bodyMd">
-                The app template comes with an additional page which
-                demonstrates how to create multiple pages within app navigation
-                using{" "}
-                <Link
-                  url="https://shopify.dev/docs/apps/tools/app-bridge"
-                  target="_blank"
-                  removeUnderline
-                >
-                  App Bridge
-                </Link>
-                .
+            <Box padding="400" className="settings-page">
+              <Text as="h2" variant="headingMd" className="settings-header">
+                App settings
               </Text>
-              <Text as="p" variant="bodyMd">
-                To create your own page and have it show up in the app
-                navigation, add a page inside <Code>app/routes</Code>, and a
-                link to it in the <Code>&lt;NavMenu&gt;</Code> component found
-                in <Code>app/routes/app.jsx</Code>.
-              </Text>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
-        <Layout.Section variant="oneThird">
-          <Card>
-            <Text as="h2" variant="headingMd">
-              Resources
-            </Text>
-            <List>
-              <List.Item>
-                <Link
-                  url="https://shopify.dev/docs/apps/design-guidelines/navigation#app-nav"
-                  target="_blank"
-                  removeUnderline
-                >
-                  App nav best practices
-                </Link>
-              </List.Item>
-            </List>
+
+              <BlockStack gap="200">
+
+                {/* Original Settings Sections */}
+                <div>
+                  {/* General Settings Section */}
+                  <RemixLink to="/app/settings-general" style={{ textDecoration: 'none' }}>
+                    <Box
+                      as="div"
+                      className="settings-section"
+                    >
+                      <InlineStack align="space-between" blockAlign="center">
+                        <InlineStack gap="300" blockAlign="center">
+                          <Box className="section-icon">
+                            <Icon source={SettingsIcon} />
+                          </Box>
+                          <BlockStack gap="100" className="section-content">
+                            <Text variant="bodyMd" className="section-title">
+                              General settings
+                            </Text>
+                            <Text variant="bodySm" className="section-description">
+                              View and update your settings
+                            </Text>
+                          </BlockStack>
+                        </InlineStack>
+                        <Box className="arrow-icon">
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </Box>
+                      </InlineStack>
+                    </Box>
+                  </RemixLink>
+
+                  {/* Translations Section */}
+                  <Box
+                    as="button"
+                    onClick={handleTranslations}
+                    className="settings-section"
+                  >
+                    <InlineStack align="space-between" blockAlign="center">
+                      <InlineStack gap="300" blockAlign="center">
+                        <Box className="section-icon">
+                          <Icon source={LanguageIcon} />
+                        </Box>
+                        <BlockStack gap="100" className="section-content">
+                          <InlineStack gap="200" blockAlign="center">
+                            <Text variant="bodyMd" className="section-title">
+                              Translations
+                            </Text>
+                          </InlineStack>
+                          <Text variant="bodySm" className="section-description">
+                            Change customer facing copy
+                          </Text>
+                        </BlockStack>
+                      </InlineStack>
+                      <Box className="arrow-icon">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </Box>
+                    </InlineStack>
+                  </Box>
+                </div>
+              </BlockStack>
+            </Box>
           </Card>
         </Layout.Section>
       </Layout>
     </Page>
-  );
-}
-
-function Code({ children }) {
-  return (
-    <Box
-      as="span"
-      padding="025"
-      paddingInlineStart="100"
-      paddingInlineEnd="100"
-      background="bg-surface-active"
-      borderWidth="025"
-      borderColor="border"
-      borderRadius="100"
-    >
-      <code>{children}</code>
-    </Box>
   );
 }
