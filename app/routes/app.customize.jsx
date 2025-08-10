@@ -676,10 +676,13 @@ export default function Customize() {
                     </InlineStack>
                 </InlineStack>
             </Box>
-            <InlineGrid columns={['oneThird', 'twoThirds']} alignItems="start" gap="400">
-                <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange}>
-                    <div style={{ marginBottom: '8px' }}></div>
 
+            <div className="customize-tabs-wrapper">
+                <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange} />
+            </div>
+
+            <InlineGrid columns={['oneThird', 'twoThirds']} alignItems="start" gap="400">
+                <div>
                     {selectedTab === 0 && (
                         <Layout>
                             <Layout.Section>
@@ -1532,14 +1535,14 @@ export default function Customize() {
                             </BlockStack>
                         </Card>
                     )}
-                </Tabs>
+                </div>
                 <div style={{
                     position: 'sticky',
                     top: '16px'
                 }}>
                     <Card title={appearanceView === 'mobile' ? "Live preview (375px)" : "Live preview"}>
                         <div style={{
-                            minHeight: 300,
+                            minHeight: appearanceView === 'mobile' ? 560 : 300,
                             position: 'relative',
                             borderRadius: '8px',
                             background: '#f8f9fa',

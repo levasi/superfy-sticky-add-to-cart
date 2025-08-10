@@ -302,3 +302,14 @@
     justify-content: space-between;
     width: 100%;
 }
+
+// Custom tabs styling
+.customize-tabs-wrapper {
+    margin-bottom: 16px;
+
+    .Polaris-Tabs__Outer {
+        &>.Polaris-Box {
+            padding: 0;
+        }
+    }
+}

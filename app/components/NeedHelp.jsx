@@ -29,9 +29,7 @@ export const NeedHelp = () => {
                             </div>
                             <div className="help-actions">
                                 <Button
-                                    variant="secondary"
                                     icon={EmailIcon}
-                                    size="small"
                                 >
                                     Send email
                                 </Button>
@@ -52,10 +50,7 @@ export const NeedHelp = () => {
                                 </Text>
                             </div>
                             <div className="help-actions">
-                                <Button
-                                    variant="secondary"
-                                    size="small"
-                                >
+                                <Button>
                                     View docs
                                 </Button>
                             </div>

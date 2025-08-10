@@ -7,7 +7,6 @@ import { authenticate } from "../shopify.server";
 import { getSetting, upsertSetting } from "../models/settings.server";
 import { setShopMetafields } from "../utils/metafields.server";
 import { SetupGuide } from "../components/SetupGuide";
-import { DashboardProgress } from "../components/DashboardProgress";
 import { Changelog } from "../components/Changelog";
 import { NeedHelp } from "../components/NeedHelp";
 
@@ -113,7 +112,6 @@ export default function Index() {
   const [stickyColor, setStickyColor] = useState(loaderData.stickyBarColor || "#fff");
   const [stickyPosition, setStickyPosition] = useState(loaderData.stickyBarPosition || "bottom");
   const [showGuide, setShowGuide] = useState(true);
-  const [showDashboardProgress, setShowDashboardProgress] = useState(true);
 
   const product = fetcher.data?.product;
   const variant = fetcher.data?.variant?.[0];
@@ -187,22 +185,6 @@ export default function Index() {
     <Polaris.Page fullWidth>
       <Polaris.Layout>
         <Polaris.Layout.Section>
-          {/* Dashboard Progress */}
-          {showDashboardProgress && (
-            <div style={{ marginBottom: '16px' }}>
-              <DashboardProgress
-                completedCount={setupItems.filter(item => item.complete).length}
-                totalCount={setupItems.length}
-                onDismiss={() => setShowDashboardProgress(false)}
-                onExpand={(expanded) => {
-                  if (expanded && !showGuide) {
-                    setShowGuide(true);
-                  }
-                }}
-              />
-            </div>
-          )}
-
           {/* Setup Guide */}
           {showGuide ? (
             <SetupGuide
