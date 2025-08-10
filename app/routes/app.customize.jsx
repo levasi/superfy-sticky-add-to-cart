@@ -19,7 +19,8 @@ import {
     TextField,
     ColorPicker,
     Modal,
-    RangeSlider
+    RangeSlider,
+    Popover
 } from '@shopify/polaris';
 import {
     ArrowLeftIcon,
@@ -27,7 +28,7 @@ import {
     MobileIcon,
     CartIcon
 } from '@shopify/polaris-icons';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useLoaderData } from '@remix-run/react';
 import { useAppBridge } from '@shopify/app-bridge-react';
 import { useFetcher } from "@remix-run/react";
@@ -191,6 +192,7 @@ export default function Customize() {
 
     const [selectedTab, setSelectedTab] = useState(0);
     const [appearanceView, setAppearanceView] = useState('desktop');
+    const [showBackgroundColorPicker, setShowBackgroundColorPicker] = useState(false);
     const [visibility, setVisibility] = useState(savedSettings.sticky_visibility);
     const [trigger, setTrigger] = useState(savedSettings.sticky_trigger);
     const [imageDisplay, setImageDisplay] = useState(savedSettings.sticky_content_display_image);
@@ -218,6 +220,8 @@ export default function Customize() {
     const [innerSpacingUnit, setInnerSpacingUnit] = useState(savedSettings.sticky_inner_spacing_unit);
     const [mobileInnerSpacingUnit, setMobileInnerSpacingUnit] = useState(savedSettings.sticky_inner_spacing_mobile_unit);
     const [backgroundColor, setBackgroundColor] = useState(savedSettings.sticky_background_color);
+
+
     const [borderColor, setBorderColor] = useState(savedSettings.sticky_border_color);
     const [borderRadius, setBorderRadius] = useState(savedSettings.sticky_border_radius);
     const [productNameColor, setProductNameColor] = useState(savedSettings.sticky_product_name_color);
@@ -925,24 +929,45 @@ export default function Customize() {
                                         <BlockStack gap="400">
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
-                                                <div
-                                                    className='color-input-wrapper'
+                                                <Popover
+                                                    active={showBackgroundColorPicker}
+                                                    activator={
+                                                        <div className="color-input-wrapper">
+                                                            <div
+                                                                className="color-swatch"
+                                                                style={{
+                                                                    backgroundColor: backgroundColor,
+                                                                    border: '1px solid #DFDFDF',
+                                                                    borderRadius: '4px',
+                                                                    width: '20px',
+                                                                    height: '20px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={() => setShowBackgroundColorPicker(true)}
+                                                            />
+                                                            <input
+                                                                className="color-input-type-color"
+                                                                type="text"
+                                                                value={backgroundColor}
+                                                                readOnly
+                                                                onClick={() => setShowBackgroundColorPicker(true)}
+                                                                style={{ cursor: 'pointer' }}
+                                                                placeholder="#FFFFFF"
+                                                            />
+                                                        </div>
+                                                    }
+                                                    onClose={() => setShowBackgroundColorPicker(false)}
+                                                    preferredPosition="below"
+                                                    preferredAlignment="left"
+                                                    fullWidth={false}
+                                                    sectioned={false}
                                                 >
-                                                    <input
-                                                        className='color-input-type-color'
-                                                        type="color"
-                                                        value={backgroundColor}
-                                                        onChange={e => setBackgroundColor(e.target.value)}
-                                                        name="sticky_background_color"
+                                                    <ColorPicker
+                                                        onChange={setBackgroundColor}
+                                                        color={backgroundColor}
+                                                        allowAlpha={false}
                                                     />
-                                                    <input
-                                                        className='color-input-type-text'
-                                                        type="text"
-                                                        value={backgroundColor}
-                                                        onChange={e => setBackgroundColor(e.target.value)}
-                                                        name="sticky_background_color"
-                                                    />
-                                                </div>
+                                                </Popover>
                                             </BlockStack>
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Border color</Text>
