@@ -193,6 +193,12 @@ export default function Customize() {
     const [selectedTab, setSelectedTab] = useState(0);
     const [appearanceView, setAppearanceView] = useState('desktop');
     const [showBackgroundColorPicker, setShowBackgroundColorPicker] = useState(false);
+    const [showBorderColorPicker, setShowBorderColorPicker] = useState(false);
+    const [showProductNameColorPicker, setShowProductNameColorPicker] = useState(false);
+    const [showQuantityColorPicker, setShowQuantityColorPicker] = useState(false);
+    const [showQuantityBorderColorPicker, setShowQuantityBorderColorPicker] = useState(false);
+    const [showButtonTextColorPicker, setShowButtonTextColorPicker] = useState(false);
+    const [showButtonBgColorPicker, setShowButtonBgColorPicker] = useState(false);
     const [visibility, setVisibility] = useState(savedSettings.sticky_visibility);
     const [trigger, setTrigger] = useState(savedSettings.sticky_trigger);
     const [imageDisplay, setImageDisplay] = useState(savedSettings.sticky_content_display_image);
@@ -220,6 +226,85 @@ export default function Customize() {
     const [innerSpacingUnit, setInnerSpacingUnit] = useState(savedSettings.sticky_inner_spacing_unit);
     const [mobileInnerSpacingUnit, setMobileInnerSpacingUnit] = useState(savedSettings.sticky_inner_spacing_mobile_unit);
     const [backgroundColor, setBackgroundColor] = useState(savedSettings.sticky_background_color);
+
+    // ColorPicker state in HSBA format
+    // Helper function to convert hex to HSBA
+    const hexToHSBA = (hex) => {
+        const cleanHex = hex.replace('#', '');
+        const r = parseInt(cleanHex.substr(0, 2), 16) / 255;
+        const g = parseInt(cleanHex.substr(2, 2), 16) / 255;
+        const b = parseInt(cleanHex.substr(4, 2), 16) / 255;
+
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const diff = max - min;
+
+        let h = 0;
+        if (diff !== 0) {
+            switch (max) {
+                case r: h = ((g - b) / diff) % 6; break;
+                case g: h = (b - r) / diff + 2; break;
+                case b: h = (r - g) / diff + 4; break;
+            }
+            h = Math.round(h * 60);
+            if (h < 0) h += 360;
+        }
+
+        const s = max === 0 ? 0 : diff / max;
+        const v = max;
+
+        return {
+            hue: h,
+            saturation: s,
+            brightness: v,
+            alpha: 1
+        };
+    };
+
+    // Helper function to convert HSBA to hex
+    const hsbaToHex = (hsba) => {
+        const { hue, saturation, brightness } = hsba;
+
+        const c = brightness * saturation;
+        const x = c * (1 - Math.abs((hue / 60) % 2 - 1));
+        const m = brightness - c;
+
+        let r, g, b;
+
+        if (hue >= 0 && hue < 60) {
+            r = c; g = x; b = 0;
+        } else if (hue >= 60 && hue < 120) {
+            r = x; g = c; b = 0;
+        } else if (hue >= 120 && hue < 180) {
+            r = 0; g = c; b = x;
+        } else if (hue >= 180 && hue < 240) {
+            r = 0; g = x; b = c;
+        } else if (hue >= 240 && hue < 300) {
+            r = x; g = 0; b = c;
+        } else {
+            r = c; g = 0; b = x;
+        }
+
+        const rValue = Math.round((r + m) * 255);
+        const gValue = Math.round((g + m) * 255);
+        const bValue = Math.round((b + m) * 255);
+
+        const toHex = (value) => {
+            const hex = value.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        };
+
+        return `#${toHex(rValue)}${toHex(gValue)}${toHex(bValue)}`;
+    };
+
+    // ColorPicker states in HSBA format
+    const [backgroundColorHSBA, setBackgroundColorHSBA] = useState(() => hexToHSBA(savedSettings.sticky_background_color));
+    const [borderColorHSBA, setBorderColorHSBA] = useState(() => hexToHSBA(savedSettings.sticky_border_color));
+    const [productNameColorHSBA, setProductNameColorHSBA] = useState(() => hexToHSBA(savedSettings.sticky_product_name_color));
+    const [quantityColorHSBA, setQuantityColorHSBA] = useState(() => hexToHSBA(savedSettings.sticky_quantity_color));
+    const [quantityBorderColorHSBA, setQuantityBorderColorHSBA] = useState(() => hexToHSBA(savedSettings.sticky_quantity_border_color));
+    const [buttonTextColorHSBA, setButtonTextColorHSBA] = useState(() => hexToHSBA(savedSettings.sticky_button_text_color));
+    const [buttonBgColorHSBA, setButtonBgColorHSBA] = useState(() => hexToHSBA(savedSettings.sticky_button_bg_color));
 
 
     const [borderColor, setBorderColor] = useState(savedSettings.sticky_border_color);
@@ -693,7 +778,7 @@ export default function Customize() {
                                 <BlockStack gap="400">
                                     <Card>
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
-                                            <Text variant="headingSm" tone="success">Sticky Bar
+                                            <Text variant="headingSm">Sticky Bar
                                                 <span style={{ marginLeft: 8 }}>
                                                     <span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span>
                                                 </span>
@@ -949,9 +1034,16 @@ export default function Customize() {
                                                                 className="color-input-type-color"
                                                                 type="text"
                                                                 value={backgroundColor}
-                                                                readOnly
-                                                                onClick={() => setShowBackgroundColorPicker(true)}
-                                                                style={{ cursor: 'pointer' }}
+                                                                onChange={(e) => {
+                                                                    const newColor = e.target.value;
+                                                                    // Allow typing by always updating the input value
+                                                                    setBackgroundColor(newColor);
+                                                                    // Only update HSBA and apply color if it's a valid hex
+                                                                    if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                        setBackgroundColorHSBA(hexToHSBA(newColor));
+                                                                    }
+                                                                }}
+                                                                style={{ cursor: 'text' }}
                                                                 placeholder="#FFFFFF"
                                                             />
                                                         </div>
@@ -963,32 +1055,66 @@ export default function Customize() {
                                                     sectioned={false}
                                                 >
                                                     <ColorPicker
-                                                        onChange={setBackgroundColor}
-                                                        color={backgroundColor}
+                                                        onChange={(color) => {
+                                                            setBackgroundColorHSBA(color);
+                                                            setBackgroundColor(hsbaToHex(color));
+                                                        }}
+                                                        color={backgroundColorHSBA}
                                                         allowAlpha={false}
                                                     />
                                                 </Popover>
                                             </BlockStack>
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Border color</Text>
-                                                <div
-                                                    className='color-input-wrapper'
+                                                <Popover
+                                                    active={showBorderColorPicker}
+                                                    activator={
+                                                        <div className="color-input-wrapper">
+                                                            <div
+                                                                className="color-swatch"
+                                                                style={{
+                                                                    backgroundColor: borderColor,
+                                                                    border: '1px solid #DFDFDF',
+                                                                    borderRadius: '4px',
+                                                                    width: '20px',
+                                                                    height: '20px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={() => setShowBorderColorPicker(true)}
+                                                            />
+                                                            <input
+                                                                className="color-input-type-color"
+                                                                type="text"
+                                                                value={borderColor}
+                                                                onChange={(e) => {
+                                                                    const newColor = e.target.value;
+                                                                    // Allow typing by always updating the input value
+                                                                    setBorderColor(newColor);
+                                                                    // Only update HSBA and apply color if it's a valid hex
+                                                                    if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                        setBorderColorHSBA(hexToHSBA(newColor));
+                                                                    }
+                                                                }}
+                                                                style={{ cursor: 'text' }}
+                                                                placeholder="#DFDFDF"
+                                                            />
+                                                        </div>
+                                                    }
+                                                    onClose={() => setShowBorderColorPicker(false)}
+                                                    preferredPosition="below"
+                                                    preferredAlignment="left"
+                                                    fullWidth={false}
+                                                    sectioned={false}
                                                 >
-                                                    <input
-                                                        className='color-input-type-color'
-                                                        type="color"
-                                                        value={borderColor}
-                                                        onChange={e => setBorderColor(e.target.value)}
-                                                        name="sticky_border_color"
+                                                    <ColorPicker
+                                                        onChange={(color) => {
+                                                            setBorderColorHSBA(color);
+                                                            setBorderColor(hsbaToHex(color));
+                                                        }}
+                                                        color={borderColorHSBA}
+                                                        allowAlpha={false}
                                                     />
-                                                    <input
-                                                        className='color-input-type-text'
-                                                        type="text"
-                                                        value={borderColor}
-                                                        onChange={e => setBorderColor(e.target.value)}
-                                                        name="sticky_border_color"
-                                                    />
-                                                </div>
+                                                </Popover>
                                             </BlockStack>
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Corner radius</Text>
@@ -1039,24 +1165,55 @@ export default function Customize() {
                                             <Box style={{ marginBottom: '4px' }}>
                                                 <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Color</Text>
                                             </Box>
-                                            <div
-                                                className='color-input-wrapper'
+                                            <Popover
+                                                active={showProductNameColorPicker}
+                                                activator={
+                                                    <div className="color-input-wrapper">
+                                                        <div
+                                                            className="color-swatch"
+                                                            style={{
+                                                                backgroundColor: productNameColor,
+                                                                border: '1px solid #DFDFDF',
+                                                                borderRadius: '4px',
+                                                                width: '20px',
+                                                                height: '20px',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                            onClick={() => setShowProductNameColorPicker(true)}
+                                                        />
+                                                        <input
+                                                            className="color-input-type-color"
+                                                            type="text"
+                                                            value={productNameColor}
+                                                            onChange={(e) => {
+                                                                const newColor = e.target.value;
+                                                                // Allow typing by always updating the input value
+                                                                setProductNameColor(newColor);
+                                                                // Only update HSBA and apply color if it's a valid hex
+                                                                if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                    setProductNameColorHSBA(hexToHSBA(newColor));
+                                                                }
+                                                            }}
+                                                            style={{ cursor: 'text' }}
+                                                            placeholder="#141414"
+                                                        />
+                                                    </div>
+                                                }
+                                                onClose={() => setShowProductNameColorPicker(false)}
+                                                preferredPosition="below"
+                                                preferredAlignment="left"
+                                                fullWidth={false}
+                                                sectioned={false}
                                             >
-                                                <input
-                                                    className='color-input-type-color'
-                                                    type="color"
-                                                    value={productNameColor}
-                                                    onChange={e => setProductNameColor(e.target.value)}
-                                                    name="sticky_product_name_color"
+                                                <ColorPicker
+                                                    onChange={(color) => {
+                                                        setProductNameColorHSBA(color);
+                                                        setProductNameColor(hsbaToHex(color));
+                                                    }}
+                                                    color={productNameColorHSBA}
+                                                    allowAlpha={false}
                                                 />
-                                                <input
-                                                    className='color-input-type-text'
-                                                    type="text"
-                                                    value={productNameColor}
-                                                    onChange={e => setProductNameColor(e.target.value)}
-                                                    name="sticky_product_name_color"
-                                                />
-                                            </div>
+                                            </Popover>
                                         </Box>
                                         <Box style={{ margin: '16px 0' }}>
                                             <Divider />
@@ -1091,47 +1248,108 @@ export default function Customize() {
                                             <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Color</Text>
                                         </Box>
                                         <Box style={{ marginBottom: 8 }}>
-                                            <div
-                                                className='color-input-wrapper'
+                                            <Popover
+                                                active={showQuantityColorPicker}
+                                                activator={
+                                                    <div className="color-input-wrapper">
+                                                        <div
+                                                            className="color-swatch"
+                                                            style={{
+                                                                backgroundColor: quantityColor,
+                                                                border: '1px solid #DFDFDF',
+                                                                borderRadius: '4px',
+                                                                width: '20px',
+                                                                height: '20px',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                            onClick={() => setShowQuantityColorPicker(true)}
+                                                        />
+                                                        <input
+                                                            className="color-input-type-color"
+                                                            type="text"
+                                                            value={quantityColor}
+                                                            onChange={(e) => {
+                                                                const newColor = e.target.value;
+                                                                // Allow typing by always updating the input value
+                                                                setQuantityColor(newColor);
+                                                                // Only update HSBA and apply color if it's a valid hex
+                                                                if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                    setQuantityColorHSBA(hexToHSBA(newColor));
+                                                                }
+                                                            }}
+                                                            style={{ cursor: 'text' }}
+                                                            placeholder="#141414"
+                                                        />
+                                                    </div>
+                                                }
+                                                onClose={() => setShowQuantityColorPicker(false)}
+                                                preferredPosition="below"
+                                                preferredAlignment="left"
+                                                fullWidth={false}
+                                                sectioned={false}
                                             >
-                                                <input
-                                                    className='color-input-type-color'
-                                                    type="color"
-                                                    value={quantityColor}
-                                                    onChange={e => setQuantityColor(e.target.value)}
-                                                    name="sticky_quantity_color"
+                                                <ColorPicker
+                                                    onChange={(color) => {
+                                                        setQuantityColorHSBA(color);
+                                                        setQuantityColor(hsbaToHex(color));
+                                                    }}
+                                                    color={quantityColorHSBA}
+                                                    allowAlpha={false}
                                                 />
-                                                <input
-                                                    className='color-input-type-text'
-                                                    type="text"
-                                                    value={quantityColor}
-                                                    onChange={e => setQuantityColor(e.target.value)}
-                                                    name="sticky_quantity_color"
-                                                    style={{ flex: 1, borderRadius: 8, fontSize: 16 }}
-                                                />
-                                            </div>
+                                            </Popover>
                                         </Box>
                                         <Box style={{ marginBottom: 4 }}>
                                             <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
                                         </Box>
-                                        <div
-                                            className='color-input-wrapper'
+                                        <Popover
+                                            active={showQuantityBorderColorPicker}
+                                            activator={
+                                                <div className="color-input-wrapper">
+                                                    <div
+                                                        className="color-swatch"
+                                                        style={{
+                                                            backgroundColor: quantityBorderColor,
+                                                            border: '1px solid #DFDFDF',
+                                                            borderRadius: '4px',
+                                                            width: '20px',
+                                                            height: '20px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setShowQuantityBorderColorPicker(true)}
+                                                    />
+                                                    <input
+                                                        className="color-input-type-color"
+                                                        type="text"
+                                                        value={quantityBorderColor}
+                                                        onChange={(e) => {
+                                                            const newColor = e.target.value;
+                                                            // Allow typing by always updating the input value
+                                                            setQuantityBorderColor(newColor);
+                                                            // Only update HSBA and apply color if it's a valid hex
+                                                            if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                setQuantityBorderColorHSBA(hexToHSBA(newColor));
+                                                            }
+                                                        }}
+                                                        style={{ cursor: 'text' }}
+                                                        placeholder="#DFDFDF"
+                                                    />
+                                                </div>
+                                            }
+                                            onClose={() => setShowQuantityBorderColorPicker(false)}
+                                            preferredPosition="below"
+                                            preferredAlignment="left"
+                                            fullWidth={false}
+                                            sectioned={false}
                                         >
-                                            <input
-                                                className='color-input-type-color'
-                                                type="color"
-                                                value={quantityBorderColor}
-                                                onChange={e => setQuantityBorderColor(e.target.value)}
-                                                name="sticky_quantity_border_color"
+                                            <ColorPicker
+                                                onChange={(color) => {
+                                                    setQuantityBorderColorHSBA(color);
+                                                    setQuantityBorderColor(hsbaToHex(color));
+                                                }}
+                                                color={quantityBorderColorHSBA}
+                                                allowAlpha={false}
                                             />
-                                            <input
-                                                className='color-input-type-text'
-                                                type="text"
-                                                value={quantityBorderColor}
-                                                onChange={e => setQuantityBorderColor(e.target.value)}
-                                                name="sticky_quantity_border_color"
-                                            />
-                                        </div>
+                                        </Popover>
                                     </Card>
                                     <Card>
                                         <BlockStack gap="400">
@@ -1201,45 +1419,109 @@ export default function Customize() {
                                             <Box>
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text color</Text>
-                                                    <div
-                                                        className='color-input-wrapper'
+                                                    <Popover
+                                                        active={showButtonTextColorPicker}
+                                                        activator={
+                                                            <div className="color-input-wrapper">
+                                                                <div
+                                                                    className="color-swatch"
+                                                                    style={{
+                                                                        backgroundColor: buttonTextColor,
+                                                                        border: '1px solid #DFDFDF',
+                                                                        borderRadius: '4px',
+                                                                        width: '20px',
+                                                                        height: '20px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => setShowButtonTextColorPicker(true)}
+                                                                />
+                                                                <input
+                                                                    className="color-input-type-color"
+                                                                    type="text"
+                                                                    value={buttonTextColor}
+                                                                    onChange={(e) => {
+                                                                        const newColor = e.target.value;
+                                                                        // Allow typing by always updating the input value
+                                                                        setButtonTextColor(newColor);
+                                                                        // Only update HSBA and apply color if it's a valid hex
+                                                                        if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                            setButtonTextColorHSBA(hexToHSBA(newColor));
+                                                                        }
+                                                                    }}
+                                                                    style={{ cursor: 'text' }}
+                                                                    placeholder="#FFFFFF"
+                                                                />
+                                                            </div>
+                                                        }
+                                                        onClose={() => setShowButtonTextColorPicker(false)}
+                                                        preferredPosition="below"
+                                                        preferredAlignment="left"
+                                                        fullWidth={false}
+                                                        sectioned={false}
                                                     >
-                                                        <input
-                                                            className='color-input-type-color'
-                                                            type="color"
-                                                            value={buttonTextColor}
-                                                            onChange={e => setButtonTextColor(e.target.value)}
-                                                            name="sticky_button_text_color"
+                                                        <ColorPicker
+                                                            onChange={(color) => {
+                                                                setButtonTextColorHSBA(color);
+                                                                setButtonTextColor(hsbaToHex(color));
+                                                            }}
+                                                            color={buttonTextColorHSBA}
+                                                            allowAlpha={false}
                                                         />
-                                                        <input
-                                                            className='color-input-type-text'
-                                                            type="text"
-                                                            value={buttonTextColor}
-                                                            onChange={e => setButtonTextColor(e.target.value)}
-                                                            name="sticky_button_text_color"
-                                                        />
-                                                    </div>
+                                                    </Popover>
                                                 </BlockStack>
                                             </Box>
                                             <Box>
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
-                                                    <div className='color-input-wrapper'>
-                                                        <input
-                                                            className='color-input-type-color'
-                                                            type="color"
-                                                            value={buttonBgColor}
-                                                            onChange={e => setButtonBgColor(e.target.value)}
-                                                            name="sticky_button_bg_color"
+                                                    <Popover
+                                                        active={showButtonBgColorPicker}
+                                                        activator={
+                                                            <div className="color-input-wrapper">
+                                                                <div
+                                                                    className="color-swatch"
+                                                                    style={{
+                                                                        backgroundColor: buttonBgColor,
+                                                                        border: '1px solid #DFDFDF',
+                                                                        borderRadius: '4px',
+                                                                        width: '20px',
+                                                                        height: '20px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => setShowButtonBgColorPicker(true)}
+                                                                />
+                                                                <input
+                                                                    className="color-input-type-color"
+                                                                    type="text"
+                                                                    value={buttonBgColor}
+                                                                    onChange={(e) => {
+                                                                        const newColor = e.target.value;
+                                                                        // Allow typing by always updating the input value
+                                                                        setButtonBgColor(newColor);
+                                                                        // Only update HSBA and apply color if it's a valid hex
+                                                                        if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                            setButtonBgColorHSBA(hexToHSBA(newColor));
+                                                                        }
+                                                                    }}
+                                                                    style={{ cursor: 'text' }}
+                                                                    placeholder="#141414"
+                                                                />
+                                                            </div>
+                                                        }
+                                                        onClose={() => setShowButtonBgColorPicker(false)}
+                                                        preferredPosition="below"
+                                                        preferredAlignment="left"
+                                                        fullWidth={false}
+                                                        sectioned={false}
+                                                    >
+                                                        <ColorPicker
+                                                            onChange={(color) => {
+                                                                setButtonBgColorHSBA(color);
+                                                                setButtonBgColor(hsbaToHex(color));
+                                                            }}
+                                                            color={buttonBgColorHSBA}
+                                                            allowAlpha={false}
                                                         />
-                                                        <input
-                                                            className='color-input-type-text'
-                                                            type="text"
-                                                            value={buttonBgColor}
-                                                            onChange={e => setButtonBgColor(e.target.value)}
-                                                            name="sticky_button_bg_color"
-                                                        />
-                                                    </div>
+                                                    </Popover>
                                                 </BlockStack>
                                             </Box>
                                             <Box background="bg-surface-secondary" padding="200" borderRadius="200">
@@ -1681,32 +1963,54 @@ export default function Customize() {
                                                 }}
                                             >
                                                 <button className="sy-sticky-add-to-cart-preview__quantity-button"
-                                                    onClick={handleQuantityDecrease}>
+                                                    onClick={handleQuantityDecrease}
+                                                    style={{
+                                                        color: quantityColor
+                                                    }}>
                                                     −
                                                 </button>
                                                 <span
                                                     className="sy-sticky-add-to-cart-preview__quantity-text"
+                                                    style={{
+                                                        color: quantityColor
+                                                    }}
                                                 >
                                                     {previewQuantity}
                                                 </span>
                                                 <button
                                                     className="sy-sticky-add-to-cart-preview__quantity-button"
-                                                    onClick={handleQuantityIncrease}>
+                                                    onClick={handleQuantityIncrease}
+                                                    style={{
+                                                        color: quantityColor
+                                                    }}>
                                                     +
                                                 </button>
                                             </div>
                                         )) :
                                         (quantityDisplay && (
-                                            <div className='sy-quantity-wrapper'>
+                                            <div className='sy-quantity-wrapper'
+                                                style={{
+                                                    border: `1px solid ${quantityBorderColor}`,
+                                                }}
+                                            >
                                                 <button className="sy-sticky-add-to-cart-preview__quantity-button"
-                                                    onClick={handleQuantityDecrease}>
+                                                    onClick={handleQuantityDecrease}
+                                                    style={{
+                                                        color: quantityColor
+                                                    }}>
                                                     −
                                                 </button>
-                                                <span className="sy-sticky-add-to-cart-preview__quantity-text">
+                                                <span className="sy-sticky-add-to-cart-preview__quantity-text"
+                                                    style={{
+                                                        color: quantityColor
+                                                    }}>
                                                     {previewQuantity}
                                                 </span>
                                                 <button className="sy-sticky-add-to-cart-preview__quantity-button"
-                                                    onClick={handleQuantityIncrease}>
+                                                    onClick={handleQuantityIncrease}
+                                                    style={{
+                                                        color: quantityColor
+                                                    }}>
                                                     +
                                                 </button>
                                             </div>
