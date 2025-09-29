@@ -1,0 +1,98 @@
+{% comment %}
+  Sticky Add to Cart App Embed
+  This will appear in the Apps tab of the theme customizer
+{% endcomment %}
+
+{% if template contains 'product' and product %}
+  {% assign current_product = product %}
+  {% assign current_variant = product.selected_or_first_available_variant %}
+
+  <div class="sfy-sb sticky-add-to-cart-block"
+       data-product-id="{{ current_product.id }}"
+       data-variant-id="{{ current_variant.id }}"
+       style="display: none;">
+    <div class="sfy-sb-container">
+      <div class="sfy-sb-content">
+        <div class="sfy-sb-image --sfy-medium">
+          <img src="{{ current_product.featured_image | image_url: width: 60, height: 60, crop: 'center' }}" 
+               alt="{{ current_product.title }}"
+               width="60"
+               height="60" />
+        </div>
+        <div class="sfy-sb-details">
+          <div class="sfy-sb-name">
+            <h2>{{ current_product.title }}</h2>
+          </div>
+          <div class="sfy-sb-price">
+            {% if current_variant.compare_at_price > current_variant.price %}
+              <span class="price-compare" style="text-decoration: line-through; margin-right: 8px;">{{ current_variant.compare_at_price | money }}</span>
+            {% endif %}
+            <span class="price">{{ current_variant.price | money }}</span>
+          </div>
+        </div>
+        <div class="sfy-sb-qty">
+          <button class="sfy-sb-qty-btn sfy-sb-qty-minus" type="button" aria-label="Decrease quantity">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <input type="number" 
+                 class="sfy-sb-qty-input" 
+                 value="1" 
+                 min="1" 
+                 max="99"
+                 aria-label="Quantity">
+          <button class="sfy-sb-qty-btn sfy-sb-qty-plus" type="button" aria-label="Increase quantity">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="sfy-sb-actions">
+          <button class="sfy-sb-add-to-cart-button" type="button">
+            <span class="sfy-sb-add-to-cart-text">
+              <span class="sfy-sb-add-to-cart-text__content">Add to cart</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load CSS -->
+  {{ 'sticky-bar.css' | asset_url | stylesheet_tag }}
+
+  <!-- Load JavaScript -->
+  <script src="{{ 'sticky-settings.js' | asset_url }}" defer></script>
+
+  <script>
+    // Initialize sticky bar when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait a bit for the settings to load
+      setTimeout(function() {
+        if (window.StickyBarSettings) {
+          window.StickyBarSettings.load().then(function() {
+            window.StickyBarSettings.applySettings();
+          });
+        }
+      }, 100);
+    });
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Sticky Add to Cart",
+  "target": "body",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Sticky Add to Cart Bar"
+    },
+    {
+      "type": "paragraph",
+      "content": "This app embed will show a sticky add to cart bar on product pages. Configure the appearance and behavior in the app settings."
+    }
+  ]
+}
+{% endschema %}

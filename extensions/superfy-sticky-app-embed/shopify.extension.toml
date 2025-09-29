@@ -1,0 +1,7 @@
+name = "superfy-sticky-app-embed"
+uid = "9e713be4-6c98-99f4-a550-d5a484ddd76adec11260"
+type = "theme"
+
+[app_proxy]
+url = "https://sticky-add-to-cart-develop.myshopify.com"
+subpath = "apps/proxy"

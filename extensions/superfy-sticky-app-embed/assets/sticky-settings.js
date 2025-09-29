@@ -1,7 +1,7 @@
 /**
  * Sticky Bar Settings Loader
  * Fetches settings from the app proxy and applies them to the sticky bar
- * Updated: Fixed binding error - v52
+ * Updated: App Embed Version - v53
  */
 
 class StickyBarSettings {
@@ -11,6 +11,11 @@ class StickyBarSettings {
         this.callbacks = [];
         this.proxyUrl = '/apps/proxy/settings';
         this.metafieldsUrl = '/apps/proxy/metafields';
+        this.stickyBar = null;
+        this.triggerTimer = null;
+        this.lastScrollPosition = 0;
+        this.isVisible = false;
+        this.triggerMet = false;
     }
 
     // Default settings fallback
@@ -236,7 +241,7 @@ class StickyBarSettings {
         const settings = this.getAll();
 
         // Log all trigger-related settings for debugging
-        console.log('🔧 STICKY BAR SETTINGS DEBUG:');
+        console.log('🔧 STICKY BAR SETTINGS DEBUG (App Embed):');
         console.log('📋 All Settings:', settings);
         console.log('🎯 Trigger Settings:');
         console.log('  - sticky_trigger:', this.get('sticky_trigger'));
@@ -570,4 +575,4 @@ window.addEventListener('resize', () => {
     if (window.StickyBarSettings.loaded) {
         window.StickyBarSettings.applySettings();
     }
-}); 
+});
