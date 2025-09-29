@@ -16,6 +16,7 @@ class StickyBarSettings {
         this.lastScrollPosition = 0;
         this.isVisible = false;
         this.triggerMet = false;
+        this.scrollThrottleTimer = null;
     }
 
     // Default settings fallback
@@ -266,22 +267,36 @@ class StickyBarSettings {
 
         console.log('✅ Sticky bar element found:', stickyBar);
 
-        // Apply visibility classes instead of JavaScript show/hide
-        stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile');
+        // Apply visibility classes only for non-scroll triggers
+        const trigger = this.get('sticky_trigger');
 
-        const visibility = this.get('sticky_visibility');
-        if (visibility === 'all') {
-            stickyBar.classList.add('sticky-visible-all');
-        } else if (visibility === 'desktop') {
-            stickyBar.classList.add('sticky-visible-desktop');
-        } else if (visibility === 'mobile') {
-            stickyBar.classList.add('sticky-visible-mobile');
+        if (trigger !== 'scroll-up') {
+            // Apply visibility classes for other triggers
+            stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile');
+
+            const visibility = this.get('sticky_visibility');
+            if (visibility === 'all') {
+                stickyBar.classList.add('sticky-visible-all');
+            } else if (visibility === 'desktop') {
+                stickyBar.classList.add('sticky-visible-desktop');
+            } else if (visibility === 'mobile') {
+                stickyBar.classList.add('sticky-visible-mobile');
+            }
+        } else {
+            // For scroll-up trigger, remove all visibility classes and control via JavaScript
+            stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile');
+            stickyBar.style.display = 'none'; // Ensure it starts hidden
         }
 
         const styles = this.getStyles();
 
         // Apply styles to the main sticky bar container
         Object.assign(stickyBar.style, styles);
+
+        // For scroll-up trigger, ensure display is controlled by JavaScript, not CSS
+        if (trigger === 'scroll-up') {
+            stickyBar.style.display = 'none';
+        }
 
         // Apply content display settings - updated for new CSS classes
         const imageElement = stickyBar.querySelector('.sfy-sb-image');
@@ -433,6 +448,12 @@ class StickyBarSettings {
         if (this.handleScrollSummary) window.removeEventListener('scroll', this.handleScrollSummary);
         if (this.handleScrollButton) window.removeEventListener('scroll', this.handleScrollButton);
 
+        // Clear throttle timer
+        if (this.scrollThrottleTimer) {
+            clearTimeout(this.scrollThrottleTimer);
+            this.scrollThrottleTimer = null;
+        }
+
         switch (trigger) {
             case 'always':
                 console.log('✅ Trigger: Always visible');
@@ -456,6 +477,8 @@ class StickyBarSettings {
 
             case 'scroll-up':
                 console.log('⬆️ Trigger: On scroll up');
+                // Initialize scroll position
+                this.lastScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
                 this.handleScrollUp = () => this.handleScrollUpMethod();
                 window.addEventListener('scroll', this.handleScrollUp);
                 break;
@@ -478,13 +501,7 @@ class StickyBarSettings {
                 window.addEventListener('scroll', this.handleScrollSummary);
         }
 
-        // Debug fallback - show after 5 seconds if nothing else triggers
-        setTimeout(() => {
-            if (!this.isVisible) {
-                console.log('🔧 Debug fallback: Showing sticky bar after 5 seconds');
-                this.showStickyBar();
-            }
-        }, 5000);
+        // No debug fallback - respect the trigger settings
     }
 
     // Show the sticky bar
@@ -492,7 +509,7 @@ class StickyBarSettings {
         const stickyBar = document.querySelector('.sticky-add-to-cart-block');
         if (stickyBar && !this.isVisible) {
             console.log('👁️ Showing sticky bar');
-            stickyBar.style.display = 'block';
+            stickyBar.style.display = 'flex';
             this.isVisible = true;
         }
     }
@@ -521,16 +538,35 @@ class StickyBarSettings {
 
     // Handle scroll up trigger
     handleScrollUpMethod() {
-        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-        if (currentScrollTop < this.lastScrollPosition && currentScrollTop > 100) {
-            console.log('⬆️ Scrolled up, showing sticky bar');
-            this.showStickyBar();
-        } else if (currentScrollTop > this.lastScrollPosition) {
-            this.hideStickyBar();
+        // Throttle scroll events for better performance
+        if (this.scrollThrottleTimer) {
+            return;
         }
 
-        this.lastScrollPosition = currentScrollTop;
+        this.scrollThrottleTimer = setTimeout(() => {
+            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollDifference = Math.abs(currentScrollTop - this.lastScrollPosition);
+
+            // Only process if there's a meaningful scroll difference (avoid tiny movements)
+            if (scrollDifference < 5) {
+                this.scrollThrottleTimer = null;
+                return;
+            }
+
+            // Show sticky bar when scrolling up and past a minimum threshold
+            if (currentScrollTop < this.lastScrollPosition && currentScrollTop > 200) {
+                console.log('⬆️ Scrolled up, showing sticky bar');
+                this.showStickyBar();
+            }
+            // Hide sticky bar when scrolling down (any amount)
+            else if (currentScrollTop > this.lastScrollPosition) {
+                console.log('⬇️ Scrolled down, hiding sticky bar');
+                this.hideStickyBar();
+            }
+
+            this.lastScrollPosition = currentScrollTop;
+            this.scrollThrottleTimer = null;
+        }, 16); // ~60fps throttling
     }
 
     // Handle scroll for product summary trigger
