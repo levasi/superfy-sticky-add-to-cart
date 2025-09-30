@@ -1,4 +1,4 @@
-import prisma from "../db.server";
+import prisma from "../db.server.js";
 
 export async function getSetting(key) {
     return prisma.setting.findUnique({ where: { key } });

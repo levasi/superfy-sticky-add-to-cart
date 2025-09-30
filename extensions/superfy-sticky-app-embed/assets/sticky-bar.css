@@ -2,6 +2,8 @@
 .sfy-sb {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     box-sizing: border-box;
+    display: none !important;
+    /* Start hidden by default */
 }
 
 .sfy-sb * {
@@ -186,6 +188,11 @@
 
 .sticky-visible-mobile {
     display: none !important;
+}
+
+/* Override default hidden state when explicitly shown */
+.sfy-sb.show {
+    display: flex !important;
 }
 
 @media (min-width: 769px) {

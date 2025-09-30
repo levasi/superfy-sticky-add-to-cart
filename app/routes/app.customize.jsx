@@ -82,6 +82,8 @@ export const loader = async ({ request }) => {
     const buttonBgColorSetting = await getSetting("sticky_button_bg_color");
     const customCssSetting = await getSetting("sticky_custom_css");
     const borderRadiusSetting = await getSetting("sticky_border_radius");
+    const triggerSecondsSetting = await getSetting("sticky_trigger_seconds");
+    const triggerPixelsSetting = await getSetting("sticky_trigger_pixels");
     return json({
         sticky_bar_color: barColorSetting?.value || '#fff',
         sticky_visibility: visibilitySetting?.value || 'all',
@@ -124,7 +126,9 @@ export const loader = async ({ request }) => {
         sticky_enable_mobile_cart_icon: enableMobileCartIconSetting?.value === 'true',
         sticky_button_text_color: buttonTextColorSetting?.value || '#FFFFFF',
         sticky_button_bg_color: buttonBgColorSetting?.value || '#141414',
-        sticky_custom_css: customCssSetting?.value || '<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>'
+        sticky_custom_css: customCssSetting?.value || '<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>',
+        sticky_trigger_seconds: triggerSecondsSetting?.value || '3',
+        sticky_trigger_pixels: triggerPixelsSetting?.value || '300'
     });
 };
 
@@ -149,11 +153,15 @@ export const action = async ({ request }) => {
         const generalSettings = {
             sticky_visibility: formData.get("sticky_visibility") || "all",
             sticky_trigger: formData.get("sticky_trigger") || "after-summary",
+            sticky_trigger_seconds: formData.get("sticky_trigger_seconds") || "3",
+            sticky_trigger_pixels: formData.get("sticky_trigger_pixels") || "300",
         };
 
         // Save to database
         await upsertSetting("sticky_visibility", generalSettings.sticky_visibility);
         await upsertSetting("sticky_trigger", generalSettings.sticky_trigger);
+        await upsertSetting("sticky_trigger_seconds", generalSettings.sticky_trigger_seconds);
+        await upsertSetting("sticky_trigger_pixels", generalSettings.sticky_trigger_pixels);
 
         // Save to metafields for backward compatibility
         await setShopMetafields(admin, shopId, generalSettings);
@@ -201,6 +209,8 @@ export default function Customize() {
     const [showButtonBgColorPicker, setShowButtonBgColorPicker] = useState(false);
     const [visibility, setVisibility] = useState(savedSettings.sticky_visibility);
     const [trigger, setTrigger] = useState(savedSettings.sticky_trigger);
+    const [triggerSeconds, setTriggerSeconds] = useState(parseInt(savedSettings.sticky_trigger_seconds) || 3);
+    const [triggerPixels, setTriggerPixels] = useState(parseInt(savedSettings.sticky_trigger_pixels) || 300);
     const [imageDisplay, setImageDisplay] = useState(savedSettings.sticky_content_display_image);
     const [titleDisplay, setTitleDisplay] = useState(savedSettings.sticky_content_display_title);
     const [priceDisplay, setPriceDisplay] = useState(savedSettings.sticky_content_display_price);
@@ -357,6 +367,8 @@ export default function Customize() {
         const currentSettings = {
             sticky_visibility: visibility,
             sticky_trigger: trigger,
+            sticky_trigger_seconds: triggerSeconds,
+            sticky_trigger_pixels: triggerPixels,
             sticky_content_display_image: imageDisplay,
             sticky_content_display_title: titleDisplay,
             sticky_content_display_price: priceDisplay,
@@ -401,6 +413,8 @@ export default function Customize() {
         const savedSettingsObj = {
             sticky_visibility: savedSettings.sticky_visibility,
             sticky_trigger: savedSettings.sticky_trigger,
+            sticky_trigger_seconds: parseInt(savedSettings.sticky_trigger_seconds) || 3,
+            sticky_trigger_pixels: parseInt(savedSettings.sticky_trigger_pixels) || 300,
             sticky_content_display_image: savedSettings.sticky_content_display_image,
             sticky_content_display_title: savedSettings.sticky_content_display_title,
             sticky_content_display_price: savedSettings.sticky_content_display_price,
@@ -451,7 +465,7 @@ export default function Customize() {
             hideSaveBar();
         }
     }, [
-        visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
+        visibility, trigger, triggerSeconds, triggerPixels, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
         mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay,
         barWidth, mobileBarWidth, mobileMaxWidth, mobileMaxWidthUnit, mobileAlignment,
         mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, maxWidth,
@@ -486,6 +500,8 @@ export default function Customize() {
         // Add all current settings to form data
         formData.append('sticky_visibility', visibility);
         formData.append('sticky_trigger', trigger);
+        formData.append('sticky_trigger_seconds', triggerSeconds);
+        formData.append('sticky_trigger_pixels', triggerPixels);
         formData.append('sticky_content_display_image', imageDisplay ? 'on' : 'off');
         formData.append('sticky_content_display_title', titleDisplay ? 'on' : 'off');
         formData.append('sticky_content_display_price', priceDisplay ? 'on' : 'off');
@@ -528,7 +544,7 @@ export default function Customize() {
 
         fetcher.submit(formData, { method: 'post' });
     }, [
-        visibility, trigger, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
+        visibility, trigger, triggerSeconds, triggerPixels, imageDisplay, titleDisplay, priceDisplay, quantityDisplay,
         mobileImageDisplay, mobileTitleDisplay, mobilePriceDisplay, mobileQuantityDisplay,
         barWidth, mobileBarWidth, mobileMaxWidth, mobileMaxWidthUnit, mobileAlignment,
         mobileOuterSpacing, mobileOuterSpacingUnit, mobileInnerSpacing, mobileInnerSpacingUnit, maxWidth,
@@ -547,6 +563,8 @@ export default function Customize() {
         // Reset all settings to saved values
         setVisibility(savedSettings.sticky_visibility);
         setTrigger(savedSettings.sticky_trigger);
+        setTriggerSeconds(parseInt(savedSettings.sticky_trigger_seconds) || 3);
+        setTriggerPixels(parseInt(savedSettings.sticky_trigger_pixels) || 300);
         setImageDisplay(savedSettings.sticky_content_display_image);
         setTitleDisplay(savedSettings.sticky_content_display_title);
         setPriceDisplay(savedSettings.sticky_content_display_price);
@@ -826,6 +844,32 @@ export default function Customize() {
                                                 selected={[trigger]}
                                                 onChange={([value]) => setTrigger(value)}
                                             />
+                                            {trigger === 'after-x-seconds' && (
+                                                <Box style={{ marginLeft: '24px', marginTop: '8px' }}>
+                                                    <TextField
+                                                        label="Seconds"
+                                                        type="number"
+                                                        value={triggerSeconds.toString()}
+                                                        onChange={(value) => setTriggerSeconds(parseInt(value) || 3)}
+                                                        min="1"
+                                                        max="60"
+                                                        suffix="seconds"
+                                                    />
+                                                </Box>
+                                            )}
+                                            {trigger === 'after-x-pixels' && (
+                                                <Box style={{ marginLeft: '24px', marginTop: '8px' }}>
+                                                    <TextField
+                                                        label="Pixels"
+                                                        type="number"
+                                                        value={triggerPixels.toString()}
+                                                        onChange={(value) => setTriggerPixels(parseInt(value) || 300)}
+                                                        min="50"
+                                                        max="2000"
+                                                        suffix="pixels"
+                                                    />
+                                                </Box>
+                                            )}
                                         </BlockStack>
                                     </Card>
                                 </BlockStack>

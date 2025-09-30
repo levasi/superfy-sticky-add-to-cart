@@ -2,6 +2,7 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
+    console.log('🚀 APP PROXY METAFIELDS ROUTE CALLED:', new Date().toISOString());
 
     try {
         // Try to authenticate the request
@@ -66,6 +67,8 @@ export const loader = async ({ request }) => {
             sticky_bar_color: settings.sticky_bar_color || '#fff',
             sticky_visibility: settings.sticky_visibility || 'all',
             sticky_trigger: settings.sticky_trigger || 'after-summary',
+            sticky_trigger_seconds: settings.sticky_trigger_seconds || '3',
+            sticky_trigger_pixels: settings.sticky_trigger_pixels || '300',
             sticky_bar_status: settings.sticky_bar_status || 'live',
             sticky_content_display_image: settings.sticky_content_display_image !== false,
             sticky_content_display_title: settings.sticky_content_display_title !== false,
@@ -106,6 +109,10 @@ export const loader = async ({ request }) => {
             sticky_button_bg_color: settings.sticky_button_bg_color || '#141414',
             sticky_custom_css: settings.sticky_custom_css || '',
         };
+
+        console.log('🔧 METAFIELDS ROUTE - Final cleanSettings:');
+        console.log('  - sticky_trigger_seconds final:', cleanSettings.sticky_trigger_seconds);
+        console.log('  - sticky_trigger_pixels final:', cleanSettings.sticky_trigger_pixels);
 
         // Return settings with CORS headers for storefront access
         return json(cleanSettings, {

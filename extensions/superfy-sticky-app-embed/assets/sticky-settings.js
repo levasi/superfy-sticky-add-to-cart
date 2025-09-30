@@ -1,7 +1,7 @@
 /**
  * Sticky Bar Settings Loader
  * Fetches settings from the app proxy and applies them to the sticky bar
- * Updated: App Embed Version - v53
+ * Updated: App Embed Version - v58
  */
 
 class StickyBarSettings {
@@ -25,6 +25,8 @@ class StickyBarSettings {
             sticky_bar_color: '#fff',
             sticky_visibility: 'all',
             sticky_trigger: 'after-summary',
+            sticky_trigger_seconds: '3',
+            sticky_trigger_pixels: '300',
             sticky_content_display_image: true,
             sticky_content_display_title: true,
             sticky_content_display_price: true,
@@ -208,13 +210,31 @@ class StickyBarSettings {
     // Load settings and apply them
     async load() {
         try {
+            // Check for embedded settings first (from Liquid template)
+            if (window.StickyBarEmbeddedSettings) {
+                console.log('🔧 Using embedded settings:', window.StickyBarEmbeddedSettings);
+                this.settings = window.StickyBarEmbeddedSettings;
+                this.loaded = true;
+                this.applySettings();
+
+                // Call all registered callbacks
+                this.callbacks.forEach(callback => callback(this.settings));
+                this.callbacks = [];
+                return;
+            }
+
             // Try to load from app proxy first
-            const response = await fetch(`${this.proxyUrl}?t=${Date.now()}`);
+            const url = `${this.proxyUrl}?t=${Date.now()}`;
+            console.log('🔗 Fetching from URL:', url);
+            const response = await fetch(url);
 
             if (response.ok) {
                 const data = await response.json();
+                console.log('🔗 App Proxy Response:', data);
+                console.log('🎯 App Proxy trigger_seconds:', data.sticky_trigger_seconds);
                 this.settings = data;
             } else {
+                console.log('❌ App Proxy failed, falling back to metafields');
                 // Fallback to metafields
                 await this.loadFromMetafields();
             }
@@ -246,6 +266,8 @@ class StickyBarSettings {
         console.log('📋 All Settings:', settings);
         console.log('🎯 Trigger Settings:');
         console.log('  - sticky_trigger:', this.get('sticky_trigger'));
+        console.log('  - sticky_trigger_seconds:', this.get('sticky_trigger_seconds'));
+        console.log('  - sticky_trigger_pixels:', this.get('sticky_trigger_pixels'));
         console.log('  - sticky_visibility:', this.get('sticky_visibility'));
         console.log('🌐 Page Info:');
         console.log('  - Current URL:', window.location.href);
@@ -267,26 +289,11 @@ class StickyBarSettings {
 
         console.log('✅ Sticky bar element found:', stickyBar);
 
-        // Apply visibility classes only for non-scroll triggers
+        // Remove all visibility classes initially - they will be applied when trigger conditions are met
         const trigger = this.get('sticky_trigger');
+        stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile', 'show');
 
-        if (trigger !== 'scroll-up') {
-            // Apply visibility classes for other triggers
-            stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile');
-
-            const visibility = this.get('sticky_visibility');
-            if (visibility === 'all') {
-                stickyBar.classList.add('sticky-visible-all');
-            } else if (visibility === 'desktop') {
-                stickyBar.classList.add('sticky-visible-desktop');
-            } else if (visibility === 'mobile') {
-                stickyBar.classList.add('sticky-visible-mobile');
-            }
-        } else {
-            // For scroll-up trigger, remove all visibility classes and control via JavaScript
-            stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile');
-            stickyBar.style.display = 'none'; // Ensure it starts hidden
-        }
+        // CSS handles the default hidden state with display: none !important
 
         const styles = this.getStyles();
 
@@ -457,6 +464,20 @@ class StickyBarSettings {
         switch (trigger) {
             case 'always':
                 console.log('✅ Trigger: Always visible');
+                // For 'always' trigger, apply visibility classes immediately
+                const stickyBar = document.querySelector('.sticky-add-to-cart-block');
+                if (stickyBar) {
+                    const visibility = this.get('sticky_visibility');
+                    stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile');
+
+                    if (visibility === 'all') {
+                        stickyBar.classList.add('sticky-visible-all');
+                    } else if (visibility === 'desktop') {
+                        stickyBar.classList.add('sticky-visible-desktop');
+                    } else if (visibility === 'mobile') {
+                        stickyBar.classList.add('sticky-visible-mobile');
+                    }
+                }
                 this.showStickyBar();
                 break;
 
@@ -509,7 +530,20 @@ class StickyBarSettings {
         const stickyBar = document.querySelector('.sticky-add-to-cart-block');
         if (stickyBar && !this.isVisible) {
             console.log('👁️ Showing sticky bar');
-            stickyBar.style.display = 'flex';
+
+            // Apply visibility classes when showing the bar
+            const visibility = this.get('sticky_visibility');
+            stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile');
+
+            if (visibility === 'all') {
+                stickyBar.classList.add('sticky-visible-all');
+            } else if (visibility === 'desktop') {
+                stickyBar.classList.add('sticky-visible-desktop');
+            } else if (visibility === 'mobile') {
+                stickyBar.classList.add('sticky-visible-mobile');
+            }
+
+            stickyBar.classList.add('show');
             this.isVisible = true;
         }
     }
@@ -519,7 +553,7 @@ class StickyBarSettings {
         const stickyBar = document.querySelector('.sticky-add-to-cart-block');
         if (stickyBar && this.isVisible) {
             console.log('🙈 Hiding sticky bar');
-            stickyBar.style.display = 'none';
+            stickyBar.classList.remove('show');
             this.isVisible = false;
         }
     }

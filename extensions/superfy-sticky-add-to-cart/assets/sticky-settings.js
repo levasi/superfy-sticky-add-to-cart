@@ -1,7 +1,7 @@
 /**
  * Sticky Bar Settings Loader
  * Fetches settings from the app proxy and applies them to the sticky bar
- * Updated: Fixed binding error - v52
+ * Updated: Added embedded settings support - v58
  */
 
 class StickyBarSettings {
@@ -202,6 +202,19 @@ class StickyBarSettings {
     // Load settings and apply them
     async load() {
         try {
+            // Check for embedded settings first (from Liquid template)
+            if (window.StickyBarEmbeddedSettings) {
+                console.log('🔧 Using embedded settings:', window.StickyBarEmbeddedSettings);
+                this.settings = window.StickyBarEmbeddedSettings;
+                this.loaded = true;
+                this.applySettings();
+
+                // Call all registered callbacks
+                this.callbacks.forEach(callback => callback(this.settings));
+                this.callbacks = [];
+                return;
+            }
+
             // Try to load from app proxy first
             const response = await fetch(`${this.proxyUrl}?t=${Date.now()}`);
 

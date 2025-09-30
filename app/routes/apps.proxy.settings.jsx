@@ -2,10 +2,13 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
+    console.log('🚀 APP PROXY SETTINGS ROUTE CALLED:', new Date().toISOString());
 
     try {
         // Try to authenticate the request using Shopify's app proxy authentication
+        console.log('🔧 Attempting app proxy authentication...');
         const { storefront, liquid } = await authenticate.public.appProxy(request);
+        console.log('🔧 App proxy authentication successful');
 
         // Get the shop from the request parameters (as per Shopify docs)
         const url = new URL(request.url);
@@ -28,6 +31,8 @@ export const loader = async ({ request }) => {
             sticky_bar_color: await getSetting("sticky_bar_color"),
             sticky_visibility: await getSetting("sticky_visibility"),
             sticky_trigger: await getSetting("sticky_trigger"),
+            sticky_trigger_seconds: await getSetting("sticky_trigger_seconds"),
+            sticky_trigger_pixels: await getSetting("sticky_trigger_pixels"),
             sticky_content_display_image: await getSetting("sticky_content_display_image"),
             sticky_content_display_title: await getSetting("sticky_content_display_title"),
             sticky_content_display_price: await getSetting("sticky_content_display_price"),
@@ -69,10 +74,16 @@ export const loader = async ({ request }) => {
         };
 
         // Convert to a clean settings object with default values
+        console.log('🔧 APP PROXY DEBUG - Raw settings from database:');
+        console.log('  - sticky_trigger_seconds raw:', settings.sticky_trigger_seconds);
+        console.log('  - sticky_trigger_pixels raw:', settings.sticky_trigger_pixels);
+
         const cleanSettings = {
             sticky_bar_color: settings.sticky_bar_color?.value || '#fff',
             sticky_visibility: settings.sticky_visibility?.value || 'all',
             sticky_trigger: settings.sticky_trigger?.value || 'after-summary',
+            sticky_trigger_seconds: settings.sticky_trigger_seconds?.value || '3',
+            sticky_trigger_pixels: settings.sticky_trigger_pixels?.value || '300',
             sticky_content_display_image: settings.sticky_content_display_image?.value === 'true',
             sticky_content_display_title: settings.sticky_content_display_title?.value === 'true',
             sticky_content_display_price: settings.sticky_content_display_price?.value === 'true',
@@ -113,6 +124,10 @@ export const loader = async ({ request }) => {
             sticky_custom_css: settings.sticky_custom_css?.value || '',
         };
 
+        console.log('🔧 APP PROXY DEBUG - Final cleanSettings:');
+        console.log('  - sticky_trigger_seconds final:', cleanSettings.sticky_trigger_seconds);
+        console.log('  - sticky_trigger_pixels final:', cleanSettings.sticky_trigger_pixels);
+
         // Return settings with CORS headers for storefront access
         return json(cleanSettings, {
             headers: {
@@ -128,6 +143,7 @@ export const loader = async ({ request }) => {
     } catch (authError) {
         console.error('=== APP PROXY AUTHENTICATION FAILED ===');
         console.error('Auth error:', authError);
+        console.error('Auth error stack:', authError.stack);
 
         // Fallback: Try to load settings without app proxy authentication
         // This might work if the store has password protection
@@ -150,6 +166,8 @@ export const loader = async ({ request }) => {
                 sticky_bar_color: await getSetting("sticky_bar_color"),
                 sticky_visibility: await getSetting("sticky_visibility"),
                 sticky_trigger: await getSetting("sticky_trigger"),
+                sticky_trigger_seconds: await getSetting("sticky_trigger_seconds"),
+                sticky_trigger_pixels: await getSetting("sticky_trigger_pixels"),
                 sticky_content_display_image: await getSetting("sticky_content_display_image"),
                 sticky_content_display_title: await getSetting("sticky_content_display_title"),
                 sticky_content_display_price: await getSetting("sticky_content_display_price"),
@@ -195,6 +213,8 @@ export const loader = async ({ request }) => {
                 sticky_bar_color: settings.sticky_bar_color?.value || '#fff',
                 sticky_visibility: settings.sticky_visibility?.value || 'all',
                 sticky_trigger: settings.sticky_trigger?.value || 'after-summary',
+                sticky_trigger_seconds: settings.sticky_trigger_seconds?.value || '3',
+                sticky_trigger_pixels: settings.sticky_trigger_pixels?.value || '300',
                 sticky_content_display_image: settings.sticky_content_display_image?.value === 'true',
                 sticky_content_display_title: settings.sticky_content_display_title?.value === 'true',
                 sticky_content_display_price: settings.sticky_content_display_price?.value === 'true',

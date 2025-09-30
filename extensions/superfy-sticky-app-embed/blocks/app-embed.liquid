@@ -3,6 +3,10 @@
   This will appear in the Apps tab of the theme customizer
 {% endcomment %}
 
+{% comment %} Get trigger settings from metafields {% endcomment %}
+{% assign sticky_trigger_seconds = shop.metafields.superfy_sticky.sticky_trigger_seconds | default: '3' %}
+{% assign sticky_trigger_pixels = shop.metafields.superfy_sticky.sticky_trigger_pixels | default: '300' %}
+
 {% if template contains 'product' and product %}
   {% assign current_product = product %}
   {% assign current_variant = product.selected_or_first_available_variant %}
@@ -58,6 +62,86 @@
       </div>
     </div>
   </div>
+
+  <!-- Embedded Settings (using app proxy) -->
+  <script>
+    // Fetch settings dynamically from app proxy
+    async function loadEmbeddedSettings() {
+      try {
+        console.log('🔧 Attempting to fetch settings from app proxy...');
+        const response = await fetch('/apps/proxy/settings?t=' + Date.now());
+        console.log('🔧 App proxy response status:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('🔧 Fetched settings from app proxy:', data);
+          console.log('🔧 Trigger seconds from app proxy:', data.sticky_trigger_seconds);
+          return data;
+        } else {
+          console.error('🔧 App proxy failed with status:', response.status);
+          const errorText = await response.text();
+          console.error('🔧 App proxy error response:', errorText);
+        }
+      } catch (error) {
+        console.error('🔧 Error fetching settings:', error);
+      }
+      
+      // Fallback to default settings
+      return {
+        sticky_bar_color: '#fff',
+        sticky_visibility: 'all',
+        sticky_trigger: 'after-x-seconds',
+        sticky_trigger_seconds: '3',
+        sticky_trigger_pixels: '300',
+        sticky_content_display_image: true,
+        sticky_content_display_title: true,
+        sticky_content_display_price: true,
+        sticky_content_display_quantity: true,
+        sticky_content_display_mobile_image: true,
+        sticky_content_display_mobile_title: true,
+        sticky_content_display_mobile_price: true,
+        sticky_content_display_mobile_quantity: true,
+        sticky_bar_width: 'contained',
+        sticky_bar_width_mobile: 'full',
+        sticky_max_width_mobile: '',
+        sticky_max_width_mobile_unit: 'px',
+        sticky_alignment_mobile: 'right',
+        sticky_outer_spacing_mobile: '',
+        sticky_outer_spacing_mobile_unit: 'px',
+        sticky_inner_spacing_mobile: '16',
+        sticky_max_width: '',
+        sticky_max_width_unit: 'px',
+        sticky_alignment: 'left',
+        sticky_outer_spacing: '',
+        sticky_outer_spacing_unit: 'px',
+        sticky_inner_spacing: '16',
+        sticky_inner_spacing_unit: 'px',
+        sticky_background_color: '#FFFFFF',
+        sticky_border_color: '#000000',
+        sticky_border_radius: '12',
+        sticky_product_name_color: '#141414',
+        sticky_image_size: 'medium',
+        sticky_image_size_mobile: 'medium',
+        sticky_quantity_color: '#141414',
+        sticky_quantity_border_color: '#DFDFDF',
+        sticky_button_behavior: 'add',
+        sticky_button_text: 'Add to cart',
+        sticky_enable_cart_icon: true,
+        sticky_enable_mobile_cart_icon: true,
+        sticky_button_text_color: '#FFFFFF',
+        sticky_button_bg_color: '#141414',
+        sticky_custom_css: '',
+        _timestamp: new Date().toISOString(),
+        _embedded: true
+      };
+    }
+
+    // Load settings and set them globally
+    loadEmbeddedSettings().then(settings => {
+      window.StickyBarEmbeddedSettings = settings;
+      console.log('🔧 Using dynamic embedded settings:', window.StickyBarEmbeddedSettings);
+    });
+  </script>
 
   <!-- Load CSS -->
   {{ 'sticky-bar.css' | asset_url | stylesheet_tag }}
