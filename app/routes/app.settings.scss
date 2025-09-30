@@ -1,0 +1,55 @@
+.settings-page {
+    .settings-header {
+        margin-bottom: 1rem;
+    }
+
+    .settings-section {
+        padding: 1rem;
+        border: 1px solid #e1e3e5;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: white;
+
+        &:hover {
+            background: #f6f6f7;
+            border-color: #c9cccf;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .section-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: #f6f6f7;
+        border-radius: 8px;
+        color: #5c5f62;
+    }
+
+    .section-content {
+        flex: 1;
+    }
+
+    .section-title {
+        font-weight: 500;
+        color: #202223;
+    }
+
+    .section-description {
+        color: #6d7175;
+    }
+
+    .arrow-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6d7175;
+    }
+}
