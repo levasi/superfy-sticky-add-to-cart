@@ -25,7 +25,7 @@ class StickyBarSettings {
             sticky_bar_color: '#fff',
             sticky_visibility: 'all',
             sticky_trigger: 'after-summary',
-            sticky_trigger_seconds: '3',
+            sticky_trigger_seconds: '0',
             sticky_trigger_pixels: '300',
             sticky_content_display_image: true,
             sticky_content_display_title: true,
@@ -482,11 +482,16 @@ class StickyBarSettings {
                 break;
 
             case 'after-x-seconds':
-                const seconds = parseInt(this.get('sticky_trigger_seconds')) || 3;
+                const seconds = parseInt(this.get('sticky_trigger_seconds')) || 0;
                 console.log(`⏱️ Trigger: After ${seconds} seconds`);
-                this.triggerTimer = setTimeout(() => {
+                if (seconds === 0) {
+                    // Show immediately if 0 seconds
                     this.showStickyBar();
-                }, seconds * 1000);
+                } else {
+                    this.triggerTimer = setTimeout(() => {
+                        this.showStickyBar();
+                    }, seconds * 1000);
+                }
                 break;
 
             case 'after-x-pixels':
