@@ -21,7 +21,7 @@ const shopify = shopifyApp({
   apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY || "",
   apiVersion: LATEST_API_VERSION,
   scopes: process.env.SCOPES?.split(","),
-  appUrl: process.env.SHOPIFY_APP_URL || "https://superfy-sticky-add-to-cart.fly.dev",
+  appUrl: process.env.SHOPIFY_APP_URL,
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
