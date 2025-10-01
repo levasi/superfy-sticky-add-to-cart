@@ -831,45 +831,125 @@ export default function Customize() {
                                             <Box style={{ marginBottom: '16px' }}>
                                                 <Text variant="headingSm" as="h3">Trigger</Text>
                                             </Box>
-                                            <ChoiceList
-                                                title="Display trigger"
-                                                choices={[
-                                                    { label: 'Always visible', value: 'always' },
-                                                    { label: 'On scroll up', value: 'scroll-up' },
-                                                    { label: 'After X seconds', value: 'after-x-seconds' },
-                                                    { label: 'After scrolling down X pixels', value: 'after-x-pixels' },
-                                                    { label: 'After product summary', value: 'after-summary' },
-                                                    { label: 'When add to cart button is out of view', value: 'out-of-view' },
-                                                ]}
-                                                selected={[trigger]}
-                                                onChange={([value]) => setTrigger(value)}
-                                            />
-                                            {trigger === 'after-x-seconds' && (
-                                                <Box style={{ marginLeft: '24px', marginTop: '8px' }}>
-                                                    <TextField
-                                                        label="Seconds"
-                                                        type="number"
-                                                        value={triggerSeconds.toString()}
-                                                        onChange={(value) => setTriggerSeconds(parseInt(value) || 3)}
-                                                        min="1"
-                                                        max="60"
-                                                        suffix="seconds"
-                                                    />
+                                            <BlockStack gap="200">
+                                                <Text variant="bodyMd" as="p" fontWeight="medium">Display trigger</Text>
+
+                                                {/* Always visible */}
+                                                <Box>
+                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                        <input
+                                                            type="radio"
+                                                            name="trigger"
+                                                            value="always"
+                                                            checked={trigger === 'always'}
+                                                            onChange={(e) => setTrigger(e.target.value)}
+                                                            style={{ marginRight: '8px' }}
+                                                        />
+                                                        <Text>Always visible</Text>
+                                                    </label>
                                                 </Box>
-                                            )}
-                                            {trigger === 'after-x-pixels' && (
-                                                <Box style={{ marginLeft: '24px', marginTop: '8px' }}>
-                                                    <TextField
-                                                        label="Pixels"
-                                                        type="number"
-                                                        value={triggerPixels.toString()}
-                                                        onChange={(value) => setTriggerPixels(parseInt(value) || 300)}
-                                                        min="50"
-                                                        max="2000"
-                                                        suffix="pixels"
-                                                    />
+
+                                                {/* On scroll up */}
+                                                <Box>
+                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                        <input
+                                                            type="radio"
+                                                            name="trigger"
+                                                            value="scroll-up"
+                                                            checked={trigger === 'scroll-up'}
+                                                            onChange={(e) => setTrigger(e.target.value)}
+                                                            style={{ marginRight: '8px' }}
+                                                        />
+                                                        <Text>On scroll up</Text>
+                                                    </label>
                                                 </Box>
-                                            )}
+
+                                                {/* After X seconds */}
+                                                <Box>
+                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                        <input
+                                                            type="radio"
+                                                            name="trigger"
+                                                            value="after-x-seconds"
+                                                            checked={trigger === 'after-x-seconds'}
+                                                            onChange={(e) => setTrigger(e.target.value)}
+                                                            style={{ marginRight: '8px' }}
+                                                        />
+                                                        <Text>After X seconds</Text>
+                                                    </label>
+                                                    {trigger === 'after-x-seconds' && (
+                                                        <Box style={{ marginLeft: '24px', marginTop: '8px' }}>
+                                                            <TextField
+                                                                label="Seconds"
+                                                                type="number"
+                                                                value={triggerSeconds.toString()}
+                                                                onChange={(value) => setTriggerSeconds(parseInt(value) || 3)}
+                                                                min="1"
+                                                                max="60"
+                                                                suffix="seconds"
+                                                            />
+                                                        </Box>
+                                                    )}
+                                                </Box>
+
+                                                {/* After X pixels */}
+                                                <Box>
+                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                        <input
+                                                            type="radio"
+                                                            name="trigger"
+                                                            value="after-x-pixels"
+                                                            checked={trigger === 'after-x-pixels'}
+                                                            onChange={(e) => setTrigger(e.target.value)}
+                                                            style={{ marginRight: '8px' }}
+                                                        />
+                                                        <Text>After scrolling down X pixels</Text>
+                                                    </label>
+                                                    {trigger === 'after-x-pixels' && (
+                                                        <Box style={{ marginLeft: '24px', marginTop: '8px' }}>
+                                                            <TextField
+                                                                label="Pixels"
+                                                                type="number"
+                                                                value={triggerPixels.toString()}
+                                                                onChange={(value) => setTriggerPixels(parseInt(value) || 300)}
+                                                                min="50"
+                                                                max="2000"
+                                                                suffix="pixels"
+                                                            />
+                                                        </Box>
+                                                    )}
+                                                </Box>
+
+                                                {/* After product summary */}
+                                                <Box>
+                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                        <input
+                                                            type="radio"
+                                                            name="trigger"
+                                                            value="after-summary"
+                                                            checked={trigger === 'after-summary'}
+                                                            onChange={(e) => setTrigger(e.target.value)}
+                                                            style={{ marginRight: '8px' }}
+                                                        />
+                                                        <Text>After product summary</Text>
+                                                    </label>
+                                                </Box>
+
+                                                {/* When add to cart button is out of view */}
+                                                <Box>
+                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                        <input
+                                                            type="radio"
+                                                            name="trigger"
+                                                            value="out-of-view"
+                                                            checked={trigger === 'out-of-view'}
+                                                            onChange={(e) => setTrigger(e.target.value)}
+                                                            style={{ marginRight: '8px' }}
+                                                        />
+                                                        <Text>When add to cart button is out of view</Text>
+                                                    </label>
+                                                </Box>
+                                            </BlockStack>
                                         </BlockStack>
                                     </Card>
                                 </BlockStack>
