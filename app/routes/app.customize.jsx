@@ -1248,7 +1248,7 @@ export default function Customize() {
                                                     <RangeSlider
                                                         label="Corner radius"
                                                         labelHidden
-                                                        value={parseInt(borderRadius) || 12}
+                                                        value={parseInt(borderRadius) ?? 12}
                                                         min={0}
                                                         max={24}
                                                         step={1}
@@ -1262,7 +1262,7 @@ export default function Customize() {
                                                             type="number"
                                                             min="0"
                                                             max="24"
-                                                            value={borderRadius || '12'}
+                                                            value={borderRadius ?? '12'}
                                                             onChange={e => setBorderRadius(e.target.value)}
                                                             name="sticky_border_radius"
                                                         />
