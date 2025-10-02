@@ -762,35 +762,261 @@ class StickyBarSettings {
         }
     }
 
-    // Buy now functionality - redirect to checkout
+    // Buy now functionality - matches Shopify standard behavior
     async buyNow(variantId, quantity) {
         try {
             console.log('💳 Buying now:', { variantId, quantity });
 
-            // First add to cart
+            // Show loading state
+            this.showBuyNowLoading();
+
+            // Prepare cart data with selling plans and properties
+            const cartData = await this.prepareCartDataForBuyNow(variantId, quantity);
+
+            // Add to cart first
             const response = await fetch('/cart/add.js', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({
-                    id: variantId,
-                    quantity: quantity
-                })
+                body: JSON.stringify(cartData)
             });
 
             if (response.ok) {
-                // Redirect to checkout
-                window.location.href = '/checkout';
+                const data = await response.json();
+                console.log('✅ Added to cart for buy now:', data);
+
+                // Get the checkout URL from the cart data
+                const checkoutUrl = await this.getCheckoutUrl();
+
+                if (checkoutUrl) {
+                    console.log('💳 Redirecting to checkout:', checkoutUrl);
+                    // Redirect to checkout
+                    window.location.href = checkoutUrl;
+                } else {
+                    // Fallback to standard checkout URL
+                    window.location.href = '/checkout';
+                }
             } else {
                 const errorData = await response.json();
                 console.error('❌ Buy now failed:', errorData);
-                this.showCartFeedback('Failed to proceed to checkout', 'error');
+
+                // Handle specific error cases
+                if (errorData.status === 422) {
+                    this.showCartFeedback(errorData.description || 'Unable to add item to cart', 'error');
+                } else {
+                    this.showCartFeedback('Failed to proceed to checkout', 'error');
+                }
             }
         } catch (error) {
             console.error('❌ Buy now error:', error);
             this.showCartFeedback('Failed to proceed to checkout', 'error');
+        } finally {
+            // Hide loading state
+            this.hideBuyNowLoading();
+        }
+    }
+
+    // Prepare cart data for buy now with selling plans and properties
+    async prepareCartDataForBuyNow(variantId, quantity) {
+        try {
+            console.log('💳 Preparing cart data for buy now...');
+
+            // Base cart item data
+            const cartItem = {
+                id: variantId,
+                quantity: quantity
+            };
+
+            // Check for selling plans (subscriptions)
+            const sellingPlanId = this.getSelectedSellingPlan();
+            if (sellingPlanId) {
+                cartItem.selling_plan = sellingPlanId;
+                console.log('💳 Using selling plan:', sellingPlanId);
+            }
+
+            // Check for product properties
+            const properties = this.getProductProperties();
+            if (properties && Object.keys(properties).length > 0) {
+                cartItem.properties = properties;
+                console.log('💳 Using product properties:', properties);
+            }
+
+            // Check for product form data
+            const formData = this.getProductFormData();
+            if (formData) {
+                // Merge form data with existing properties
+                if (cartItem.properties) {
+                    cartItem.properties = { ...cartItem.properties, ...formData };
+                } else {
+                    cartItem.properties = formData;
+                }
+                console.log('💳 Using form data:', formData);
+            }
+
+            console.log('💳 Final cart data:', cartItem);
+            return cartItem;
+
+        } catch (error) {
+            console.error('❌ Failed to prepare cart data:', error);
+            // Return basic cart item as fallback
+            return {
+                id: variantId,
+                quantity: quantity
+            };
+        }
+    }
+
+    // Get selected selling plan (subscription)
+    getSelectedSellingPlan() {
+        try {
+            // Look for selling plan selectors
+            const sellingPlanSelectors = [
+                'input[name="selling_plan"]:checked',
+                'input[name="selling-plan"]:checked',
+                'input[name="sellingPlan"]:checked',
+                'select[name="selling_plan"]',
+                'select[name="selling-plan"]',
+                'select[name="sellingPlan"]',
+                '[data-selling-plan]:checked',
+                '[data-selling-plan-id]:checked'
+            ];
+
+            for (const selector of sellingPlanSelectors) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    const sellingPlanId = element.value || element.dataset.sellingPlan || element.dataset.sellingPlanId;
+                    if (sellingPlanId && sellingPlanId !== '') {
+                        console.log('💳 Found selling plan:', sellingPlanId);
+                        return sellingPlanId;
+                    }
+                }
+            }
+
+            console.log('💳 No selling plan selected');
+            return null;
+        } catch (error) {
+            console.error('❌ Failed to get selling plan:', error);
+            return null;
+        }
+    }
+
+    // Get product properties from form
+    getProductProperties() {
+        try {
+            const properties = {};
+
+            // Look for property inputs
+            const propertySelectors = [
+                'input[name^="properties["]',
+                'select[name^="properties["]',
+                'textarea[name^="properties["]'
+            ];
+
+            for (const selector of propertySelectors) {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(element => {
+                    const name = element.name;
+                    const value = element.value;
+
+                    if (name && value) {
+                        // Extract property name from properties[property_name]
+                        const match = name.match(/properties\[([^\]]+)\]/);
+                        if (match) {
+                            const propertyName = match[1];
+                            properties[propertyName] = value;
+                        }
+                    }
+                });
+            }
+
+            console.log('💳 Found product properties:', properties);
+            return properties;
+        } catch (error) {
+            console.error('❌ Failed to get product properties:', error);
+            return {};
+        }
+    }
+
+    // Get product form data
+    getProductFormData() {
+        try {
+            const formData = {};
+
+            // Look for product form
+            const productForm = document.querySelector('form[action*="/cart/add"], form[action*="/cart"]');
+            if (productForm) {
+                const formDataObj = new FormData(productForm);
+
+                // Convert FormData to object
+                for (const [key, value] of formDataObj.entries()) {
+                    if (key.startsWith('properties[') && value) {
+                        const match = key.match(/properties\[([^\]]+)\]/);
+                        if (match) {
+                            const propertyName = match[1];
+                            formData[propertyName] = value;
+                        }
+                    }
+                }
+            }
+
+            console.log('💳 Found form data:', formData);
+            return formData;
+        } catch (error) {
+            console.error('❌ Failed to get form data:', error);
+            return {};
+        }
+    }
+
+    // Get checkout URL from cart data
+    async getCheckoutUrl() {
+        try {
+            const response = await fetch('/cart.js');
+            if (response.ok) {
+                const cartData = await response.json();
+                return cartData.checkout_url || '/checkout';
+            }
+        } catch (error) {
+            console.log('❌ Failed to get checkout URL:', error);
+        }
+        return '/checkout';
+    }
+
+    // Show loading state for buy now
+    showBuyNowLoading() {
+        // Find the buy now button
+        const buyNowButton = document.querySelector('.sfy-sb .sfy-sb__btn[data-behavior="buy"]');
+        if (buyNowButton) {
+            // Store original text
+            buyNowButton.dataset.originalText = buyNowButton.textContent;
+
+            // Show loading state
+            buyNowButton.textContent = 'Processing...';
+            buyNowButton.disabled = true;
+            buyNowButton.style.opacity = '0.7';
+            buyNowButton.style.cursor = 'not-allowed';
+
+            console.log('💳 Buy now loading state shown');
+        }
+    }
+
+    // Hide loading state for buy now
+    hideBuyNowLoading() {
+        // Find the buy now button
+        const buyNowButton = document.querySelector('.sfy-sb .sfy-sb__btn[data-behavior="buy"]');
+        if (buyNowButton) {
+            // Restore original text
+            if (buyNowButton.dataset.originalText) {
+                buyNowButton.textContent = buyNowButton.dataset.originalText;
+            }
+
+            // Restore button state
+            buyNowButton.disabled = false;
+            buyNowButton.style.opacity = '';
+            buyNowButton.style.cursor = '';
+
+            console.log('💳 Buy now loading state hidden');
         }
     }
 
