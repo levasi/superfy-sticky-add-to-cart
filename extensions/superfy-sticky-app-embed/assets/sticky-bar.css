@@ -4,6 +4,14 @@
     box-sizing: border-box;
     display: none !important;
     /* Start hidden by default */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .sfy-sb * {
@@ -236,5 +244,11 @@
         width: 40px;
         height: 28px;
         font-size: 13px;
+    }
+
+    /* Ensure sticky bar doesn't interfere with mobile cart drawer */
+    .sfy-sb {
+        z-index: 1000;
+        /* Keep below cart drawer on mobile too */
     }
 }
