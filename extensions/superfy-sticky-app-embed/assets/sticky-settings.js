@@ -4,6 +4,7 @@
  * Updated: App Embed Version - v58
  */
 
+
 class StickyBarSettings {
     constructor() {
         this.settings = null;
@@ -749,7 +750,7 @@ class StickyBarSettings {
         }
     }
 
-    // Add to cart functionality - ultra minimal approach
+    // Add to cart functionality using cart.js methods
     async addToCart(variantId, quantity) {
         try {
             console.log('🛒 Adding to cart:', { variantId, quantity });
@@ -767,6 +768,7 @@ class StickyBarSettings {
                 return;
             }
 
+            // Use cart.js approach for adding to cart
             const response = await fetch('/cart/add.js', {
                 method: 'POST',
                 headers: {
@@ -775,18 +777,22 @@ class StickyBarSettings {
                 },
                 body: JSON.stringify({
                     id: variantId,
-                    quantity: quantity
+                    quantity: quantity,
+                    sections: this.getSectionsToRender().map((section) => section.section),
+                    sections_url: window.location.pathname
                 })
             });
 
             console.log('🛒 Response status:', response.status);
-            console.log('🛒 Response headers:', response.headers);
 
             if (response.ok) {
                 const data = await response.json();
                 console.log('✅ Added to cart successfully:', data);
 
-                // Open cart drawer using multiple methods
+                // Update cart using cart.js methods
+                await this.updateCartWithCartJs(data);
+
+                // Open cart drawer
                 this.openCartDrawer();
 
             } else {
@@ -797,6 +803,156 @@ class StickyBarSettings {
         } catch (error) {
             console.error('❌ Add to cart error:', error);
             this.showCartFeedback('Failed to add to cart', 'error');
+        }
+    }
+
+    // Get sections to render (from cart.js)
+    getSectionsToRender() {
+        return [
+            {
+                id: 'main-cart-items',
+                section: document.getElementById('main-cart-items')?.dataset.id || 'main-cart-items',
+                selector: '.js-contents'
+            },
+            {
+                id: 'cart-icon-bubble',
+                section: 'cart-icon-bubble',
+                selector: '.shopify-section'
+            },
+            {
+                id: 'cart-live-region-text',
+                section: 'cart-live-region-text',
+                selector: '.shopify-section'
+            },
+            {
+                id: 'main-cart-footer',
+                section: document.getElementById('main-cart-footer')?.dataset.id || 'main-cart-footer',
+                selector: '.js-contents'
+            }
+        ];
+    }
+
+    // Update cart using cart.js methods
+    async updateCartWithCartJs(data) {
+        try {
+            console.log('🔄 Updating cart using cart.js methods:', data);
+
+            // Update cart state classes
+            this.updateCartStateClasses(data);
+
+            // Update sections using cart.js approach
+            this.getSectionsToRender().forEach((section => {
+                const elementToReplace =
+                    document.getElementById(section.id)?.querySelector(section.selector) || document.getElementById(section.id);
+                if (elementToReplace && data.sections[section.section]) {
+                    elementToReplace.innerHTML = this.getSectionInnerHTML(data.sections[section.section], section.selector);
+                }
+            }));
+
+            // Publish cart update event (from cart.js)
+            if (window.publish && window.PUB_SUB_EVENTS) {
+                window.publish(window.PUB_SUB_EVENTS.cartUpdate, { source: 'sticky-bar' });
+            }
+
+            console.log('✅ Cart updated using cart.js methods');
+
+        } catch (error) {
+            console.error('❌ Failed to update cart with cart.js methods:', error);
+        }
+    }
+
+    // Update cart state classes (from cart.js)
+    updateCartStateClasses(data) {
+        try {
+            // Update cart items empty state
+            const cartItems = document.querySelector('cart-items');
+            if (cartItems) {
+                cartItems.classList.toggle('is-empty', data.item_count === 0);
+            }
+
+            // Update cart drawer empty state
+            const cartDrawerWrapper = document.querySelector('cart-drawer');
+            if (cartDrawerWrapper) {
+                cartDrawerWrapper.classList.toggle('is-empty', data.item_count === 0);
+            }
+
+            // Update cart footer empty state
+            const cartFooter = document.getElementById('main-cart-footer');
+            if (cartFooter) {
+                cartFooter.classList.toggle('is-empty', data.item_count === 0);
+            }
+
+        } catch (error) {
+            console.error('❌ Failed to update cart state classes:', error);
+        }
+    }
+
+    // Get section inner HTML (from cart.js)
+    getSectionInnerHTML(html, selector) {
+        try {
+            return new DOMParser()
+                .parseFromString(html, 'text/html')
+                .querySelector(selector).innerHTML;
+        } catch (error) {
+            console.error('❌ Failed to get section inner HTML:', error);
+            return '';
+        }
+    }
+
+    // Update cart quantity using cart.js approach
+    async updateCartQuantity(line, quantity) {
+        try {
+            console.log('🔄 Updating cart quantity using cart.js:', { line, quantity });
+
+            const body = JSON.stringify({
+                line,
+                quantity,
+                sections: this.getSectionsToRender().map((section) => section.section),
+                sections_url: window.location.pathname
+            });
+
+            const response = await fetch('/cart/change.js', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: body
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Cart quantity updated:', data);
+
+                if (data.errors) {
+                    console.error('❌ Cart update errors:', data.errors);
+                    return;
+                }
+
+                // Update cart using cart.js methods
+                await this.updateCartWithCartJs(data);
+
+                return data;
+            } else {
+                const errorText = await response.text();
+                console.error('❌ Failed to update cart quantity:', response.status, errorText);
+                throw new Error('Failed to update cart quantity');
+            }
+        } catch (error) {
+            console.error('❌ Cart quantity update error:', error);
+            throw error;
+        }
+    }
+
+    // Remove item from cart using cart.js approach
+    async removeFromCart(line) {
+        try {
+            console.log('🗑️ Removing item from cart using cart.js:', { line });
+
+            return await this.updateCartQuantity(line, 0);
+        } catch (error) {
+            console.error('❌ Remove from cart error:', error);
+            throw error;
         }
     }
 
@@ -886,19 +1042,29 @@ class StickyBarSettings {
             // Prepare cart data with selling plans and properties
             const cartData = await this.prepareCartDataForBuyNow(variantId, quantity);
 
-            // Add to cart first
-            const response = await fetch('/cart/add', {
+            // Add to cart first using cart.js approach
+            const response = await fetch('/cart/add.js', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: this.createFormData(cartData)
+                body: JSON.stringify({
+                    ...cartData,
+                    sections: this.getSectionsToRender().map((section) => section.section),
+                    sections_url: window.location.pathname
+                })
             });
 
             if (response.ok) {
                 const data = await response.json();
                 console.log('✅ Added to cart for buy now:', data);
+
+                // Update cart using cart.js methods (optional for buy now)
+                if (data.sections) {
+                    console.log('🔄 Updating cart with cart.js methods for buy now');
+                    await this.updateCartWithCartJs(data);
+                }
 
                 // Get the checkout URL from the cart data
                 const checkoutUrl = await this.getCheckoutUrl();
