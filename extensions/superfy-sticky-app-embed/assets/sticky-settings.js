@@ -849,6 +849,12 @@ class StickyBarSettings {
                 }
             }));
 
+            // Update cart drawer content
+            await this.updateCartDrawerContent();
+
+            // Trigger cart drawer's own update mechanism
+            this.triggerCartDrawerUpdate();
+
             // Publish cart update event (from cart.js)
             if (window.publish && window.PUB_SUB_EVENTS) {
                 window.publish(window.PUB_SUB_EVENTS.cartUpdate, { source: 'sticky-bar' });
@@ -858,6 +864,85 @@ class StickyBarSettings {
 
         } catch (error) {
             console.error('❌ Failed to update cart with cart.js methods:', error);
+        }
+    }
+
+    // Update cart drawer content to reflect current cart state
+    async updateCartDrawerContent() {
+        try {
+            console.log('🔄 Updating cart drawer content...');
+
+            const cartDrawer = document.querySelector('cart-drawer');
+            if (!cartDrawer) {
+                console.log('⚠️ No cart drawer found');
+                return;
+            }
+
+            // Fetch fresh cart drawer content
+            const response = await fetch('/?section_id=cart-drawer');
+            if (response.ok) {
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newCartDrawer = doc.querySelector('cart-drawer');
+
+                if (newCartDrawer) {
+                    console.log('🔄 Replacing cart drawer content');
+                    cartDrawer.innerHTML = newCartDrawer.innerHTML;
+                    console.log('✅ Cart drawer content updated');
+                }
+            } else {
+                console.log('⚠️ Failed to fetch cart drawer content');
+            }
+        } catch (error) {
+            console.error('❌ Failed to update cart drawer content:', error);
+        }
+    }
+
+    // Trigger cart drawer's own update mechanism
+    triggerCartDrawerUpdate() {
+        try {
+            console.log('🔄 Triggering cart drawer update...');
+
+            const cartDrawer = document.querySelector('cart-drawer');
+            if (!cartDrawer) {
+                console.log('⚠️ No cart drawer found for update trigger');
+                return;
+            }
+
+            // Try to call cart drawer's update method if it exists
+            if (typeof cartDrawer.update === 'function') {
+                console.log('🔄 Calling cartDrawer.update()');
+                cartDrawer.update();
+            }
+
+            // Try to call cart drawer's refresh method if it exists
+            if (typeof cartDrawer.refresh === 'function') {
+                console.log('🔄 Calling cartDrawer.refresh()');
+                cartDrawer.refresh();
+            }
+
+            // Dispatch cart drawer specific events
+            cartDrawer.dispatchEvent(new CustomEvent('cart:refresh', {
+                bubbles: true,
+                detail: { source: 'sticky-bar' }
+            }));
+
+            cartDrawer.dispatchEvent(new CustomEvent('cart:updated', {
+                bubbles: true,
+                detail: { source: 'sticky-bar' }
+            }));
+
+            // Try to trigger cart-items update if it exists
+            const cartItems = cartDrawer.querySelector('cart-items');
+            if (cartItems && typeof cartItems.onCartUpdate === 'function') {
+                console.log('🔄 Calling cartItems.onCartUpdate()');
+                cartItems.onCartUpdate();
+            }
+
+            console.log('✅ Cart drawer update triggered');
+        } catch (error) {
+            console.error('❌ Failed to trigger cart drawer update:', error);
         }
     }
 
