@@ -174,7 +174,7 @@ class StickyBarSettings {
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             position: 'fixed',
             bottom: '20px',
-            zIndex: 1000,
+            zIndex: 999,
             display: 'flex',
             alignItems: 'center',
             gap: '12px'
