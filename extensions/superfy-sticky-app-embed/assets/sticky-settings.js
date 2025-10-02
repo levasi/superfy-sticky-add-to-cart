@@ -354,6 +354,9 @@ class StickyBarSettings {
             button.style.backgroundColor = settings.sticky_button_bg_color;
             button.style.color = settings.sticky_button_text_color;
 
+            // Add click event listener for button behavior
+            this.setupButtonClickHandler(button, settings);
+
             // Add cart icon if enabled
             const isMobile = window.innerWidth <= 768;
             const shouldShowCartIcon = isMobile ?
@@ -434,6 +437,9 @@ class StickyBarSettings {
                 console.error('Error applying custom CSS:', error);
             }
         }
+
+        // Initialize quantity controls
+        this.initializeQuantityControls();
 
         // Initialize trigger logic
         this.initializeTrigger();
@@ -626,6 +632,1877 @@ class StickyBarSettings {
                 this.triggerMet = true;
                 this.showStickyBar();
             }
+        }
+    }
+
+    // Initialize quantity controls
+    initializeQuantityControls() {
+        const stickyBar = document.querySelector('.sticky-add-to-cart-block');
+        if (!stickyBar) return;
+
+        const quantityInput = stickyBar.querySelector('.sfy-sb-qty-input');
+        const minusButton = stickyBar.querySelector('.sfy-sb-qty-minus');
+        const plusButton = stickyBar.querySelector('.sfy-sb-qty-plus');
+
+        if (quantityInput && minusButton && plusButton) {
+            // Remove existing event listeners
+            minusButton.removeEventListener('click', this.handleQuantityMinus);
+            plusButton.removeEventListener('click', this.handleQuantityPlus);
+            quantityInput.removeEventListener('change', this.handleQuantityChange);
+
+            // Add new event listeners
+            this.handleQuantityMinus = () => {
+                const currentValue = parseInt(quantityInput.value) || 1;
+                const newValue = Math.max(1, currentValue - 1);
+                quantityInput.value = newValue;
+            };
+
+            this.handleQuantityPlus = () => {
+                const currentValue = parseInt(quantityInput.value) || 1;
+                const newValue = Math.min(99, currentValue + 1);
+                quantityInput.value = newValue;
+            };
+
+            this.handleQuantityChange = () => {
+                const value = parseInt(quantityInput.value) || 1;
+                const clampedValue = Math.max(1, Math.min(99, value));
+                if (clampedValue !== value) {
+                    quantityInput.value = clampedValue;
+                }
+            };
+
+            minusButton.addEventListener('click', this.handleQuantityMinus);
+            plusButton.addEventListener('click', this.handleQuantityPlus);
+            quantityInput.addEventListener('change', this.handleQuantityChange);
+        }
+    }
+
+    // Setup button click handler based on behavior setting
+    setupButtonClickHandler(button, settings) {
+        // Remove any existing click handlers
+        button.removeEventListener('click', this.handleButtonClick);
+
+        // Add new click handler
+        this.handleButtonClick = (event) => {
+            event.preventDefault();
+            this.handleButtonAction(settings);
+        };
+
+        button.addEventListener('click', this.handleButtonClick);
+    }
+
+    // Handle button action based on behavior setting
+    async handleButtonAction(settings) {
+        const behavior = settings.sticky_button_behavior || 'add';
+        const stickyBar = document.querySelector('.sticky-add-to-cart-block');
+
+        if (!stickyBar) {
+            console.error('❌ Sticky bar not found');
+            return;
+        }
+
+        const productId = stickyBar.dataset.productId;
+        const variantId = stickyBar.dataset.variantId;
+        const quantityInput = stickyBar.querySelector('.sfy-sb-qty-input');
+        const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+
+        console.log('🛒 Button clicked:', { behavior, productId, variantId, quantity });
+
+        switch (behavior) {
+            case 'add':
+                await this.addToCart(variantId, quantity);
+                break;
+            case 'buy':
+                await this.buyNow(variantId, quantity);
+                break;
+            case 'custom':
+                // Custom action - leave for later implementation
+                console.log('🔧 Custom action not implemented yet');
+                break;
+            default:
+                await this.addToCart(variantId, quantity);
+        }
+    }
+
+    // Add to cart functionality - mimics default Shopify behavior with bundled section rendering
+    async addToCart(variantId, quantity) {
+        try {
+            console.log('🛒 Adding to cart:', { variantId, quantity });
+
+            const response = await fetch('/cart/add.js', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    id: variantId,
+                    quantity: quantity,
+                    // Request cart drawer sections to be rendered with the cart update
+                    sections: 'cart-drawer,cart-icon-bubble,cart-live-region-text',
+                    sections_url: window.location.pathname
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Added to cart successfully:', data);
+
+                // Use bundled section rendering to update cart drawer
+                await this.updateCartDrawerWithSections(data);
+
+            } else {
+                const errorData = await response.json();
+                console.error('❌ Add to cart failed:', errorData);
+                this.showCartFeedback('Failed to add to cart', 'error');
+            }
+        } catch (error) {
+            console.error('❌ Add to cart error:', error);
+            this.showCartFeedback('Failed to add to cart', 'error');
+        }
+    }
+
+    // Buy now functionality - redirect to checkout
+    async buyNow(variantId, quantity) {
+        try {
+            console.log('💳 Buying now:', { variantId, quantity });
+
+            // First add to cart
+            const response = await fetch('/cart/add.js', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    id: variantId,
+                    quantity: quantity
+                })
+            });
+
+            if (response.ok) {
+                // Redirect to checkout
+                window.location.href = '/checkout';
+            } else {
+                const errorData = await response.json();
+                console.error('❌ Buy now failed:', errorData);
+                this.showCartFeedback('Failed to proceed to checkout', 'error');
+            }
+        } catch (error) {
+            console.error('❌ Buy now error:', error);
+            this.showCartFeedback('Failed to proceed to checkout', 'error');
+        }
+    }
+
+    // Show feedback message to user
+    showCartFeedback(message, type = 'success') {
+        // Remove any existing feedback
+        const existingFeedback = document.querySelector('.sfy-cart-feedback');
+        if (existingFeedback) {
+            existingFeedback.remove();
+        }
+
+        // Create feedback element
+        const feedback = document.createElement('div');
+        feedback.className = `sfy-cart-feedback sfy-cart-feedback--${type}`;
+        feedback.textContent = message;
+
+        // Style the feedback
+        Object.assign(feedback.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+            zIndex: '10000',
+            backgroundColor: type === 'success' ? '#28a745' : '#dc3545',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            transform: 'translateX(100%)',
+            transition: 'transform 0.3s ease'
+        });
+
+        document.body.appendChild(feedback);
+
+        // Animate in
+        setTimeout(() => {
+            feedback.style.transform = 'translateX(0)';
+        }, 100);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            feedback.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (feedback.parentNode) {
+                    feedback.parentNode.removeChild(feedback);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // Trigger cart update events for theme compatibility
+    triggerCartUpdate() {
+        // Dispatch custom events that themes might be listening for
+        const cartUpdateEvent = new CustomEvent('cart:updated', {
+            detail: { source: 'sticky-bar' }
+        });
+        document.dispatchEvent(cartUpdateEvent);
+
+        // Also trigger the standard Shopify cart events
+        const shopifyCartEvent = new CustomEvent('cart:build', {
+            detail: { source: 'sticky-bar' }
+        });
+        document.dispatchEvent(shopifyCartEvent);
+    }
+
+    // Open cart drawer like default Shopify behavior
+    openCartDrawer() {
+        console.log('🛒 Attempting to open cart drawer...');
+
+        // Try multiple methods to open the cart drawer
+        const methods = [
+            // Method 1: Look for cart drawer toggle buttons
+            () => {
+                const cartToggleButtons = document.querySelectorAll(
+                    '[data-cart-drawer-toggle], .cart-drawer-toggle, .cart-toggle, [data-cart-toggle], .js-cart-drawer-toggle, .cart-drawer__toggle'
+                );
+                if (cartToggleButtons.length > 0) {
+                    console.log('🛒 Found cart toggle button, clicking...');
+                    cartToggleButtons[0].click();
+                    return true;
+                }
+                return false;
+            },
+
+            // Method 2: Look for cart icon/link
+            () => {
+                const cartLinks = document.querySelectorAll(
+                    'a[href*="/cart"], .cart-link, .cart-icon, [data-cart-link], .header__cart, .site-header__cart'
+                );
+                if (cartLinks.length > 0) {
+                    console.log('🛒 Found cart link, clicking...');
+                    cartLinks[0].click();
+                    return true;
+                }
+                return false;
+            },
+
+            // Method 3: Trigger cart drawer events
+            () => {
+                console.log('🛒 Triggering cart drawer events...');
+                const cartDrawerEvent = new CustomEvent('cart:open', {
+                    detail: { source: 'sticky-bar' }
+                });
+                document.dispatchEvent(cartDrawerEvent);
+
+                // Also try common theme events
+                const themeEvents = ['cart:open', 'cart:show', 'drawer:open', 'cart-drawer:open'];
+                themeEvents.forEach(eventName => {
+                    document.dispatchEvent(new CustomEvent(eventName, {
+                        detail: { source: 'sticky-bar' }
+                    }));
+                });
+                return true;
+            },
+
+            // Method 4: Look for Shopify's native cart drawer
+            () => {
+                const shopifyCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer');
+                if (shopifyCartDrawer) {
+                    console.log('🛒 Found Shopify cart drawer, opening...');
+                    // Try to trigger the open method
+                    if (typeof shopifyCartDrawer.open === 'function') {
+                        shopifyCartDrawer.open();
+                        return true;
+                    }
+                    // Try to add open class
+                    shopifyCartDrawer.classList.add('open', 'active', 'is-open');
+                    return true;
+                }
+                return false;
+            },
+
+            // Method 5: Look for cart modal/overlay
+            () => {
+                const cartModal = document.querySelector('.cart-modal, .cart-overlay, [data-cart-modal]');
+                if (cartModal) {
+                    console.log('🛒 Found cart modal, opening...');
+                    cartModal.style.display = 'block';
+                    cartModal.classList.add('open', 'active', 'is-open');
+                    return true;
+                }
+                return false;
+            }
+        ];
+
+        // Try each method until one succeeds
+        for (let i = 0; i < methods.length; i++) {
+            try {
+                if (methods[i]()) {
+                    console.log(`✅ Cart drawer opened using method ${i + 1}`);
+                    return;
+                }
+            } catch (error) {
+                console.log(`❌ Method ${i + 1} failed:`, error);
+            }
+        }
+
+        console.log('⚠️ Could not open cart drawer, falling back to feedback message');
+        this.showCartFeedback('Added to cart!', 'success');
+    }
+
+    // Open cart drawer with forced refresh to ensure content is updated
+    async openCartDrawerWithRefresh() {
+        console.log('🛒 Opening cart drawer with forced refresh...');
+
+        try {
+            // First, try to close any existing cart drawer
+            const existingCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+            if (existingCartDrawer) {
+                console.log('🛒 Closing existing cart drawer first...');
+
+                // Try to close the drawer
+                if (typeof existingCartDrawer.close === 'function') {
+                    existingCartDrawer.close();
+                } else {
+                    // Remove open classes
+                    existingCartDrawer.classList.remove('open', 'active', 'is-open');
+                    existingCartDrawer.style.display = 'none';
+                }
+
+                // Wait a moment for the close animation
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            // Now open the cart drawer
+            this.openCartDrawer();
+
+            // Wait a moment for the drawer to open
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Force a final refresh of the cart drawer content
+            const cartResponse = await fetch('/cart.js');
+            if (cartResponse.ok) {
+                const cartData = await cartResponse.json();
+                console.log('🛒 Final cart data refresh:', cartData);
+
+                // Dispatch final cart update event
+                document.dispatchEvent(new CustomEvent('cart:updated', {
+                    detail: {
+                        cart: cartData,
+                        source: 'sticky-bar-final'
+                    }
+                }));
+            }
+
+        } catch (error) {
+            console.log('❌ Error in openCartDrawerWithRefresh:', error);
+            // Fallback to simple cart drawer opening
+            this.openCartDrawer();
+        }
+    }
+
+    // Update cart drawer using bundled section rendering (recommended by Shopify)
+    async updateCartDrawerWithSections(cartData) {
+        console.log('🛒 Updating cart drawer with bundled section rendering...');
+
+        try {
+            // Check if we have sections data from the bundled section rendering
+            if (cartData.sections) {
+                console.log('🛒 Using bundled section rendering data...');
+
+                // Update cart drawer section if available
+                if (cartData.sections['cart-drawer']) {
+                    console.log('🛒 Updating cart drawer with bundled HTML...');
+                    await this.updateCartDrawerSection(cartData.sections['cart-drawer']);
+                }
+
+                // Update cart icon bubble if available
+                if (cartData.sections['cart-icon-bubble']) {
+                    console.log('🛒 Updating cart icon bubble...');
+                    await this.updateCartIconBubble(cartData.sections['cart-icon-bubble']);
+                } else {
+                    // If no cart-icon-bubble section, ensure cart-count-bubble exists
+                    console.log('🛒 No cart-icon-bubble section, ensuring cart-count-bubble exists...');
+                    this.ensureCartCountBubbleExists(cartData.item_count);
+                }
+
+                // Update cart live region text if available
+                if (cartData.sections['cart-live-region-text']) {
+                    console.log('🛒 Updating cart live region text...');
+                    await this.updateCartLiveRegionText(cartData.sections['cart-live-region-text']);
+                }
+
+                // Dispatch cart updated event
+                document.dispatchEvent(new CustomEvent('cart:updated', {
+                    detail: {
+                        cart: cartData,
+                        source: 'sticky-bar-bundled'
+                    }
+                }));
+
+                // Use Shopify's native cart count update system
+                await this.updateShopifyCartCount(cartData);
+
+                // Open the cart drawer
+                this.openCartDrawer();
+
+                // Trigger Shopify's native cart count update
+                setTimeout(() => {
+                    this.triggerShopifyCartUpdate(cartData);
+                }, 100);
+
+                // Immediate cart count synchronization
+                this.synchronizeCartCountWithTheme();
+
+                console.log('✅ Cart drawer updated successfully with bundled sections');
+                return;
+            }
+
+            // Fallback to the old method if no sections data
+            console.log('⚠️ No bundled sections data, falling back to standard method...');
+            await this.updateCartDrawer(cartData);
+
+        } catch (error) {
+            console.error('❌ Failed to update cart drawer with sections:', error);
+            // Fallback to the old method
+            await this.updateCartDrawer(cartData);
+        }
+    }
+
+    // Update cart drawer section with bundled HTML
+    async updateCartDrawerSection(htmlContent) {
+        try {
+            // Parse the HTML content
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+
+            // Find the cart drawer element in the new HTML
+            const newCartDrawer = doc.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+
+            if (newCartDrawer) {
+                // Find existing cart drawer in the page
+                const existingCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+
+                if (existingCartDrawer) {
+                    console.log('🛒 Replacing existing cart drawer with bundled content...');
+                    // Replace the entire cart drawer
+                    existingCartDrawer.outerHTML = newCartDrawer.outerHTML;
+
+                    // Get the new cart drawer element and initialize it
+                    const updatedCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+                    if (updatedCartDrawer) {
+                        this.initializeCartDrawerEvents(updatedCartDrawer);
+                    }
+                } else {
+                    console.log('🛒 Adding new cart drawer from bundled content...');
+                    // Add the cart drawer to the page
+                    document.body.appendChild(newCartDrawer);
+                    this.initializeCartDrawerEvents(newCartDrawer);
+                }
+
+                console.log('✅ Cart drawer section updated successfully');
+                return true;
+            }
+        } catch (error) {
+            console.error('❌ Failed to update cart drawer section:', error);
+        }
+        return false;
+    }
+
+    // Update cart icon bubble
+    async updateCartIconBubble(htmlContent) {
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+
+            // First, look specifically for cart-count-bubble
+            let newCartCountBubble = doc.querySelector('.cart-count-bubble');
+
+            if (newCartCountBubble) {
+                console.log('🛒 Found cart-count-bubble in bundled sections...');
+
+                // Check if cart-count-bubble already exists in the page
+                let existingCartCountBubble = document.querySelector('.cart-count-bubble');
+
+                if (existingCartCountBubble) {
+                    console.log('🛒 Updating existing cart-count-bubble...');
+                    // Get the correct count from the cart data, not from bundled sections
+                    fetch('/cart.js')
+                        .then(response => response.json())
+                        .then(freshCartData => {
+                            const correctCount = freshCartData.item_count || 0;
+                            console.log('🛒 Using correct cart count:', correctCount);
+
+                            // Update with the correct count
+                            existingCartCountBubble.textContent = correctCount;
+                            existingCartCountBubble.setAttribute('data-cart-count', correctCount);
+                            console.log('✅ cart-count-bubble updated with correct count');
+                        })
+                        .catch(error => {
+                            console.log('❌ Failed to get correct count, using bundled data:', error);
+                            // Fallback to bundled data
+                            existingCartCountBubble.textContent = newCartCountBubble.textContent;
+                            existingCartCountBubble.setAttribute('data-cart-count', newCartCountBubble.getAttribute('data-cart-count') || newCartCountBubble.textContent);
+                        });
+                } else {
+                    console.log('🛒 cart-count-bubble not found, creating it from bundled sections...');
+
+                    // Find the cart element to attach the bubble to
+                    const cartElement = document.querySelector('a[href*="/cart"], .cart-link, .cart-icon, [data-cart-link], .header__cart, .site-header__cart');
+
+                    if (cartElement) {
+                        // Ensure parent has relative positioning
+                        if (getComputedStyle(cartElement).position === 'static') {
+                            cartElement.style.position = 'relative';
+                        }
+
+                        cartElement.appendChild(newCartCountBubble);
+                        console.log('✅ cart-count-bubble created from bundled sections');
+                    } else {
+                        console.log('⚠️ No cart element found to attach cart-count-bubble to');
+                    }
+                }
+
+                return;
+            }
+
+            // Fallback: try other cart icon selectors
+            const cartIconSelectors = [
+                '[data-cart-icon-bubble]',
+                '.cart-icon-bubble',
+                '.cart-count',
+                '.cart-badge',
+                '.header__cart-count',
+                '.site-header__cart-count',
+                '.cart-link .count',
+                '.cart-icon .count',
+                '[data-cart-count]',
+                '.cart-drawer-toggle .count',
+                '.cart-toggle .count'
+            ];
+
+            let newCartIcon = null;
+            for (const selector of cartIconSelectors) {
+                newCartIcon = doc.querySelector(selector);
+                if (newCartIcon) break;
+            }
+
+            if (newCartIcon) {
+                // Try to find existing cart icon with the same selectors
+                let existingCartIcon = null;
+                for (const selector of cartIconSelectors) {
+                    existingCartIcon = document.querySelector(selector);
+                    if (existingCartIcon) break;
+                }
+
+                if (existingCartIcon) {
+                    console.log('🛒 Updating existing cart icon bubble...');
+                    existingCartIcon.outerHTML = newCartIcon.outerHTML;
+                    console.log('✅ Cart icon bubble updated');
+                } else {
+                    // If no existing cart icon found, try to find the cart link/button and update its count
+                    console.log('🛒 No existing cart icon found, trying to update cart link count...');
+                    await this.updateCartLinkCount(newCartIcon);
+                }
+            } else {
+                console.log('⚠️ No cart icon bubble found in bundled sections');
+                // Fallback: manually update cart count
+                await this.manuallyUpdateCartCount();
+            }
+        } catch (error) {
+            console.error('❌ Failed to update cart icon bubble:', error);
+            // Fallback: manually update cart count
+            await this.manuallyUpdateCartCount();
+        }
+    }
+
+    // Update cart link count when no dedicated cart icon bubble exists
+    async updateCartLinkCount(newCartIcon) {
+        try {
+            // Find cart links/buttons
+            const cartLinks = document.querySelectorAll(
+                'a[href*="/cart"], .cart-link, .cart-icon, [data-cart-link], .header__cart, .site-header__cart, .cart-drawer-toggle, .cart-toggle'
+            );
+
+            for (const cartLink of cartLinks) {
+                // Look for count elements within the cart link
+                const countElements = cartLink.querySelectorAll('.count, .cart-count, .badge, [data-count]');
+
+                if (countElements.length > 0) {
+                    // Update existing count elements
+                    for (const countEl of countElements) {
+                        const newCount = newCartIcon.textContent || newCartIcon.innerText || '1';
+                        countEl.textContent = newCount;
+                        countEl.style.display = newCount === '0' ? 'none' : 'block';
+                    }
+                    console.log('✅ Updated cart link count elements');
+                } else {
+                    // Add count element if none exists
+                    const newCount = newCartIcon.textContent || newCartIcon.innerText || '1';
+                    if (newCount !== '0') {
+                        const countEl = document.createElement('span');
+                        countEl.className = 'cart-count';
+                        countEl.textContent = newCount;
+                        countEl.style.cssText = `
+                            position: absolute;
+                            top: -8px;
+                            right: -8px;
+                            background: #ff4444;
+                            color: white;
+                            border-radius: 50%;
+                            min-width: 18px;
+                            height: 18px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 12px;
+                            font-weight: bold;
+                        `;
+                        cartLink.style.position = 'relative';
+                        cartLink.appendChild(countEl);
+                        console.log('✅ Added cart count element to cart link');
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('❌ Failed to update cart link count:', error);
+        }
+    }
+
+    // Manually update cart count as fallback
+    async manuallyUpdateCartCount() {
+        try {
+            console.log('🛒 Manually updating cart count...');
+
+            // Fetch current cart data
+            const cartResponse = await fetch('/cart.js');
+            if (cartResponse.ok) {
+                const cartData = await cartResponse.json();
+                const itemCount = cartData.item_count || 0;
+
+                console.log(`🛒 Current cart item count: ${itemCount}`);
+
+                // Update all possible cart count elements
+                const countSelectors = [
+                    '.cart-count',
+                    '.cart-badge',
+                    '.header__cart-count',
+                    '.site-header__cart-count',
+                    '[data-cart-count]',
+                    '.cart-drawer-toggle .count',
+                    '.cart-toggle .count',
+                    '.cart-link .count',
+                    '.cart-icon .count'
+                ];
+
+                for (const selector of countSelectors) {
+                    const elements = document.querySelectorAll(selector);
+                    for (const element of elements) {
+                        element.textContent = itemCount;
+                        element.style.display = itemCount === 0 ? 'none' : 'block';
+                    }
+                }
+
+                console.log('✅ Manually updated cart count elements');
+            }
+        } catch (error) {
+            console.error('❌ Failed to manually update cart count:', error);
+        }
+    }
+
+    // Update cart count using Shopify's native system
+    async updateShopifyCartCount(cartData) {
+        try {
+            console.log('🛒 Updating cart count using Shopify native system...');
+
+            // Get fresh cart data to ensure we have the correct item_count
+            let itemCount = cartData.item_count;
+            if (itemCount === undefined || itemCount === null) {
+                console.log('🛒 item_count is undefined, fetching fresh cart data...');
+                try {
+                    const cartResponse = await fetch('/cart.js');
+                    if (cartResponse.ok) {
+                        const freshCartData = await cartResponse.json();
+                        itemCount = freshCartData.item_count;
+                        console.log('🛒 Fresh cart data item_count:', itemCount);
+                    }
+                } catch (error) {
+                    console.log('❌ Failed to fetch fresh cart data:', error);
+                    // Fallback: try to calculate from items
+                    if (cartData.items && Array.isArray(cartData.items)) {
+                        itemCount = cartData.items.reduce((total, item) => total + (item.quantity || 0), 0);
+                        console.log('🛒 Calculated item_count from items:', itemCount);
+                    }
+                }
+            }
+
+            console.log('🛒 Final item_count to use:', itemCount);
+
+            // Dispatch the standard Shopify cart:updated event that themes listen for
+            document.dispatchEvent(new CustomEvent('cart:updated', {
+                detail: {
+                    cart: { ...cartData, item_count: itemCount },
+                    source: 'sticky-bar'
+                }
+            }));
+
+            // Also dispatch the cart:build event that some themes use
+            document.dispatchEvent(new CustomEvent('cart:build', {
+                detail: {
+                    cart: { ...cartData, item_count: itemCount },
+                    source: 'sticky-bar'
+                }
+            }));
+
+            // Try to trigger theme-specific cart update methods
+            if (window.theme && typeof window.theme.cartUpdate === 'function') {
+                window.theme.cartUpdate({ ...cartData, item_count: itemCount });
+            }
+
+            if (window.Shopify && window.Shopify.theme && typeof window.Shopify.theme.cartUpdate === 'function') {
+                window.Shopify.theme.cartUpdate({ ...cartData, item_count: itemCount });
+            }
+
+            // Update cart count using Shopify's standard approach
+            this.updateCartCountElements(itemCount);
+
+            console.log('✅ Shopify native cart count update completed');
+
+        } catch (error) {
+            console.error('❌ Failed to update Shopify cart count:', error);
+        }
+    }
+
+    // Update cart count elements using Shopify's standard selectors
+    updateCartCountElements(itemCount) {
+        try {
+            console.log(`🛒 Updating cart count elements to: ${itemCount}`);
+
+            // First, ensure the cart-count-bubble element exists
+            this.ensureCartCountBubbleExists(itemCount);
+
+            // Shopify's standard cart count selectors
+            const cartCountSelectors = [
+                '.cart-count',
+                '.cart-count-bubble',
+                '[data-cart-count]',
+                '.header__cart-count',
+                '.site-header__cart-count',
+                '.cart-icon-bubble',
+                '.cart-badge',
+                '.cart-notification-badge'
+            ];
+
+            let updatedElements = 0;
+
+            for (const selector of cartCountSelectors) {
+                const elements = document.querySelectorAll(selector);
+                for (const element of elements) {
+                    element.textContent = itemCount;
+                    // Let the theme handle display and styling
+                    if (itemCount > 0) {
+                        element.style.display = '';
+                        element.style.visibility = '';
+                    } else {
+                        element.style.display = 'none';
+                    }
+                    updatedElements++;
+                    console.log(`✅ Updated cart count element: ${selector}`);
+                }
+            }
+
+            // Also update any elements with cart count in their text content
+            const cartLinks = document.querySelectorAll('a[href*="/cart"], .cart-link, .cart-icon');
+            for (const cartLink of cartLinks) {
+                const countElements = cartLink.querySelectorAll('.count, .badge, [data-count]');
+                for (const countEl of countElements) {
+                    countEl.textContent = itemCount;
+                    // Let the theme handle display and styling
+                    if (itemCount > 0) {
+                        countEl.style.display = '';
+                    } else {
+                        countEl.style.display = 'none';
+                    }
+                    updatedElements++;
+                }
+            }
+
+            console.log(`✅ Updated ${updatedElements} cart count elements`);
+
+        } catch (error) {
+            console.error('❌ Failed to update cart count elements:', error);
+        }
+    }
+
+    // Ensure cart-count-bubble element exists in the DOM
+    ensureCartCountBubbleExists(itemCount) {
+        try {
+            console.log('🛒 Ensuring cart-count-bubble element exists...');
+            console.log('🛒 Current item count:', itemCount);
+
+            // Handle undefined item count
+            if (itemCount === undefined || itemCount === null) {
+                console.log('🛒 item_count is undefined, skipping cart-count-bubble creation');
+                return;
+            }
+
+            // Check if cart-count-bubble already exists
+            let cartCountBubble = document.querySelector('.cart-count-bubble');
+            console.log('🛒 Existing cart-count-bubble found:', !!cartCountBubble);
+
+            if (!cartCountBubble && itemCount > 0) {
+                console.log('🛒 cart-count-bubble not found, creating it...');
+
+                // Find the cart icon/link to attach the bubble to
+                const cartSelectors = [
+                    'a[href*="/cart"]',
+                    '.cart-link',
+                    '.cart-icon',
+                    '[data-cart-link]',
+                    '.header__cart',
+                    '.site-header__cart',
+                    '.cart-drawer-toggle',
+                    '.cart-toggle',
+                    'header a[href*="/cart"]',
+                    'nav a[href*="/cart"]',
+                    '.main-header a[href*="/cart"]',
+                    '.page-header a[href*="/cart"]'
+                ];
+
+                let cartElement = null;
+                for (const selector of cartSelectors) {
+                    cartElement = document.querySelector(selector);
+                    if (cartElement) {
+                        console.log(`🛒 Found cart element: ${selector}`);
+                        console.log('🛒 Cart element:', cartElement);
+                        break;
+                    }
+                }
+
+                if (cartElement) {
+                    // Create the cart-count-bubble element
+                    cartCountBubble = document.createElement('span');
+                    cartCountBubble.className = 'cart-count-bubble';
+                    cartCountBubble.setAttribute('data-cart-count', itemCount);
+                    cartCountBubble.textContent = itemCount;
+
+                    // Let the theme handle the styling - no inline styles
+
+                    // Ensure parent has relative positioning
+                    const computedStyle = getComputedStyle(cartElement);
+                    console.log('🛒 Cart element position:', computedStyle.position);
+                    if (computedStyle.position === 'static') {
+                        cartElement.style.position = 'relative';
+                        console.log('🛒 Set cart element position to relative');
+                    }
+
+                    cartElement.appendChild(cartCountBubble);
+                    console.log('✅ Created cart-count-bubble element');
+                    console.log('🛒 Cart-count-bubble element:', cartCountBubble);
+                    console.log('🛒 Cart-count-bubble parent:', cartCountBubble.parentElement);
+
+                    // Force a re-render
+                    cartCountBubble.style.display = 'none';
+                    setTimeout(() => {
+                        cartCountBubble.style.display = 'flex';
+                        console.log('🛒 Forced cart-count-bubble re-render');
+                    }, 10);
+
+                } else {
+                    console.log('⚠️ No cart element found to attach cart-count-bubble to');
+                    console.log('🛒 Available cart-related elements:');
+                    const allCartElements = document.querySelectorAll('a[href*="cart"], [class*="cart"], [id*="cart"]');
+                    allCartElements.forEach((el, index) => {
+                        console.log(`  ${index + 1}. ${el.tagName} - ${el.className} - ${el.id} - ${el.href || 'no href'}`);
+                    });
+
+                    // Last resort: create a floating cart count bubble
+                    console.log('🛒 Creating floating cart-count-bubble as last resort...');
+                    cartCountBubble = document.createElement('span');
+                    cartCountBubble.className = 'cart-count-bubble';
+                    cartCountBubble.setAttribute('data-cart-count', itemCount);
+                    cartCountBubble.textContent = itemCount;
+
+                    // Let the theme handle the styling - no inline styles
+
+                    document.body.appendChild(cartCountBubble);
+                    console.log('✅ Created floating cart-count-bubble');
+                }
+            } else if (cartCountBubble) {
+                console.log('✅ cart-count-bubble already exists');
+                cartCountBubble.textContent = itemCount;
+                cartCountBubble.style.display = itemCount > 0 ? 'flex' : 'none';
+            }
+
+        } catch (error) {
+            console.error('❌ Failed to ensure cart-count-bubble exists:', error);
+        }
+    }
+
+
+    // Synchronize cart count with theme's native system
+    async synchronizeCartCountWithTheme() {
+        try {
+            console.log('🛒 Synchronizing cart count with theme...');
+
+            // Get fresh cart data immediately
+            const response = await fetch('/cart.js');
+            if (response.ok) {
+                const cartData = await response.json();
+                const itemCount = cartData.item_count || 0;
+                console.log('🛒 Synchronizing with cart item count:', itemCount);
+
+                // Dispatch theme-specific cart update events
+                this.dispatchThemeCartEvents(cartData);
+
+                // Update cart count elements using theme's expected selectors
+                this.updateThemeCartCountElements(itemCount);
+
+                console.log('✅ Cart count synchronized with theme');
+            } else {
+                console.error('❌ Failed to fetch cart data for synchronization');
+            }
+
+        } catch (error) {
+            console.error('❌ Failed to synchronize cart count:', error);
+        }
+    }
+
+    // Dispatch theme-specific cart events
+    dispatchThemeCartEvents(cartData) {
+        try {
+            console.log('🛒 Dispatching theme cart events...');
+
+            // Common theme cart events
+            const themeEvents = [
+                'cart:updated',
+                'cart:build',
+                'cart:refresh',
+                'cart:open',
+                'cart:data',
+                'cart:section:updated',
+                'cart:count:updated',
+                'cart:item:added',
+                'cart:change',
+                'cart:update'
+            ];
+
+            themeEvents.forEach(eventName => {
+                document.dispatchEvent(new CustomEvent(eventName, {
+                    detail: {
+                        cart: cartData,
+                        source: 'sticky-bar-sync'
+                    }
+                }));
+            });
+
+            // Try to call theme-specific functions
+            const themeFunctions = [
+                'updateCart',
+                'cartUpdate',
+                'refreshCart',
+                'updateCartCount',
+                'cartCountUpdate',
+                'cartRefresh',
+                'cartRebuild'
+            ];
+
+            themeFunctions.forEach(funcName => {
+                if (window[funcName] && typeof window[funcName] === 'function') {
+                    try {
+                        window[funcName](cartData);
+                        console.log(`✅ Called theme function: ${funcName}`);
+                    } catch (error) {
+                        console.log(`⚠️ Theme function ${funcName} failed:`, error);
+                    }
+                }
+            });
+
+            console.log('✅ Theme cart events dispatched');
+
+        } catch (error) {
+            console.error('❌ Failed to dispatch theme cart events:', error);
+        }
+    }
+
+    // Update cart count elements using theme's expected selectors
+    updateThemeCartCountElements(itemCount) {
+        try {
+            console.log(`🛒 Updating theme cart count elements: ${itemCount}`);
+
+            // Theme-specific cart count selectors
+            const themeSelectors = [
+                '.cart-count',
+                '.cart-count-bubble',
+                '[data-cart-count]',
+                '.header__cart-count',
+                '.site-header__cart-count',
+                '.cart-icon-bubble',
+                '.cart-badge',
+                '.cart-notification-badge',
+                '.cart-link .count',
+                '.cart-icon .count',
+                '.cart-drawer-toggle .count',
+                '.cart-toggle .count',
+                '.cart-button .count',
+                '.cart-bag .count',
+                '.shopping-cart .count'
+            ];
+
+            let updatedCount = 0;
+
+            themeSelectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(element => {
+                    // Only update if this looks like a cart count element
+                    const parent = element.closest('a[href*="/cart"], .cart-link, .cart-icon, .header__cart, .site-header__cart, .cart-drawer-toggle, .cart-toggle');
+                    if (parent || selector.includes('cart')) {
+                        element.textContent = itemCount;
+                        // Let the theme handle display and styling
+                        if (itemCount > 0) {
+                            element.style.display = '';
+                        } else {
+                            element.style.display = 'none';
+                        }
+                        updatedCount++;
+                        console.log(`✅ Updated theme cart count: ${selector}`);
+                    }
+                });
+            });
+
+            console.log(`✅ Updated ${updatedCount} theme cart count elements`);
+
+        } catch (error) {
+            console.error('❌ Failed to update theme cart count elements:', error);
+        }
+    }
+
+    // Trigger Shopify's native cart update system
+    triggerShopifyCartUpdate(cartData) {
+        try {
+            console.log('🛒 Triggering Shopify native cart update...');
+
+            // Dispatch all the standard Shopify cart events
+            const events = [
+                'cart:updated',
+                'cart:build',
+                'cart:refresh',
+                'cart:open',
+                'cart:data',
+                'cart:section:updated'
+            ];
+
+            for (const eventName of events) {
+                document.dispatchEvent(new CustomEvent(eventName, {
+                    detail: {
+                        cart: cartData,
+                        source: 'sticky-bar'
+                    }
+                }));
+            }
+
+            // Try to call theme-specific cart update functions
+            const themeFunctions = [
+                'updateCart',
+                'cartUpdate',
+                'refreshCart',
+                'updateCartCount',
+                'cartCountUpdate'
+            ];
+
+            for (const funcName of themeFunctions) {
+                if (window[funcName] && typeof window[funcName] === 'function') {
+                    try {
+                        window[funcName](cartData);
+                        console.log(`✅ Called theme function: ${funcName}`);
+                    } catch (error) {
+                        console.log(`⚠️ Theme function ${funcName} failed:`, error);
+                    }
+                }
+            }
+
+            // Try to trigger cart drawer refresh if it exists
+            const cartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer');
+            if (cartDrawer) {
+                if (typeof cartDrawer.refresh === 'function') {
+                    cartDrawer.refresh();
+                }
+                if (typeof cartDrawer.update === 'function') {
+                    cartDrawer.update(cartData);
+                }
+            }
+
+            console.log('✅ Shopify native cart update triggered');
+
+        } catch (error) {
+            console.error('❌ Failed to trigger Shopify cart update:', error);
+        }
+    }
+
+    // Legacy method - keeping for fallback
+    async forceUpdateCartCount(cartData) {
+        try {
+            const itemCount = cartData.item_count || 0;
+            console.log(`🛒 Force updating cart count to: ${itemCount}`);
+
+            // Comprehensive list of cart count selectors
+            const countSelectors = [
+                // Standard cart count selectors
+                '.cart-count',
+                '.cart-badge',
+                '.header__cart-count',
+                '.site-header__cart-count',
+                '[data-cart-count]',
+                '.cart-drawer-toggle .count',
+                '.cart-toggle .count',
+                '.cart-link .count',
+                '.cart-icon .count',
+
+                // Theme-specific selectors
+                '.cart-icon-bubble',
+                '.cart-count-bubble',
+                '[data-cart-icon-bubble]',
+                '.header__cart .count',
+                '.site-header__cart .count',
+                '.cart-drawer-toggle .badge',
+                '.cart-toggle .badge',
+
+                // Generic count selectors
+                '.count',
+                '.badge',
+                '[data-count]',
+                '.notification-badge',
+                '.cart-notification'
+            ];
+
+            let updatedCount = 0;
+
+            // Update all found count elements
+            for (const selector of countSelectors) {
+                const elements = document.querySelectorAll(selector);
+                for (const element of elements) {
+                    // Check if this element is likely a cart count (not other counts on the page)
+                    const parent = element.closest('a[href*="/cart"], .cart-link, .cart-icon, .header__cart, .site-header__cart, .cart-drawer-toggle, .cart-toggle');
+                    if (parent || selector.includes('cart')) {
+                        element.textContent = itemCount;
+                        element.style.display = itemCount === 0 ? 'none' : 'block';
+                        updatedCount++;
+                        console.log(`✅ Updated cart count element: ${selector}`);
+                    }
+                }
+            }
+
+            // If no cart count elements found, try to add one to cart links
+            if (updatedCount === 0) {
+                console.log('🛒 No cart count elements found, adding count to cart links...');
+                await this.addCartCountToLinks(itemCount);
+            }
+
+            // Also dispatch a custom event for themes that listen for cart count changes
+            document.dispatchEvent(new CustomEvent('cart:count-updated', {
+                detail: {
+                    count: itemCount,
+                    source: 'sticky-bar'
+                }
+            }));
+
+            console.log(`✅ Force updated ${updatedCount} cart count elements`);
+
+        } catch (error) {
+            console.error('❌ Failed to force update cart count:', error);
+        }
+    }
+
+    // Add cart count to cart links when no count elements exist
+    async addCartCountToLinks(itemCount) {
+        try {
+            const cartLinks = document.querySelectorAll(
+                'a[href*="/cart"], .cart-link, .cart-icon, [data-cart-link], .header__cart, .site-header__cart, .cart-drawer-toggle, .cart-toggle'
+            );
+
+            for (const cartLink of cartLinks) {
+                // Check if this link already has a count
+                const existingCount = cartLink.querySelector('.count, .cart-count, .badge, [data-count]');
+                if (!existingCount && itemCount > 0) {
+                    const countEl = document.createElement('span');
+                    countEl.className = 'cart-count';
+                    countEl.setAttribute('data-cart-count', itemCount);
+                    countEl.textContent = itemCount;
+                    countEl.style.cssText = `
+                        position: absolute;
+                        top: -8px;
+                        right: -8px;
+                        background: #ff4444;
+                        color: white;
+                        border-radius: 50%;
+                        min-width: 18px;
+                        height: 18px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12px;
+                        font-weight: bold;
+                        z-index: 10;
+                    `;
+
+                    // Ensure parent has relative positioning
+                    if (getComputedStyle(cartLink).position === 'static') {
+                        cartLink.style.position = 'relative';
+                    }
+
+                    cartLink.appendChild(countEl);
+                    console.log('✅ Added cart count to cart link');
+                }
+            }
+        } catch (error) {
+            console.error('❌ Failed to add cart count to links:', error);
+        }
+    }
+
+    // Ensure cart count visibility with aggressive approach
+    async ensureCartCountVisibility(cartData) {
+        try {
+            const itemCount = cartData.item_count || 0;
+            console.log(`🛒 Ensuring cart count visibility for count: ${itemCount}`);
+
+            // Find all possible cart icons/links
+            const cartSelectors = [
+                'a[href*="/cart"]',
+                '.cart-link',
+                '.cart-icon',
+                '[data-cart-link]',
+                '.header__cart',
+                '.site-header__cart',
+                '.cart-drawer-toggle',
+                '.cart-toggle',
+                '.cart-button',
+                '.cart-bag',
+                '.shopping-cart',
+                '.cart-icon-link'
+            ];
+
+            let cartElements = [];
+            for (const selector of cartSelectors) {
+                const elements = document.querySelectorAll(selector);
+                cartElements.push(...elements);
+            }
+
+            console.log(`🛒 Found ${cartElements.length} cart elements`);
+
+            for (const cartElement of cartElements) {
+                // Check if this element already has a count
+                let existingCount = cartElement.querySelector('.count, .cart-count, .badge, [data-count], .cart-badge, .notification-badge');
+
+                if (existingCount) {
+                    // Update existing count
+                    existingCount.textContent = itemCount;
+                    existingCount.style.display = itemCount > 0 ? 'block' : 'none';
+                    existingCount.style.visibility = itemCount > 0 ? 'visible' : 'hidden';
+                    console.log(`✅ Updated existing cart count: ${itemCount}`);
+                } else if (itemCount > 0) {
+                    // Create new count element
+                    const countEl = document.createElement('span');
+                    countEl.className = 'cart-count';
+                    countEl.setAttribute('data-cart-count', itemCount);
+                    countEl.textContent = itemCount;
+                    countEl.style.cssText = `
+                        position: absolute;
+                        top: -8px;
+                        right: -8px;
+                        background: #ff4444;
+                        color: white;
+                        border-radius: 50%;
+                        min-width: 18px;
+                        height: 18px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12px;
+                        font-weight: bold;
+                        z-index: 1000;
+                        line-height: 1;
+                        padding: 2px;
+                        box-sizing: border-box;
+                    `;
+
+                    // Ensure parent has relative positioning
+                    const computedStyle = getComputedStyle(cartElement);
+                    if (computedStyle.position === 'static') {
+                        cartElement.style.position = 'relative';
+                    }
+
+                    cartElement.appendChild(countEl);
+                    console.log(`✅ Created new cart count: ${itemCount}`);
+                }
+            }
+
+            // Also try to find and update any standalone count elements
+            const standaloneCountSelectors = [
+                '.cart-count',
+                '.cart-badge',
+                '.header__cart-count',
+                '.site-header__cart-count',
+                '[data-cart-count]',
+                '.cart-icon-bubble',
+                '.cart-count-bubble',
+                '[data-cart-icon-bubble]'
+            ];
+
+            for (const selector of standaloneCountSelectors) {
+                const elements = document.querySelectorAll(selector);
+                for (const element of elements) {
+                    element.textContent = itemCount;
+                    element.style.display = itemCount > 0 ? 'block' : 'none';
+                    element.style.visibility = itemCount > 0 ? 'visible' : 'hidden';
+                    console.log(`✅ Updated standalone cart count: ${selector}`);
+                }
+            }
+
+            // Force a re-render by temporarily hiding and showing cart elements
+            for (const cartElement of cartElements) {
+                const countEl = cartElement.querySelector('.count, .cart-count, .badge, [data-count]');
+                if (countEl && itemCount > 0) {
+                    countEl.style.display = 'none';
+                    setTimeout(() => {
+                        countEl.style.display = 'flex';
+                        countEl.style.visibility = 'visible';
+                    }, 10);
+                }
+            }
+
+            console.log(`✅ Ensured cart count visibility for ${itemCount} items`);
+
+        } catch (error) {
+            console.error('❌ Failed to ensure cart count visibility:', error);
+        }
+    }
+
+    // Final cart count check - most aggressive approach
+    async finalCartCountCheck(cartData) {
+        try {
+            const itemCount = cartData.item_count || 0;
+            console.log(`🛒 Final cart count check for count: ${itemCount}`);
+
+            // Get fresh cart data to ensure accuracy
+            const cartResponse = await fetch('/cart.js');
+            if (cartResponse.ok) {
+                const freshCartData = await cartResponse.json();
+                const freshItemCount = freshCartData.item_count || 0;
+                console.log(`🛒 Fresh cart data shows ${freshItemCount} items`);
+
+                // Find the cart icon in the header (most likely location)
+                const headerCartSelectors = [
+                    'header a[href*="/cart"]',
+                    'header .cart-link',
+                    'header .cart-icon',
+                    '.header__cart',
+                    '.site-header__cart',
+                    '.main-header .cart',
+                    '.page-header .cart',
+                    'nav .cart',
+                    '.navigation .cart'
+                ];
+
+                let headerCartElement = null;
+                for (const selector of headerCartSelectors) {
+                    headerCartElement = document.querySelector(selector);
+                    if (headerCartElement) {
+                        console.log(`🛒 Found header cart element: ${selector}`);
+                        break;
+                    }
+                }
+
+                if (headerCartElement && freshItemCount > 0) {
+                    // Check if it already has a count
+                    let existingCount = headerCartElement.querySelector('.count, .cart-count, .badge, [data-count], .cart-badge, .notification-badge');
+
+                    if (existingCount) {
+                        // Update existing count
+                        existingCount.textContent = freshItemCount;
+                        existingCount.style.display = 'block';
+                        existingCount.style.visibility = 'visible';
+                        existingCount.style.opacity = '1';
+                        console.log(`✅ Updated existing header cart count: ${freshItemCount}`);
+                    } else {
+                        // Create a very visible count badge
+                        const countEl = document.createElement('span');
+                        countEl.className = 'cart-count-badge';
+                        countEl.setAttribute('data-cart-count', freshItemCount);
+                        countEl.textContent = freshItemCount;
+                        countEl.style.cssText = `
+                            position: absolute;
+                            top: -10px;
+                            right: -10px;
+                            background: #ff0000;
+                            color: white;
+                            border-radius: 50%;
+                            min-width: 20px;
+                            height: 20px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 11px;
+                            font-weight: bold;
+                            z-index: 9999;
+                            line-height: 1;
+                            padding: 0;
+                            box-sizing: border-box;
+                            border: 2px solid white;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                        `;
+
+                        // Ensure parent has relative positioning
+                        if (getComputedStyle(headerCartElement).position === 'static') {
+                            headerCartElement.style.position = 'relative';
+                        }
+
+                        headerCartElement.appendChild(countEl);
+                        console.log(`✅ Created new header cart count badge: ${freshItemCount}`);
+                    }
+                }
+
+                // Also try to update any cart count elements that might be in the header
+                const headerCountSelectors = [
+                    'header .cart-count',
+                    'header .cart-badge',
+                    'header [data-cart-count]',
+                    '.header__cart-count',
+                    '.site-header__cart-count',
+                    '.main-header .cart-count',
+                    '.page-header .cart-count'
+                ];
+
+                for (const selector of headerCountSelectors) {
+                    const elements = document.querySelectorAll(selector);
+                    for (const element of elements) {
+                        element.textContent = freshItemCount;
+                        element.style.display = freshItemCount > 0 ? 'block' : 'none';
+                        element.style.visibility = freshItemCount > 0 ? 'visible' : 'hidden';
+                        element.style.opacity = freshItemCount > 0 ? '1' : '0';
+                        console.log(`✅ Updated header count element: ${selector}`);
+                    }
+                }
+
+                console.log(`✅ Final cart count check completed for ${freshItemCount} items`);
+            }
+
+        } catch (error) {
+            console.error('❌ Failed final cart count check:', error);
+        }
+    }
+
+    // Update cart live region text
+    async updateCartLiveRegionText(htmlContent) {
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const newLiveRegion = doc.querySelector('[data-cart-live-region-text], .cart-live-region-text');
+
+            if (newLiveRegion) {
+                const existingLiveRegion = document.querySelector('[data-cart-live-region-text], .cart-live-region-text');
+                if (existingLiveRegion) {
+                    existingLiveRegion.outerHTML = newLiveRegion.outerHTML;
+                    console.log('✅ Cart live region text updated');
+                }
+            }
+        } catch (error) {
+            console.error('❌ Failed to update cart live region text:', error);
+        }
+    }
+
+    // Update cart drawer using Shopify's standard approach (fallback)
+    async updateCartDrawer(cartItem) {
+        console.log('🛒 Updating cart drawer with Shopify standard approach...');
+
+        try {
+            // Step 1: Fetch the updated cart data
+            const cartResponse = await fetch('/cart.js');
+            if (!cartResponse.ok) {
+                throw new Error('Failed to fetch cart data');
+            }
+
+            const cartData = await cartResponse.json();
+            console.log('🛒 Updated cart data:', cartData);
+
+            // Step 2: Dispatch the standard Shopify cart:updated event
+            document.dispatchEvent(new CustomEvent('cart:updated', {
+                detail: {
+                    cart: cartData,
+                    source: 'sticky-bar'
+                }
+            }));
+
+            // Step 3: Try to find and update cart sections
+            this.updateCartSections(cartData);
+
+            // Step 4: Force cart drawer content refresh with multiple attempts
+            let refreshSuccess = false;
+            for (let attempt = 1; attempt <= 3; attempt++) {
+                console.log(`🔄 Cart drawer refresh attempt ${attempt}/3...`);
+                refreshSuccess = await this.refreshCartDrawerContent(cartData);
+                if (refreshSuccess) {
+                    console.log(`✅ Cart drawer refreshed successfully on attempt ${attempt}`);
+                    break;
+                }
+                // Wait a bit before retry
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+
+            // Step 5: Handle empty cart scenario
+            if (cartData.item_count === 1) {
+                console.log('🛒 First item added to empty cart, ensuring drawer structure...');
+                await this.ensureCartDrawerStructure();
+            }
+
+            // Step 6: Force a complete cart drawer rebuild if refresh failed
+            if (!refreshSuccess) {
+                console.log('🔄 Refresh failed, attempting complete cart drawer rebuild...');
+                await this.rebuildCartDrawer(cartData);
+            }
+
+            // Step 7: Open the cart drawer with forced refresh
+            await this.openCartDrawerWithRefresh();
+
+        } catch (error) {
+            console.error('❌ Failed to update cart drawer:', error);
+            // Fallback to simple cart drawer opening
+            this.openCartDrawer();
+        }
+    }
+
+    // Update cart sections with fresh data
+    updateCartSections(cartData) {
+        console.log('🔄 Updating cart sections...');
+
+        // Find all cart sections and update them
+        const cartSections = document.querySelectorAll('[data-cart-section], .cart-section, #cart-section');
+
+        cartSections.forEach(section => {
+            console.log('🔄 Updating cart section:', section);
+
+            // Try to trigger section refresh
+            if (typeof section.refresh === 'function') {
+                section.refresh(cartData);
+            }
+
+            // Dispatch section-specific events
+            section.dispatchEvent(new CustomEvent('cart:section:updated', {
+                detail: { cart: cartData }
+            }));
+        });
+
+        // Update cart count badges
+        this.updateCartCount(cartData.item_count);
+
+        // Update cart total
+        this.updateCartTotal(cartData.total_price);
+    }
+
+    // Update cart count badges
+    updateCartCount(count) {
+        const countElements = document.querySelectorAll(
+            '.cart-count, [data-cart-count], .cart-item-count, .cart-badge-count'
+        );
+
+        countElements.forEach(element => {
+            element.textContent = count;
+            element.style.display = count > 0 ? 'block' : 'none';
+        });
+    }
+
+    // Update cart total
+    updateCartTotal(total) {
+        const totalElements = document.querySelectorAll(
+            '.cart-total, [data-cart-total], .cart-subtotal, .cart-price'
+        );
+
+        const formattedTotal = this.formatMoney(total);
+
+        totalElements.forEach(element => {
+            element.textContent = formattedTotal;
+        });
+    }
+
+    // Format money according to Shopify's format
+    formatMoney(cents) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(cents / 100);
+    }
+
+    // Force refresh cart drawer content with fresh data
+    async refreshCartDrawerContent(cartData) {
+        console.log('🔄 Force refreshing cart drawer content...');
+
+        try {
+            // Method 1: Use Shopify's section_id approach (recommended for empty cart)
+            const sectionResponse = await fetch('/?section_id=cart-drawer');
+            if (sectionResponse.ok) {
+                const sectionHTML = await sectionResponse.text();
+                console.log('🔄 Fetched cart drawer section HTML, updating content...');
+
+                // Parse the section HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(sectionHTML, 'text/html');
+                const newCartDrawer = doc.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+                const existingCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+
+                if (newCartDrawer && existingCartDrawer) {
+                    console.log('🔄 Found cart drawer section, updating HTML content...');
+                    existingCartDrawer.innerHTML = newCartDrawer.innerHTML;
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.log('❌ Failed to fetch cart drawer section:', error);
+        }
+
+        try {
+            // Method 2: Try to fetch cart drawer HTML directly
+            const drawerResponse = await fetch('/cart?view=drawer');
+            if (drawerResponse.ok) {
+                const drawerHTML = await drawerResponse.text();
+                console.log('🔄 Fetched cart drawer HTML, updating content...');
+
+                // Find cart drawer and update its content
+                const cartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+                if (cartDrawer) {
+                    console.log('🔄 Found cart drawer, updating HTML content...');
+                    cartDrawer.innerHTML = drawerHTML;
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.log('❌ Failed to fetch cart drawer HTML:', error);
+        }
+
+        try {
+            // Method 3: Try to fetch cart page and extract drawer content
+            const cartPageResponse = await fetch('/cart');
+            if (cartPageResponse.ok) {
+                const cartPageHTML = await cartPageResponse.text();
+                console.log('🔄 Fetched cart page HTML, extracting drawer content...');
+
+                // Create a temporary element to parse the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = cartPageHTML;
+
+                // Look for cart drawer content in the page
+                const cartDrawerContent = tempDiv.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+                if (cartDrawerContent) {
+                    const cartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+                    if (cartDrawer) {
+                        console.log('🔄 Found cart drawer in page, updating content...');
+                        cartDrawer.innerHTML = cartDrawerContent.innerHTML;
+                        return true;
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('❌ Failed to fetch cart page HTML:', error);
+        }
+
+        try {
+            // Method 4: Try to manually update cart drawer with cart data
+            const cartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+            if (cartDrawer) {
+                console.log('🔄 Manually updating cart drawer with cart data...');
+
+                // Try to call cart drawer update methods
+                if (typeof cartDrawer.updateCart === 'function') {
+                    cartDrawer.updateCart(cartData);
+                    return true;
+                }
+
+                if (typeof cartDrawer.render === 'function') {
+                    cartDrawer.render(cartData);
+                    return true;
+                }
+
+                if (typeof cartDrawer.refresh === 'function') {
+                    cartDrawer.refresh(cartData);
+                    return true;
+                }
+
+                // Try to trigger cart drawer refresh events
+                cartDrawer.dispatchEvent(new CustomEvent('cart:refresh', {
+                    detail: { cart: cartData }
+                }));
+
+                cartDrawer.dispatchEvent(new CustomEvent('cart:updated', {
+                    detail: { cart: cartData }
+                }));
+
+                return true;
+            }
+        } catch (error) {
+            console.log('❌ Failed to manually update cart drawer:', error);
+        }
+
+        console.log('⚠️ Could not refresh cart drawer content');
+        return false;
+    }
+
+    // Complete cart drawer rebuild as last resort
+    async rebuildCartDrawer(cartData) {
+        console.log('🔄 Rebuilding cart drawer completely...');
+
+        try {
+            // Method 1: Try to fetch the entire cart page and replace the drawer
+            const cartPageResponse = await fetch('/cart');
+            if (cartPageResponse.ok) {
+                const cartPageHTML = await cartPageResponse.text();
+                console.log('🔄 Fetched full cart page for rebuild...');
+
+                // Parse the cart page
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(cartPageHTML, 'text/html');
+
+                // Find cart drawer in the page
+                const newCartDrawer = doc.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+                const existingCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+
+                if (newCartDrawer && existingCartDrawer) {
+                    console.log('🔄 Replacing cart drawer with fresh content...');
+
+                    // Store the parent and next sibling for proper replacement
+                    const parent = existingCartDrawer.parentNode;
+                    const nextSibling = existingCartDrawer.nextSibling;
+
+                    // Remove the old cart drawer
+                    existingCartDrawer.remove();
+
+                    // Insert the new cart drawer
+                    if (nextSibling) {
+                        parent.insertBefore(newCartDrawer, nextSibling);
+                    } else {
+                        parent.appendChild(newCartDrawer);
+                    }
+
+                    // Reinitialize the cart drawer
+                    this.initializeCartDrawerEvents(newCartDrawer);
+
+                    console.log('✅ Cart drawer rebuilt successfully');
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.log('❌ Failed to rebuild cart drawer:', error);
+        }
+
+        try {
+            // Method 2: Try to force a page reload of just the cart drawer section
+            const sectionResponse = await fetch('/?section_id=cart-drawer');
+            if (sectionResponse.ok) {
+                const sectionHTML = await sectionResponse.text();
+                console.log('🔄 Fetched cart drawer section for rebuild...');
+
+                // Parse the section
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(sectionHTML, 'text/html');
+                const newCartDrawer = doc.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+                const existingCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+
+                if (newCartDrawer && existingCartDrawer) {
+                    console.log('🔄 Replacing cart drawer section...');
+
+                    // Replace the entire cart drawer
+                    existingCartDrawer.outerHTML = newCartDrawer.outerHTML;
+
+                    // Get the new cart drawer element
+                    const updatedCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+                    if (updatedCartDrawer) {
+                        this.initializeCartDrawerEvents(updatedCartDrawer);
+                        console.log('✅ Cart drawer section rebuilt successfully');
+                        return true;
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('❌ Failed to rebuild cart drawer section:', error);
+        }
+
+        console.log('⚠️ Could not rebuild cart drawer');
+        return false;
+    }
+
+    // Ensure cart drawer has proper structure for empty cart scenarios
+    async ensureCartDrawerStructure() {
+        console.log('🛒 Ensuring cart drawer structure for empty cart...');
+
+        try {
+            // Method 1: Try to fetch the complete cart drawer section
+            const sectionResponse = await fetch('/?section_id=cart-drawer');
+            if (sectionResponse.ok) {
+                const sectionHTML = await sectionResponse.text();
+                console.log('🛒 Fetched complete cart drawer section...');
+
+                // Parse the section HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(sectionHTML, 'text/html');
+                const newCartDrawer = doc.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+
+                if (newCartDrawer) {
+                    // Check if cart drawer exists in DOM
+                    let existingCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+
+                    if (!existingCartDrawer) {
+                        console.log('🛒 Cart drawer not found in DOM, creating it...');
+                        // Create the cart drawer if it doesn't exist
+                        document.body.appendChild(newCartDrawer);
+                        existingCartDrawer = newCartDrawer;
+                    } else {
+                        console.log('🛒 Cart drawer exists, updating structure...');
+                        // Update the existing cart drawer with complete structure
+                        existingCartDrawer.innerHTML = newCartDrawer.innerHTML;
+                    }
+
+                    // Ensure cart drawer has proper event listeners
+                    this.initializeCartDrawerEvents(existingCartDrawer);
+
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.log('❌ Failed to ensure cart drawer structure:', error);
+        }
+
+        return false;
+    }
+
+    // Initialize cart drawer event listeners
+    initializeCartDrawerEvents(cartDrawer) {
+        console.log('🛒 Initializing cart drawer event listeners...');
+
+        try {
+            // Dispatch cart:refresh event to initialize the drawer
+            cartDrawer.dispatchEvent(new CustomEvent('cart:refresh', {
+                bubbles: true,
+                detail: { source: 'sticky-bar' }
+            }));
+
+            // Dispatch cart:updated event
+            cartDrawer.dispatchEvent(new CustomEvent('cart:updated', {
+                bubbles: true,
+                detail: { source: 'sticky-bar' }
+            }));
+
+            // Try to trigger theme-specific initialization
+            if (typeof cartDrawer.initialize === 'function') {
+                cartDrawer.initialize();
+            }
+
+            if (typeof cartDrawer.setup === 'function') {
+                cartDrawer.setup();
+            }
+
+            console.log('✅ Cart drawer event listeners initialized');
+        } catch (error) {
+            console.log('❌ Failed to initialize cart drawer events:', error);
         }
     }
 }
