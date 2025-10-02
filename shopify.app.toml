@@ -5,7 +5,6 @@ name = "superfy-sticky-add-to-cart"
 handle = "superfy-sticky-add-to-cart"
 application_url = "https://superfy-sticky-add-to-cart-production.up.railway.app"
 embedded = true
-dev_store = "superfy-bogdan-development.myshopify.com"
 
 [webhooks]
 api_version = "2025-04"
@@ -30,7 +29,6 @@ embedded = false
 
 [build]
 automatically_update_urls_on_dev = true
-include_config_on_deploy = true
 
 [app_proxy]
 url = "https://superfy-sticky-add-to-cart-production.up.railway.app"
