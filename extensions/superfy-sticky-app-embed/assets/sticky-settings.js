@@ -174,7 +174,7 @@ class StickyBarSettings {
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             position: 'fixed',
             bottom: '20px',
-            zIndex: 1000,
+            zIndex: 999,
             display: 'flex',
             alignItems: 'center',
             gap: '12px'
@@ -528,7 +528,14 @@ class StickyBarSettings {
                 window.addEventListener('scroll', this.handleScrollSummary);
         }
 
-        // No debug fallback - respect the trigger settings
+        // Debug mode: force show sticky bar if URL has debug=sticky
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('debug') === 'sticky') {
+            console.log('🐛 DEBUG MODE: Forcing sticky bar to show');
+            setTimeout(() => {
+                this.showStickyBar();
+            }, 1000);
+        }
     }
 
     // Show the sticky bar
@@ -611,11 +618,19 @@ class StickyBarSettings {
 
     // Handle scroll for product summary trigger
     handleScrollSummaryMethod() {
-        const summaryElement = document.querySelector('.product-summary, .product-description, .product-details');
+        const summaryElement = document.querySelector('.product-summary, .product-description, .product-details, .product__description, .product-single__description, .product-content, .product-info');
         if (summaryElement) {
             const rect = summaryElement.getBoundingClientRect();
             if (rect.bottom < 0 && !this.triggerMet) {
                 console.log('📄 Product summary out of view, showing sticky bar');
+                this.triggerMet = true;
+                this.showStickyBar();
+            }
+        } else {
+            // Fallback: show after 300px scroll if no summary element found
+            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollY > 300 && !this.triggerMet) {
+                console.log('📄 No summary element found, showing sticky bar after 300px scroll');
                 this.triggerMet = true;
                 this.showStickyBar();
             }
@@ -684,6 +699,7 @@ class StickyBarSettings {
 
         // Add new click handler
         this.handleButtonClick = (event) => {
+            console.log('🖱️ Button clicked!', event);
             event.preventDefault();
             this.handleButtonAction(settings);
         };
@@ -693,6 +709,8 @@ class StickyBarSettings {
 
     // Handle button action based on behavior setting
     async handleButtonAction(settings) {
+        console.log('🎯 handleButtonAction called with settings:', settings);
+
         const behavior = settings.sticky_button_behavior || 'add';
         const stickyBar = document.querySelector('.sticky-add-to-cart-block');
 
@@ -706,7 +724,14 @@ class StickyBarSettings {
         const quantityInput = stickyBar.querySelector('.sfy-sb-qty-input');
         const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
 
-        console.log('🛒 Button clicked:', { behavior, productId, variantId, quantity });
+        console.log('🛒 Button action details:', {
+            behavior,
+            productId,
+            variantId,
+            quantity,
+            stickyBarExists: !!stickyBar,
+            quantityInputExists: !!quantityInput
+        });
 
         switch (behavior) {
             case 'add':
@@ -724,10 +749,23 @@ class StickyBarSettings {
         }
     }
 
-    // Add to cart functionality - mimics default Shopify behavior with bundled section rendering
+    // Add to cart functionality - ultra minimal approach
     async addToCart(variantId, quantity) {
         try {
             console.log('🛒 Adding to cart:', { variantId, quantity });
+
+            // Validate inputs
+            if (!variantId) {
+                console.error('❌ No variant ID provided');
+                this.showCartFeedback('No product variant selected', 'error');
+                return;
+            }
+
+            if (!quantity || quantity < 1) {
+                console.error('❌ Invalid quantity:', quantity);
+                this.showCartFeedback('Invalid quantity', 'error');
+                return;
+            }
 
             const response = await fetch('/cart/add.js', {
                 method: 'POST',
@@ -737,28 +775,103 @@ class StickyBarSettings {
                 },
                 body: JSON.stringify({
                     id: variantId,
-                    quantity: quantity,
-                    // Request cart drawer sections to be rendered with the cart update
-                    sections: 'cart-drawer,cart-icon-bubble,cart-live-region-text',
-                    sections_url: window.location.pathname
+                    quantity: quantity
                 })
             });
+
+            console.log('🛒 Response status:', response.status);
+            console.log('🛒 Response headers:', response.headers);
 
             if (response.ok) {
                 const data = await response.json();
                 console.log('✅ Added to cart successfully:', data);
 
-                // Use bundled section rendering to update cart drawer
-                await this.updateCartDrawerWithSections(data);
+                // Open cart drawer using multiple methods
+                this.openCartDrawer();
 
             } else {
-                const errorData = await response.json();
-                console.error('❌ Add to cart failed:', errorData);
+                const errorText = await response.text();
+                console.error('❌ Add to cart failed:', response.status, errorText);
                 this.showCartFeedback('Failed to add to cart', 'error');
             }
         } catch (error) {
             console.error('❌ Add to cart error:', error);
             this.showCartFeedback('Failed to add to cart', 'error');
+        }
+    }
+
+    // Open cart drawer using multiple methods
+    openCartDrawer() {
+        try {
+            console.log('🛒 Opening cart drawer...');
+
+            // Method 1: Try CartDrawer.open() (common in many themes)
+            if (window.CartDrawer && typeof window.CartDrawer.open === 'function') {
+                console.log('🛒 Using CartDrawer.open()');
+                window.CartDrawer.open();
+                return;
+            }
+
+            // Method 2: Try to find and click cart toggle buttons
+            const cartToggleSelectors = [
+                '[data-cart-drawer-toggle]',
+                '.cart-drawer-toggle',
+                '[data-cart-toggle]',
+                '.cart-toggle',
+                'button[aria-controls*="cart"]',
+                'a[href*="cart"][data-toggle]',
+                '.cart-link',
+                '.cart-icon'
+            ];
+
+            for (const selector of cartToggleSelectors) {
+                const toggleButton = document.querySelector(selector);
+                if (toggleButton) {
+                    console.log('🛒 Clicking cart toggle button:', selector);
+                    toggleButton.click();
+                    return;
+                }
+            }
+
+            // Method 3: Add 'active' class to cart drawer
+            const cartDrawerSelectors = [
+                '#cart-drawer',
+                '.cart-drawer',
+                '[data-cart-drawer]',
+                '.drawer--cart',
+                '.cart-sidebar'
+            ];
+
+            for (const selector of cartDrawerSelectors) {
+                const cartDrawer = document.querySelector(selector);
+                if (cartDrawer) {
+                    console.log('🛒 Adding active class to cart drawer:', selector);
+                    cartDrawer.classList.add('active', 'open', 'is-open');
+                    cartDrawer.style.display = 'block';
+                    cartDrawer.setAttribute('aria-hidden', 'false');
+                    return;
+                }
+            }
+
+            // Method 4: Dispatch cart events
+            console.log('🛒 Dispatching cart events');
+            document.dispatchEvent(new CustomEvent('cart:open'));
+            document.dispatchEvent(new CustomEvent('cart:refresh'));
+            document.dispatchEvent(new CustomEvent('cart:updated'));
+
+            // Method 5: Try theme-specific functions
+            if (window.theme && window.theme.cart) {
+                if (typeof window.theme.cart.open === 'function') {
+                    console.log('🛒 Using theme.cart.open()');
+                    window.theme.cart.open();
+                } else if (typeof window.theme.cart.toggle === 'function') {
+                    console.log('🛒 Using theme.cart.toggle()');
+                    window.theme.cart.toggle();
+                }
+            }
+
+        } catch (error) {
+            console.error('❌ Failed to open cart drawer:', error);
         }
     }
 
@@ -774,13 +887,13 @@ class StickyBarSettings {
             const cartData = await this.prepareCartDataForBuyNow(variantId, quantity);
 
             // Add to cart first
-            const response = await fetch('/cart/add.js', {
+            const response = await fetch('/cart/add', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify(cartData)
+                body: this.createFormData(cartData)
             });
 
             if (response.ok) {
@@ -981,6 +1094,29 @@ class StickyBarSettings {
             console.log('❌ Failed to get checkout URL:', error);
         }
         return '/checkout';
+    }
+
+    // Create form data for /cart/add endpoint
+    createFormData(cartData) {
+        const formData = new URLSearchParams();
+
+        // Add basic cart item data
+        formData.append('id', cartData.id);
+        formData.append('quantity', cartData.quantity);
+
+        // Add selling plan if present
+        if (cartData.selling_plan) {
+            formData.append('selling_plan', cartData.selling_plan);
+        }
+
+        // Add properties if present
+        if (cartData.properties) {
+            Object.keys(cartData.properties).forEach(key => {
+                formData.append(`properties[${key}]`, cartData.properties[key]);
+            });
+        }
+
+        return formData.toString();
     }
 
     // Show loading state for buy now
