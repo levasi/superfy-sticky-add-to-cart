@@ -979,6 +979,9 @@ class StickyBarSettings {
                 // Use bundled section rendering to update cart drawer
                 await this.updateCartDrawerWithSections(data);
 
+                // Ensure theme's native cart functionality is preserved
+                this.preserveThemeCartFunctionality();
+
             } else {
                 const errorData = await response.json();
                 console.error('❌ Add to cart failed:', errorData);
@@ -1315,15 +1318,18 @@ class StickyBarSettings {
                 const existingCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
 
                 if (existingCartDrawer) {
-                    console.log('🛒 Replacing existing cart drawer with bundled content...');
-                    // Replace the entire cart drawer
-                    existingCartDrawer.outerHTML = newCartDrawer.outerHTML;
+                    console.log('🛒 Updating existing cart drawer content (preserving element and events)...');
+                    // Update only the innerHTML to preserve the cart drawer element and its event listeners
+                    existingCartDrawer.innerHTML = newCartDrawer.innerHTML;
 
-                    // Get the new cart drawer element and initialize it
-                    const updatedCartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
-                    if (updatedCartDrawer) {
-                        this.initializeCartDrawerEvents(updatedCartDrawer);
+                    // Re-attach overlay click handler if it exists
+                    const overlay = existingCartDrawer.querySelector('#CartDrawer-Overlay');
+                    if (overlay) {
+                        console.log('🔄 Re-attaching overlay click handler');
+                        overlay.addEventListener('click', existingCartDrawer.close.bind(existingCartDrawer));
                     }
+
+                    console.log('✅ Cart drawer content updated while preserving theme functionality');
                 } else {
                     console.log('🛒 Adding new cart drawer from bundled content...');
                     // Add the cart drawer to the page
@@ -2731,6 +2737,52 @@ class StickyBarSettings {
             console.log('✅ Cart drawer event listeners initialized');
         } catch (error) {
             console.log('❌ Failed to initialize cart drawer events:', error);
+        }
+    }
+
+    // Preserve theme's native cart functionality after our updates
+    preserveThemeCartFunctionality() {
+        console.log('🛒 Preserving theme cart functionality...');
+
+        try {
+            // Re-initialize any theme-specific cart functionality
+            const cartDrawer = document.querySelector('cart-drawer, .cart-drawer, #cart-drawer, [data-cart-drawer]');
+            if (cartDrawer) {
+                // Re-attach overlay click handler
+                const overlay = cartDrawer.querySelector('#CartDrawer-Overlay');
+                if (overlay) {
+                    // Remove any existing listeners to avoid duplicates
+                    overlay.removeEventListener('click', cartDrawer.close);
+                    overlay.addEventListener('click', cartDrawer.close.bind(cartDrawer));
+                }
+
+                // Re-attach close button handlers
+                const closeButtons = cartDrawer.querySelectorAll('[data-cart-drawer-close], .cart-drawer__close, .drawer__close');
+                closeButtons.forEach(button => {
+                    button.removeEventListener('click', cartDrawer.close);
+                    button.addEventListener('click', cartDrawer.close.bind(cartDrawer));
+                });
+
+                // Dispatch events to let the theme know the cart drawer is ready
+                cartDrawer.dispatchEvent(new CustomEvent('cart:ready', {
+                    bubbles: true,
+                    detail: { source: 'sticky-bar' }
+                }));
+            }
+
+            // Re-initialize cart links/buttons
+            const cartLinks = document.querySelectorAll('a[href*="/cart"], button[data-cart-drawer-toggle]');
+            cartLinks.forEach(link => {
+                // Remove and re-add click handlers to ensure they work
+                const originalHandler = link.onclick;
+                if (originalHandler) {
+                    link.onclick = originalHandler;
+                }
+            });
+
+            console.log('✅ Theme cart functionality preserved');
+        } catch (error) {
+            console.log('❌ Failed to preserve theme cart functionality:', error);
         }
     }
 }
