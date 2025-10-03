@@ -289,6 +289,9 @@ class StickyBarSettings {
 
         console.log('✅ Sticky bar element found:', stickyBar);
 
+        // Setup variant change detection
+        this.setupVariantChangeDetection(stickyBar);
+
         // Remove all visibility classes initially - they will be applied when trigger conditions are met
         const trigger = this.get('sticky_trigger');
         stickyBar.classList.remove('sticky-visible-all', 'sticky-visible-desktop', 'sticky-visible-mobile', 'show');
@@ -677,6 +680,218 @@ class StickyBarSettings {
         }
     }
 
+    // Setup variant change detection to update sticky bar when variant changes
+    setupVariantChangeDetection(stickyBar) {
+        console.log('🔄 Setting up variant change detection...');
+
+        // Listen for variant change events that themes typically dispatch
+        const variantChangeEvents = [
+            'variant:change',
+            'variantChange',
+            'product:variant-change',
+            'change'
+        ];
+
+        variantChangeEvents.forEach(eventName => {
+            document.addEventListener(eventName, (event) => {
+                console.log(`🔄 Variant change detected via ${eventName}:`, event.detail);
+                this.handleVariantChange(stickyBar, event.detail);
+            });
+        });
+
+        // Also listen for form changes (variant selectors)
+        const variantSelectors = document.querySelectorAll('select[name="id"], input[name="id"]:checked');
+        variantSelectors.forEach(selector => {
+            selector.addEventListener('change', (event) => {
+                console.log('🔄 Variant selector changed:', event.target.value);
+                this.handleVariantChange(stickyBar, { variant: { id: event.target.value } });
+            });
+        });
+
+        // Listen for URL changes (when variant is selected via URL)
+        let currentUrl = window.location.href;
+        const urlCheckInterval = setInterval(() => {
+            if (window.location.href !== currentUrl) {
+                currentUrl = window.location.href;
+                console.log('🔄 URL changed, checking for variant update...');
+                this.updateStickyBarFromCurrentVariant(stickyBar);
+            }
+        }, 500);
+
+        // Clean up interval when page unloads
+        window.addEventListener('beforeunload', () => {
+            clearInterval(urlCheckInterval);
+        });
+    }
+
+    // Handle variant change event
+    async handleVariantChange(stickyBar, eventDetail) {
+        try {
+            console.log('🔄 Handling variant change:', eventDetail);
+
+            let variantId = null;
+            let variantData = null;
+
+            // Extract variant ID from different event formats
+            if (eventDetail?.variant?.id) {
+                variantId = eventDetail.variant.id;
+                variantData = eventDetail.variant;
+            } else if (eventDetail?.id) {
+                variantId = eventDetail.id;
+                variantData = eventDetail;
+            } else if (typeof eventDetail === 'string' || typeof eventDetail === 'number') {
+                variantId = eventDetail;
+            }
+
+            if (variantId) {
+                console.log('🔄 Updating sticky bar for variant:', variantId);
+                console.log('🔄 Before update - dataset variantId:', stickyBar.dataset.variantId);
+
+                // Update the sticky bar's variant ID
+                stickyBar.dataset.variantId = variantId;
+
+                console.log('🔄 After update - dataset variantId:', stickyBar.dataset.variantId);
+
+                // If we have variant data, update price and image
+                if (variantData) {
+                    this.updateStickyBarPrice(stickyBar, variantData);
+                    this.updateStickyBarImage(stickyBar, variantData);
+                } else {
+                    // Fetch variant data if not provided
+                    await this.updateStickyBarFromVariantId(stickyBar, variantId);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error handling variant change:', error);
+        }
+    }
+
+    // Update sticky bar from current variant (when URL changes)
+    async updateStickyBarFromCurrentVariant(stickyBar) {
+        try {
+            // Extract variant ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const variantId = urlParams.get('variant');
+
+            if (variantId) {
+                console.log('🔄 Updating sticky bar from URL variant:', variantId);
+                await this.updateStickyBarFromVariantId(stickyBar, variantId);
+            }
+        } catch (error) {
+            console.error('❌ Error updating sticky bar from current variant:', error);
+        }
+    }
+
+    // Update sticky bar from variant ID
+    async updateStickyBarFromVariantId(stickyBar, variantId) {
+        try {
+            // Fetch variant data from the product
+            const productId = stickyBar.dataset.productId;
+            if (!productId) return;
+
+            const response = await fetch(`/products/${productId}.js`);
+            if (response.ok) {
+                const product = await response.json();
+                const variant = product.variants.find(v => v.id.toString() === variantId.toString());
+
+                if (variant) {
+                    console.log('🔄 Found variant data:', variant);
+                    console.log('🔄 Updating dataset variantId from', stickyBar.dataset.variantId, 'to', variantId);
+                    stickyBar.dataset.variantId = variantId;
+                    console.log('🔄 Dataset variantId after update:', stickyBar.dataset.variantId);
+                    this.updateStickyBarPrice(stickyBar, variant);
+                    this.updateStickyBarImage(stickyBar, variant);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error fetching variant data:', error);
+        }
+    }
+
+    // Update sticky bar price
+    updateStickyBarPrice(stickyBar, variant) {
+        const priceElement = stickyBar.querySelector('.sfy-sb-price .price');
+        const comparePriceElement = stickyBar.querySelector('.sfy-sb-price .price-compare');
+
+        if (priceElement && variant.price) {
+            // Use Shopify's money formatting if available, otherwise format manually
+            if (window.Shopify && window.Shopify.formatMoney) {
+                priceElement.textContent = window.Shopify.formatMoney(variant.price);
+            } else {
+                // Fallback: format price (assuming variant.price is in cents)
+                const price = (variant.price / 100).toFixed(2);
+                priceElement.textContent = `$${price}`;
+            }
+
+            // Update compare price if it exists
+            if (comparePriceElement && variant.compare_at_price && variant.compare_at_price > variant.price) {
+                if (window.Shopify && window.Shopify.formatMoney) {
+                    comparePriceElement.textContent = window.Shopify.formatMoney(variant.compare_at_price);
+                } else {
+                    const comparePrice = (variant.compare_at_price / 100).toFixed(2);
+                    comparePriceElement.textContent = `$${comparePrice}`;
+                }
+                comparePriceElement.style.display = 'inline';
+            } else if (comparePriceElement) {
+                comparePriceElement.style.display = 'none';
+            }
+
+            console.log('✅ Updated sticky bar price:', priceElement.textContent);
+        }
+    }
+
+    // Update sticky bar image
+    updateStickyBarImage(stickyBar, variant) {
+        const imageElement = stickyBar.querySelector('.sfy-sb-image img');
+
+        if (imageElement && variant.featured_image) {
+            // Use variant image if available, otherwise use product image
+            const imageUrl = variant.featured_image.src || variant.featured_image;
+            imageElement.src = imageUrl;
+            imageElement.alt = variant.title || 'Product image';
+
+            console.log('✅ Updated sticky bar image:', imageUrl);
+        }
+    }
+
+    // Get the currently selected variant ID from the page
+    getCurrentSelectedVariantId() {
+        // Check URL parameter first
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlVariantId = urlParams.get('variant');
+        if (urlVariantId) {
+            console.log('🔄 Found variant ID in URL:', urlVariantId);
+            return urlVariantId;
+        }
+
+        // Check variant selectors
+        const variantSelect = document.querySelector('select[name="id"]');
+        if (variantSelect && variantSelect.value) {
+            console.log('🔄 Found variant ID in select:', variantSelect.value);
+            return variantSelect.value;
+        }
+
+        // Check radio buttons
+        const variantRadio = document.querySelector('input[name="id"]:checked');
+        if (variantRadio && variantRadio.value) {
+            console.log('🔄 Found variant ID in radio:', variantRadio.value);
+            return variantRadio.value;
+        }
+
+        // Check for data attributes on product form
+        const productForm = document.querySelector('form[action*="/cart/add"]');
+        if (productForm) {
+            const formVariantId = productForm.querySelector('input[name="id"]')?.value;
+            if (formVariantId) {
+                console.log('🔄 Found variant ID in form:', formVariantId);
+                return formVariantId;
+            }
+        }
+
+        console.log('⚠️ No variant ID found on page');
+        return null;
+    }
+
     // Setup button click handler based on behavior setting
     setupButtonClickHandler(button, settings) {
         // Remove any existing click handlers
@@ -702,11 +917,24 @@ class StickyBarSettings {
         }
 
         const productId = stickyBar.dataset.productId;
-        const variantId = stickyBar.dataset.variantId;
+        let variantId = stickyBar.dataset.variantId;
         const quantityInput = stickyBar.querySelector('.sfy-sb-qty-input');
         const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
 
+        // Double-check variant ID by getting current selection from page
+        const currentVariantId = this.getCurrentSelectedVariantId();
+        if (currentVariantId && currentVariantId !== variantId) {
+            console.log('🔄 Variant mismatch detected! Sticky bar:', variantId, 'Page:', currentVariantId);
+            console.log('🔄 Updating sticky bar variant ID to match page selection');
+            variantId = currentVariantId;
+            stickyBar.dataset.variantId = variantId;
+        }
+
         console.log('🛒 Button clicked:', { behavior, productId, variantId, quantity });
+        console.log('🛒 Current sticky bar dataset:', {
+            productId: stickyBar.dataset.productId,
+            variantId: stickyBar.dataset.variantId
+        });
 
         switch (behavior) {
             case 'add':
