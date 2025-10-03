@@ -4,7 +4,6 @@
  * Updated: App Embed Version - v58
  */
 
-
 class StickyBarSettings {
     constructor() {
         this.settings = null;
@@ -175,7 +174,6 @@ class StickyBarSettings {
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             position: 'fixed',
             bottom: '20px',
-            zIndex: 999,
             zIndex: 999,
             display: 'flex',
             alignItems: 'center',
@@ -530,14 +528,7 @@ class StickyBarSettings {
                 window.addEventListener('scroll', this.handleScrollSummary);
         }
 
-        // Debug mode: force show sticky bar if URL has debug=sticky
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('debug') === 'sticky') {
-            console.log('🐛 DEBUG MODE: Forcing sticky bar to show');
-            setTimeout(() => {
-                this.showStickyBar();
-            }, 1000);
-        }
+        // No debug fallback - respect the trigger settings
     }
 
     // Show the sticky bar
@@ -620,19 +611,11 @@ class StickyBarSettings {
 
     // Handle scroll for product summary trigger
     handleScrollSummaryMethod() {
-        const summaryElement = document.querySelector('.product-summary, .product-description, .product-details, .product__description, .product-single__description, .product-content, .product-info');
+        const summaryElement = document.querySelector('.product-summary, .product-description, .product-details');
         if (summaryElement) {
             const rect = summaryElement.getBoundingClientRect();
             if (rect.bottom < 0 && !this.triggerMet) {
                 console.log('📄 Product summary out of view, showing sticky bar');
-                this.triggerMet = true;
-                this.showStickyBar();
-            }
-        } else {
-            // Fallback: show after 300px scroll if no summary element found
-            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-            if (scrollY > 300 && !this.triggerMet) {
-                console.log('📄 No summary element found, showing sticky bar after 300px scroll');
                 this.triggerMet = true;
                 this.showStickyBar();
             }
@@ -701,7 +684,6 @@ class StickyBarSettings {
 
         // Add new click handler
         this.handleButtonClick = (event) => {
-            console.log('🖱️ Button clicked!', event);
             event.preventDefault();
             this.handleButtonAction(settings);
         };
@@ -711,8 +693,6 @@ class StickyBarSettings {
 
     // Handle button action based on behavior setting
     async handleButtonAction(settings) {
-        console.log('🎯 handleButtonAction called with settings:', settings);
-
         const behavior = settings.sticky_button_behavior || 'add';
         const stickyBar = document.querySelector('.sticky-add-to-cart-block');
 
@@ -726,14 +706,7 @@ class StickyBarSettings {
         const quantityInput = stickyBar.querySelector('.sfy-sb-qty-input');
         const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
 
-        console.log('🛒 Button action details:', {
-            behavior,
-            productId,
-            variantId,
-            quantity,
-            stickyBarExists: !!stickyBar,
-            quantityInputExists: !!quantityInput
-        });
+        console.log('🛒 Button clicked:', { behavior, productId, variantId, quantity });
 
         switch (behavior) {
             case 'add':
@@ -751,25 +724,11 @@ class StickyBarSettings {
         }
     }
 
-    // Add to cart functionality using cart.js methods
+    // Add to cart functionality - mimics default Shopify behavior with bundled section rendering
     async addToCart(variantId, quantity) {
         try {
             console.log('🛒 Adding to cart:', { variantId, quantity });
 
-            // Validate inputs
-            if (!variantId) {
-                console.error('❌ No variant ID provided');
-                this.showCartFeedback('No product variant selected', 'error');
-                return;
-            }
-
-            if (!quantity || quantity < 1) {
-                console.error('❌ Invalid quantity:', quantity);
-                this.showCartFeedback('Invalid quantity', 'error');
-                return;
-            }
-
-            // Use cart.js approach for adding to cart
             const response = await fetch('/cart/add.js', {
                 method: 'POST',
                 headers: {
@@ -779,26 +738,22 @@ class StickyBarSettings {
                 body: JSON.stringify({
                     id: variantId,
                     quantity: quantity,
-                    sections: this.getSectionsToRender().map((section) => section.section),
+                    // Request cart drawer sections to be rendered with the cart update
+                    sections: 'cart-drawer,cart-icon-bubble,cart-live-region-text',
                     sections_url: window.location.pathname
                 })
             });
-
-            console.log('🛒 Response status:', response.status);
 
             if (response.ok) {
                 const data = await response.json();
                 console.log('✅ Added to cart successfully:', data);
 
-                // Update cart using cart.js methods
-                await this.updateCartWithCartJs(data);
-
-                // Open cart drawer
-                this.openCartDrawer();
+                // Use bundled section rendering to update cart drawer
+                await this.updateCartDrawerWithSections(data);
 
             } else {
-                const errorText = await response.text();
-                console.error('❌ Add to cart failed:', response.status, errorText);
+                const errorData = await response.json();
+                console.error('❌ Add to cart failed:', errorData);
                 this.showCartFeedback('Failed to add to cart', 'error');
             }
         } catch (error) {
@@ -2521,8 +2476,7 @@ class StickyBarSettings {
 
     // Initialize cart drawer event listeners
     initializeCartDrawerEvents(cartDrawer) {
-        console.log('🛒 INITIALIZING CART DRAWER EVENTS - This should be called when cart drawer opens');
-        console.log('🛒 Cart drawer element:', cartDrawer);
+        console.log('🛒 Initializing cart drawer event listeners...');
 
         try {
             // Dispatch cart:refresh event to initialize the drawer
@@ -2546,324 +2500,9 @@ class StickyBarSettings {
                 cartDrawer.setup();
             }
 
-            // Theme's renderContents method will handle all event setup
-
             console.log('✅ Cart drawer event listeners initialized');
         } catch (error) {
             console.log('❌ Failed to initialize cart drawer events:', error);
-        }
-    }
-
-    // Setup overlay click to close cart drawer
-    setupCartDrawerOverlayClick(cartDrawer) {
-        try {
-            console.log('🛒 Setting up cart drawer overlay click...');
-            console.log('🛒 Cart drawer element:', cartDrawer);
-            console.log('🛒 Cart drawer HTML:', cartDrawer.outerHTML.substring(0, 500) + '...');
-
-            // Find overlay elements (common selectors)
-            const overlaySelectors = [
-                '.drawer__inner',
-                '.cart-drawer__overlay',
-                '.drawer__overlay',
-                '.cart-overlay',
-                '.drawer-overlay',
-                '[data-cart-drawer-overlay]',
-                '.drawer__content',
-                '.cart-drawer__content',
-                '.drawer__wrapper'
-            ];
-
-            let overlay = null;
-            for (const selector of overlaySelectors) {
-                overlay = cartDrawer.querySelector(selector) || document.querySelector(selector);
-                if (overlay) {
-                    console.log('🛒 Found overlay with selector:', selector);
-                    console.log('🛒 Overlay element:', overlay);
-                    break;
-                }
-            }
-
-            // If no specific overlay found, use the cart drawer itself for outside clicks
-            if (!overlay) {
-                overlay = cartDrawer;
-                console.log('🛒 Using cart drawer as overlay target');
-            }
-
-            // Remove existing event listeners to avoid duplicates
-            if (overlay._stickyBarOverlayHandler) {
-                overlay.removeEventListener('click', overlay._stickyBarOverlayHandler);
-            }
-
-            // Create overlay click handler
-            overlay._stickyBarOverlayHandler = (event) => {
-                console.log('🛒 Overlay click detected!');
-                console.log('🛒 Event target:', event.target);
-                console.log('🛒 Overlay element:', overlay);
-                console.log('🛒 Target === Overlay:', event.target === overlay);
-                console.log('🛒 Target classList:', event.target.classList.toString());
-                console.log('🛒 Overlay classList:', overlay.classList.toString());
-
-                // Check if clicking on the overlay itself or its direct children
-                const isOverlayClick = event.target === overlay ||
-                    event.target.closest('.drawer__inner') === overlay ||
-                    event.target.closest('.cart-drawer__overlay') === overlay;
-
-                if (isOverlayClick) {
-                    console.log('🛒 Overlay clicked, closing cart drawer');
-                    this.closeCartDrawer();
-                } else {
-                    console.log('🛒 Click was on child element, not closing');
-                }
-            };
-
-            // Add the event listener
-            overlay.addEventListener('click', overlay._stickyBarOverlayHandler);
-            console.log('🛒 Event listener added to:', overlay);
-
-            // Document click handler is already set up in initializeCartDrawerEvents
-
-            // Also add close button functionality
-            this.setupCartDrawerCloseButtons(cartDrawer);
-
-            // Add escape key functionality
-            this.setupCartDrawerEscapeKey(cartDrawer);
-
-            console.log('✅ Cart drawer overlay click setup complete');
-        } catch (error) {
-            console.error('❌ Failed to setup cart drawer overlay click:', error);
-        }
-    }
-
-    // Setup simple document click handler as backup
-    setupSimpleDocumentClickHandler(cartDrawer) {
-        try {
-            console.log('🛒 Setting up simple document click handler...');
-
-            // Remove existing handler to avoid duplicates
-            if (document._stickyBarSimpleClickHandler) {
-                document.removeEventListener('click', document._stickyBarSimpleClickHandler);
-            }
-
-            // Create simple click handler
-            document._stickyBarSimpleClickHandler = (event) => {
-                // Only handle if cart drawer is open
-                if (!this.isCartDrawerOpen()) {
-                    return;
-                }
-
-                console.log('🛒 Simple document click detected while cart drawer is open');
-                console.log('🛒 Click target:', event.target);
-
-                // Check if click is outside the cart drawer
-                const isInsideCartDrawer = cartDrawer.contains(event.target);
-                const isStickyBar = event.target.closest('.sfy-sb');
-
-                console.log('🛒 Is inside cart drawer:', isInsideCartDrawer);
-                console.log('🛒 Is sticky bar:', !!isStickyBar);
-
-                if (!isInsideCartDrawer && !isStickyBar) {
-                    console.log('🛒 Click outside cart drawer, closing...');
-                    this.closeCartDrawer();
-                } else {
-                    console.log('🛒 Click inside cart drawer or on sticky bar - not closing');
-                }
-            };
-
-            // Add the event listener
-            document.addEventListener('click', document._stickyBarSimpleClickHandler);
-            console.log('🛒 Simple document click handler added');
-        } catch (error) {
-            console.error('❌ Failed to setup simple document click handler:', error);
-        }
-    }
-
-    // Setup document-level click handler as backup
-    setupDocumentClickHandler(cartDrawer) {
-        try {
-            console.log('🛒 Setting up document click handler...');
-
-            // Remove existing document click handler to avoid duplicates
-            if (document._stickyBarDocumentClickHandler) {
-                document.removeEventListener('click', document._stickyBarDocumentClickHandler);
-            }
-
-            // Create document click handler
-            document._stickyBarDocumentClickHandler = (event) => {
-                console.log('🛒 DOCUMENT CLICK DETECTED!'); // Always log this
-                console.log('🛒 Click target:', event.target);
-                console.log('🛒 Cart drawer open state:', this.isCartDrawerOpen());
-
-                // Only handle if cart drawer is open
-                if (!this.isCartDrawerOpen()) {
-                    console.log('🛒 Cart drawer not open, ignoring click');
-                    return;
-                }
-
-                console.log('🛒 Document click detected while cart drawer is open');
-                console.log('🛒 Cart drawer:', cartDrawer);
-
-                // Check if click is outside the cart drawer
-                const isInsideCartDrawer = cartDrawer.contains(event.target);
-                const isCartDrawerToggle = event.target.closest('[data-cart-drawer-toggle], .cart-drawer-toggle, .cart-toggle, [data-cart-toggle]');
-                const isStickyBar = event.target.closest('.sfy-sb');
-
-                console.log('🛒 Is inside cart drawer:', isInsideCartDrawer);
-                console.log('🛒 Is cart drawer toggle:', !!isCartDrawerToggle);
-                console.log('🛒 Is sticky bar:', !!isStickyBar);
-
-                if (!isInsideCartDrawer && !isCartDrawerToggle && !isStickyBar) {
-                    console.log('🛒 Click outside cart drawer, closing...');
-                    this.closeCartDrawer();
-                } else {
-                    console.log('🛒 Click inside cart drawer, on toggle, or on sticky bar - not closing');
-                }
-            };
-
-            // Add the event listener
-            document.addEventListener('click', document._stickyBarDocumentClickHandler);
-            console.log('🛒 Document click handler added');
-
-            // Test the handler immediately
-            console.log('🛒 Testing document click handler...');
-            setTimeout(() => {
-                console.log('🛒 Document click handler test - clicking anywhere should show logs');
-            }, 1000);
-        } catch (error) {
-            console.error('❌ Failed to setup document click handler:', error);
-        }
-    }
-
-    // Setup close buttons for cart drawer
-    setupCartDrawerCloseButtons(cartDrawer) {
-        try {
-            const closeButtonSelectors = [
-                '.drawer__close',
-                '.cart-drawer__close',
-                '.drawer-close',
-                '.cart-close',
-                '[data-cart-drawer-close]',
-                '[data-drawer-close]',
-                '.close-cart',
-                '.cart-drawer-close'
-            ];
-
-            for (const selector of closeButtonSelectors) {
-                const closeButton = cartDrawer.querySelector(selector);
-                if (closeButton) {
-                    console.log('🛒 Found close button with selector:', selector);
-
-                    // Remove existing handler to avoid duplicates
-                    if (closeButton._stickyBarCloseHandler) {
-                        closeButton.removeEventListener('click', closeButton._stickyBarCloseHandler);
-                    }
-
-                    // Create close handler
-                    closeButton._stickyBarCloseHandler = (event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        console.log('🛒 Close button clicked');
-                        this.closeCartDrawer();
-                    };
-
-                    // Add the event listener
-                    closeButton.addEventListener('click', closeButton._stickyBarCloseHandler);
-                }
-            }
-        } catch (error) {
-            console.error('❌ Failed to setup close buttons:', error);
-        }
-    }
-
-    // Setup escape key to close cart drawer
-    setupCartDrawerEscapeKey(cartDrawer) {
-        try {
-            // Remove existing escape key handler to avoid duplicates
-            if (document._stickyBarEscapeHandler) {
-                document.removeEventListener('keydown', document._stickyBarEscapeHandler);
-            }
-
-            // Create escape key handler
-            document._stickyBarEscapeHandler = (event) => {
-                if (event.key === 'Escape' && this.isCartDrawerOpen()) {
-                    console.log('🛒 Escape key pressed, closing cart drawer');
-                    this.closeCartDrawer();
-                }
-            };
-
-            // Add the event listener
-            document.addEventListener('keydown', document._stickyBarEscapeHandler);
-        } catch (error) {
-            console.error('❌ Failed to setup escape key handler:', error);
-        }
-    }
-
-    // Check if cart drawer is open
-    isCartDrawerOpen() {
-        const cartDrawer = document.querySelector('cart-drawer');
-        if (!cartDrawer) {
-            console.log('🛒 No cart drawer found');
-            return false;
-        }
-
-        // Use the theme's 'active' class (from cart-drawer.js)
-        const isOpen = cartDrawer.classList.contains('active');
-
-        console.log('🛒 Cart drawer open state:', isOpen);
-        console.log('🛒 Cart drawer classes:', cartDrawer.classList.toString());
-
-        return isOpen;
-    }
-
-    // Close cart drawer using theme methods
-    closeCartDrawer() {
-        try {
-            console.log('🛒 Closing cart drawer...');
-
-            const cartDrawer = document.querySelector('cart-drawer');
-            if (!cartDrawer) {
-                console.log('⚠️ No cart drawer found to close');
-                return;
-            }
-
-            // Method 1: Use theme's CartDrawer.close() method (from cart-drawer.js)
-            if (typeof cartDrawer.close === 'function') {
-                console.log('🛒 Using cartDrawer.close() from cart-drawer.js');
-                cartDrawer.close();
-                return;
-            }
-
-            // Method 2: Try to find and click close button
-            const closeButtonSelectors = [
-                '.drawer__close',
-                '.cart-drawer__close',
-                '.drawer-close',
-                '.cart-close',
-                '[data-cart-drawer-close]',
-                '[data-drawer-close]',
-                '.close-cart',
-                '.cart-drawer-close'
-            ];
-
-            for (const selector of closeButtonSelectors) {
-                const closeButton = cartDrawer.querySelector(selector);
-                if (closeButton) {
-                    console.log('🛒 Found close button, clicking it:', selector);
-                    closeButton.click();
-                    return;
-                }
-            }
-
-            // Method 3: Remove active classes and hide (fallback)
-            console.log('🛒 Using fallback close method');
-            cartDrawer.classList.remove('active', 'open', 'is-open');
-            cartDrawer.style.display = 'none';
-            cartDrawer.setAttribute('aria-hidden', 'true');
-            document.body.classList.remove('overflow-hidden');
-
-            console.log('✅ Cart drawer closed');
-        } catch (error) {
-            console.error('❌ Failed to close cart drawer:', error);
         }
     }
 }
@@ -2877,8 +2516,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.StickyBarSettings.applySettings();
     });
 });
-
-// Theme's cart-drawer.js already handles overlay clicks automatically
 
 // Re-apply settings on window resize (for responsive visibility)
 window.addEventListener('resize', () => {
