@@ -870,7 +870,7 @@ class StickyBarSettings {
     // Update cart drawer content to reflect current cart state
     async updateCartDrawerContent() {
         try {
-            console.log('🔄 Updating cart drawer content...');
+            console.log('🔄 Updating cart drawer content using theme renderContents...');
 
             const cartDrawer = document.querySelector('cart-drawer');
             if (!cartDrawer) {
@@ -878,7 +878,12 @@ class StickyBarSettings {
                 return;
             }
 
-            // Fetch fresh cart drawer content
+            // Note: renderContents expects parsedState.sections['cart-drawer'] structure
+            // which is different from /cart.js data, so we'll use the fallback method
+            console.log('🔄 Using fallback cart drawer update method (renderContents needs different data structure)');
+
+            // Fallback to our custom method
+            console.log('🔄 Using fallback cart drawer update method');
             const response = await fetch('/?section_id=cart-drawer');
             if (response.ok) {
                 const html = await response.text();
@@ -889,6 +894,17 @@ class StickyBarSettings {
                 if (newCartDrawer) {
                     console.log('🔄 Replacing cart drawer content');
                     cartDrawer.innerHTML = newCartDrawer.innerHTML;
+
+                    // Re-attach the overlay click handler (like renderContents does)
+                    const overlay = cartDrawer.querySelector('#CartDrawer-Overlay');
+                    if (overlay) {
+                        console.log('🔄 Re-attaching overlay click handler');
+                        overlay.addEventListener('click', cartDrawer.close.bind(cartDrawer));
+                    }
+
+                    // Re-initialize the cart drawer using theme's methods
+                    this.reinitializeCartDrawer(cartDrawer);
+
                     console.log('✅ Cart drawer content updated');
                 }
             } else {
@@ -896,6 +912,105 @@ class StickyBarSettings {
             }
         } catch (error) {
             console.error('❌ Failed to update cart drawer content:', error);
+        }
+    }
+
+    // Re-initialize cart drawer using theme's native methods
+    reinitializeCartDrawer(cartDrawer) {
+        try {
+            console.log('🔄 Re-initializing cart drawer with theme methods...');
+
+            // Try to call the theme's cart drawer initialization methods
+            if (typeof cartDrawer.connectedCallback === 'function') {
+                console.log('🔄 Calling cartDrawer.connectedCallback()');
+                cartDrawer.connectedCallback();
+            }
+
+            if (typeof cartDrawer.initialize === 'function') {
+                console.log('🔄 Calling cartDrawer.initialize()');
+                cartDrawer.initialize();
+            }
+
+            if (typeof cartDrawer.setup === 'function') {
+                console.log('🔄 Calling cartDrawer.setup()');
+                cartDrawer.setup();
+            }
+
+            // Dispatch events that the theme might be listening for
+            cartDrawer.dispatchEvent(new CustomEvent('cart:refresh', {
+                bubbles: true,
+                detail: { source: 'sticky-bar' }
+            }));
+
+            // Try to re-initialize cart-items if it exists
+            const cartItems = cartDrawer.querySelector('cart-items');
+            if (cartItems) {
+                if (typeof cartItems.connectedCallback === 'function') {
+                    console.log('🔄 Calling cartItems.connectedCallback()');
+                    cartItems.connectedCallback();
+                }
+            }
+
+            console.log('✅ Cart drawer re-initialized with theme methods');
+        } catch (error) {
+            console.error('❌ Failed to re-initialize cart drawer:', error);
+        }
+    }
+
+    // Ensure cart drawer is properly initialized without breaking theme functionality
+    ensureCartDrawerInitialized(cartDrawer) {
+        try {
+            console.log('🔄 Ensuring cart drawer is properly initialized...');
+
+            // Only call theme methods if they exist and haven't been called yet
+            if (typeof cartDrawer.connectedCallback === 'function' && !cartDrawer._initialized) {
+                console.log('🔄 Calling cartDrawer.connectedCallback()');
+                cartDrawer.connectedCallback();
+                cartDrawer._initialized = true;
+            }
+
+            // Dispatch a gentle refresh event that themes can listen for
+            setTimeout(() => {
+                cartDrawer.dispatchEvent(new CustomEvent('cart:refresh', {
+                    bubbles: true,
+                    detail: { source: 'sticky-bar' }
+                }));
+            }, 100);
+
+            console.log('✅ Cart drawer initialization ensured');
+        } catch (error) {
+            console.error('❌ Failed to ensure cart drawer initialization:', error);
+        }
+    }
+
+    // Trigger theme's cart drawer initialization without interfering
+    triggerThemeCartDrawerInit(cartDrawer) {
+        try {
+            console.log('🛒 Triggering theme cart drawer initialization...');
+
+            // The theme's renderContents method will handle overlay click setup
+            console.log('🛒 Theme renderContents method will handle overlay click setup');
+
+            // The theme's cart-drawer.js already handles overlay clicks automatically
+            // We just need to ensure the cart drawer is properly initialized
+            console.log('🛒 Cart drawer should already have overlay click functionality from cart-drawer.js');
+
+            // Try to call theme methods if they exist
+            if (typeof cartDrawer.connectedCallback === 'function') {
+                console.log('🛒 Calling cartDrawer.connectedCallback()');
+                cartDrawer.connectedCallback();
+            }
+
+            // Try to initialize cart-items if it exists
+            const cartItems = cartDrawer.querySelector('cart-items');
+            if (cartItems && typeof cartItems.connectedCallback === 'function') {
+                console.log('🛒 Calling cartItems.connectedCallback()');
+                cartItems.connectedCallback();
+            }
+
+            console.log('✅ Theme cart drawer initialization triggered');
+        } catch (error) {
+            console.error('❌ Failed to trigger theme cart drawer initialization:', error);
         }
     }
 
@@ -1053,6 +1168,14 @@ class StickyBarSettings {
                 return;
             }
 
+            // Method 1.5: Try cart drawer's own open method (from cart-drawer.js)
+            const cartDrawer = document.querySelector('cart-drawer');
+            if (cartDrawer && typeof cartDrawer.open === 'function') {
+                console.log('🛒 Using cartDrawer.open() from cart-drawer.js');
+                cartDrawer.open();
+                return;
+            }
+
             // Method 2: Try to find and click cart toggle buttons
             const cartToggleSelectors = [
                 '[data-cart-drawer-toggle]',
@@ -1090,6 +1213,10 @@ class StickyBarSettings {
                     cartDrawer.classList.add('active', 'open', 'is-open');
                     cartDrawer.style.display = 'block';
                     cartDrawer.setAttribute('aria-hidden', 'false');
+
+                    // Try to trigger the theme's initialization without interfering
+                    this.triggerThemeCartDrawerInit(cartDrawer);
+
                     return;
                 }
             }
@@ -3089,7 +3216,8 @@ class StickyBarSettings {
 
     // Initialize cart drawer event listeners
     initializeCartDrawerEvents(cartDrawer) {
-        console.log('🛒 Initializing cart drawer event listeners...');
+        console.log('🛒 INITIALIZING CART DRAWER EVENTS - This should be called when cart drawer opens');
+        console.log('🛒 Cart drawer element:', cartDrawer);
 
         try {
             // Dispatch cart:refresh event to initialize the drawer
@@ -3113,9 +3241,324 @@ class StickyBarSettings {
                 cartDrawer.setup();
             }
 
+            // Theme's renderContents method will handle all event setup
+
             console.log('✅ Cart drawer event listeners initialized');
         } catch (error) {
             console.log('❌ Failed to initialize cart drawer events:', error);
+        }
+    }
+
+    // Setup overlay click to close cart drawer
+    setupCartDrawerOverlayClick(cartDrawer) {
+        try {
+            console.log('🛒 Setting up cart drawer overlay click...');
+            console.log('🛒 Cart drawer element:', cartDrawer);
+            console.log('🛒 Cart drawer HTML:', cartDrawer.outerHTML.substring(0, 500) + '...');
+
+            // Find overlay elements (common selectors)
+            const overlaySelectors = [
+                '.drawer__inner',
+                '.cart-drawer__overlay',
+                '.drawer__overlay',
+                '.cart-overlay',
+                '.drawer-overlay',
+                '[data-cart-drawer-overlay]',
+                '.drawer__content',
+                '.cart-drawer__content',
+                '.drawer__wrapper'
+            ];
+
+            let overlay = null;
+            for (const selector of overlaySelectors) {
+                overlay = cartDrawer.querySelector(selector) || document.querySelector(selector);
+                if (overlay) {
+                    console.log('🛒 Found overlay with selector:', selector);
+                    console.log('🛒 Overlay element:', overlay);
+                    break;
+                }
+            }
+
+            // If no specific overlay found, use the cart drawer itself for outside clicks
+            if (!overlay) {
+                overlay = cartDrawer;
+                console.log('🛒 Using cart drawer as overlay target');
+            }
+
+            // Remove existing event listeners to avoid duplicates
+            if (overlay._stickyBarOverlayHandler) {
+                overlay.removeEventListener('click', overlay._stickyBarOverlayHandler);
+            }
+
+            // Create overlay click handler
+            overlay._stickyBarOverlayHandler = (event) => {
+                console.log('🛒 Overlay click detected!');
+                console.log('🛒 Event target:', event.target);
+                console.log('🛒 Overlay element:', overlay);
+                console.log('🛒 Target === Overlay:', event.target === overlay);
+                console.log('🛒 Target classList:', event.target.classList.toString());
+                console.log('🛒 Overlay classList:', overlay.classList.toString());
+
+                // Check if clicking on the overlay itself or its direct children
+                const isOverlayClick = event.target === overlay ||
+                    event.target.closest('.drawer__inner') === overlay ||
+                    event.target.closest('.cart-drawer__overlay') === overlay;
+
+                if (isOverlayClick) {
+                    console.log('🛒 Overlay clicked, closing cart drawer');
+                    this.closeCartDrawer();
+                } else {
+                    console.log('🛒 Click was on child element, not closing');
+                }
+            };
+
+            // Add the event listener
+            overlay.addEventListener('click', overlay._stickyBarOverlayHandler);
+            console.log('🛒 Event listener added to:', overlay);
+
+            // Document click handler is already set up in initializeCartDrawerEvents
+
+            // Also add close button functionality
+            this.setupCartDrawerCloseButtons(cartDrawer);
+
+            // Add escape key functionality
+            this.setupCartDrawerEscapeKey(cartDrawer);
+
+            console.log('✅ Cart drawer overlay click setup complete');
+        } catch (error) {
+            console.error('❌ Failed to setup cart drawer overlay click:', error);
+        }
+    }
+
+    // Setup simple document click handler as backup
+    setupSimpleDocumentClickHandler(cartDrawer) {
+        try {
+            console.log('🛒 Setting up simple document click handler...');
+
+            // Remove existing handler to avoid duplicates
+            if (document._stickyBarSimpleClickHandler) {
+                document.removeEventListener('click', document._stickyBarSimpleClickHandler);
+            }
+
+            // Create simple click handler
+            document._stickyBarSimpleClickHandler = (event) => {
+                // Only handle if cart drawer is open
+                if (!this.isCartDrawerOpen()) {
+                    return;
+                }
+
+                console.log('🛒 Simple document click detected while cart drawer is open');
+                console.log('🛒 Click target:', event.target);
+
+                // Check if click is outside the cart drawer
+                const isInsideCartDrawer = cartDrawer.contains(event.target);
+                const isStickyBar = event.target.closest('.sfy-sb');
+
+                console.log('🛒 Is inside cart drawer:', isInsideCartDrawer);
+                console.log('🛒 Is sticky bar:', !!isStickyBar);
+
+                if (!isInsideCartDrawer && !isStickyBar) {
+                    console.log('🛒 Click outside cart drawer, closing...');
+                    this.closeCartDrawer();
+                } else {
+                    console.log('🛒 Click inside cart drawer or on sticky bar - not closing');
+                }
+            };
+
+            // Add the event listener
+            document.addEventListener('click', document._stickyBarSimpleClickHandler);
+            console.log('🛒 Simple document click handler added');
+        } catch (error) {
+            console.error('❌ Failed to setup simple document click handler:', error);
+        }
+    }
+
+    // Setup document-level click handler as backup
+    setupDocumentClickHandler(cartDrawer) {
+        try {
+            console.log('🛒 Setting up document click handler...');
+
+            // Remove existing document click handler to avoid duplicates
+            if (document._stickyBarDocumentClickHandler) {
+                document.removeEventListener('click', document._stickyBarDocumentClickHandler);
+            }
+
+            // Create document click handler
+            document._stickyBarDocumentClickHandler = (event) => {
+                console.log('🛒 DOCUMENT CLICK DETECTED!'); // Always log this
+                console.log('🛒 Click target:', event.target);
+                console.log('🛒 Cart drawer open state:', this.isCartDrawerOpen());
+
+                // Only handle if cart drawer is open
+                if (!this.isCartDrawerOpen()) {
+                    console.log('🛒 Cart drawer not open, ignoring click');
+                    return;
+                }
+
+                console.log('🛒 Document click detected while cart drawer is open');
+                console.log('🛒 Cart drawer:', cartDrawer);
+
+                // Check if click is outside the cart drawer
+                const isInsideCartDrawer = cartDrawer.contains(event.target);
+                const isCartDrawerToggle = event.target.closest('[data-cart-drawer-toggle], .cart-drawer-toggle, .cart-toggle, [data-cart-toggle]');
+                const isStickyBar = event.target.closest('.sfy-sb');
+
+                console.log('🛒 Is inside cart drawer:', isInsideCartDrawer);
+                console.log('🛒 Is cart drawer toggle:', !!isCartDrawerToggle);
+                console.log('🛒 Is sticky bar:', !!isStickyBar);
+
+                if (!isInsideCartDrawer && !isCartDrawerToggle && !isStickyBar) {
+                    console.log('🛒 Click outside cart drawer, closing...');
+                    this.closeCartDrawer();
+                } else {
+                    console.log('🛒 Click inside cart drawer, on toggle, or on sticky bar - not closing');
+                }
+            };
+
+            // Add the event listener
+            document.addEventListener('click', document._stickyBarDocumentClickHandler);
+            console.log('🛒 Document click handler added');
+
+            // Test the handler immediately
+            console.log('🛒 Testing document click handler...');
+            setTimeout(() => {
+                console.log('🛒 Document click handler test - clicking anywhere should show logs');
+            }, 1000);
+        } catch (error) {
+            console.error('❌ Failed to setup document click handler:', error);
+        }
+    }
+
+    // Setup close buttons for cart drawer
+    setupCartDrawerCloseButtons(cartDrawer) {
+        try {
+            const closeButtonSelectors = [
+                '.drawer__close',
+                '.cart-drawer__close',
+                '.drawer-close',
+                '.cart-close',
+                '[data-cart-drawer-close]',
+                '[data-drawer-close]',
+                '.close-cart',
+                '.cart-drawer-close'
+            ];
+
+            for (const selector of closeButtonSelectors) {
+                const closeButton = cartDrawer.querySelector(selector);
+                if (closeButton) {
+                    console.log('🛒 Found close button with selector:', selector);
+
+                    // Remove existing handler to avoid duplicates
+                    if (closeButton._stickyBarCloseHandler) {
+                        closeButton.removeEventListener('click', closeButton._stickyBarCloseHandler);
+                    }
+
+                    // Create close handler
+                    closeButton._stickyBarCloseHandler = (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        console.log('🛒 Close button clicked');
+                        this.closeCartDrawer();
+                    };
+
+                    // Add the event listener
+                    closeButton.addEventListener('click', closeButton._stickyBarCloseHandler);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Failed to setup close buttons:', error);
+        }
+    }
+
+    // Setup escape key to close cart drawer
+    setupCartDrawerEscapeKey(cartDrawer) {
+        try {
+            // Remove existing escape key handler to avoid duplicates
+            if (document._stickyBarEscapeHandler) {
+                document.removeEventListener('keydown', document._stickyBarEscapeHandler);
+            }
+
+            // Create escape key handler
+            document._stickyBarEscapeHandler = (event) => {
+                if (event.key === 'Escape' && this.isCartDrawerOpen()) {
+                    console.log('🛒 Escape key pressed, closing cart drawer');
+                    this.closeCartDrawer();
+                }
+            };
+
+            // Add the event listener
+            document.addEventListener('keydown', document._stickyBarEscapeHandler);
+        } catch (error) {
+            console.error('❌ Failed to setup escape key handler:', error);
+        }
+    }
+
+    // Check if cart drawer is open
+    isCartDrawerOpen() {
+        const cartDrawer = document.querySelector('cart-drawer');
+        if (!cartDrawer) {
+            console.log('🛒 No cart drawer found');
+            return false;
+        }
+
+        // Use the theme's 'active' class (from cart-drawer.js)
+        const isOpen = cartDrawer.classList.contains('active');
+
+        console.log('🛒 Cart drawer open state:', isOpen);
+        console.log('🛒 Cart drawer classes:', cartDrawer.classList.toString());
+
+        return isOpen;
+    }
+
+    // Close cart drawer using theme methods
+    closeCartDrawer() {
+        try {
+            console.log('🛒 Closing cart drawer...');
+
+            const cartDrawer = document.querySelector('cart-drawer');
+            if (!cartDrawer) {
+                console.log('⚠️ No cart drawer found to close');
+                return;
+            }
+
+            // Method 1: Use theme's CartDrawer.close() method (from cart-drawer.js)
+            if (typeof cartDrawer.close === 'function') {
+                console.log('🛒 Using cartDrawer.close() from cart-drawer.js');
+                cartDrawer.close();
+                return;
+            }
+
+            // Method 2: Try to find and click close button
+            const closeButtonSelectors = [
+                '.drawer__close',
+                '.cart-drawer__close',
+                '.drawer-close',
+                '.cart-close',
+                '[data-cart-drawer-close]',
+                '[data-drawer-close]',
+                '.close-cart',
+                '.cart-drawer-close'
+            ];
+
+            for (const selector of closeButtonSelectors) {
+                const closeButton = cartDrawer.querySelector(selector);
+                if (closeButton) {
+                    console.log('🛒 Found close button, clicking it:', selector);
+                    closeButton.click();
+                    return;
+                }
+            }
+
+            // Method 3: Remove active classes and hide (fallback)
+            console.log('🛒 Using fallback close method');
+            cartDrawer.classList.remove('active', 'open', 'is-open');
+            cartDrawer.style.display = 'none';
+            cartDrawer.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('overflow-hidden');
+
+            console.log('✅ Cart drawer closed');
+        } catch (error) {
+            console.error('❌ Failed to close cart drawer:', error);
         }
     }
 }
@@ -3129,6 +3572,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.StickyBarSettings.applySettings();
     });
 });
+
+// Theme's cart-drawer.js already handles overlay clicks automatically
 
 // Re-apply settings on window resize (for responsive visibility)
 window.addEventListener('resize', () => {
