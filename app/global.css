@@ -1,5 +1,5 @@
 /* Import Polaris Design Tokens */
-@import '@shopify/polaris-tokens/dist/index.css';
+@import '@shopify/polaris-tokens/css/styles.css';
 
 /* Global styles */
 html {

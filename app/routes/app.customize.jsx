@@ -779,7 +779,7 @@ export default function Customize() {
                 <InlineStack align="space-between" gap="400">
                     <InlineStack gap="200" blockAlign="center">
                         <Button icon={ArrowLeftIcon} variant="tertiary" onClick={handleBack} />
-                        <span style={{ fontWeight: 600, fontSize: 20 }}>Customize</span>
+                        <span className="customize-header-title">Customize</span>
                     </InlineStack>
                 </InlineStack>
             </Box>
@@ -797,8 +797,8 @@ export default function Customize() {
                                     <Card>
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
                                             <Text variant="headingSm">Sticky Bar
-                                                <span style={{ marginLeft: 8 }}>
-                                                    <span style={{ background: '#E3F1DF', color: '#108043', borderRadius: 4, padding: '2px 8px', fontSize: 12 }}>Live</span>
+                                                <span className="live-badge-wrapper">
+                                                    <span className="live-badge">Live</span>
                                                 </span>
                                             </Text>
                                             <Button tone="critical">Pause</Button>
@@ -806,10 +806,10 @@ export default function Customize() {
                                     </Card>
                                     <Card>
                                         <Box>
-                                            <div style={{ marginBottom: '16px' }}>
+                                            <div className="section-margin-bottom">
                                                 <Text variant="headingSm" as="h3">Visibility</Text>
                                             </div>
-                                            <Box style={{ margin: '4px 0' }}>
+                                            <Box className="section-margin-small">
                                                 <Select
                                                     label="Show on"
                                                     options={[
@@ -822,13 +822,13 @@ export default function Customize() {
                                                 />
                                             </Box>
 
-                                            <Text variant="bodySm" tone="subdued" style={{ marginTop: 4 }}>Control where the Sticky Bar is shown.</Text>
+                                            <Text variant="bodySm" tone="subdued" className="section-margin-top">Control where the Sticky Bar is shown.</Text>
                                         </Box>
-                                        <Box style={{ margin: '16px 0' }}>
+                                        <Box className="section-margin-vertical">
                                             <Divider />
                                         </Box>
                                         <BlockStack >
-                                            <Box style={{ marginBottom: '16px' }}>
+                                            <Box className="section-margin-bottom">
                                                 <Text variant="headingSm" as="h3">Trigger</Text>
                                             </Box>
                                             <BlockStack gap="200">
@@ -836,14 +836,14 @@ export default function Customize() {
 
                                                 {/* Always visible */}
                                                 <Box>
-                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                    <label className="radio-label">
                                                         <input
                                                             type="radio"
                                                             name="trigger"
                                                             value="always"
                                                             checked={trigger === 'always'}
                                                             onChange={(e) => setTrigger(e.target.value)}
-                                                            style={{ marginRight: '8px' }}
+                                                            className="radio-input"
                                                         />
                                                         <Text>Always visible</Text>
                                                     </label>
@@ -851,14 +851,14 @@ export default function Customize() {
 
                                                 {/* On scroll up */}
                                                 <Box>
-                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                    <label className="radio-label">
                                                         <input
                                                             type="radio"
                                                             name="trigger"
                                                             value="scroll-up"
                                                             checked={trigger === 'scroll-up'}
                                                             onChange={(e) => setTrigger(e.target.value)}
-                                                            style={{ marginRight: '8px' }}
+                                                            className="radio-input"
                                                         />
                                                         <Text>On scroll up</Text>
                                                     </label>
@@ -866,19 +866,19 @@ export default function Customize() {
 
                                                 {/* After X seconds */}
                                                 <Box>
-                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                    <label className="radio-label">
                                                         <input
                                                             type="radio"
                                                             name="trigger"
                                                             value="after-x-seconds"
                                                             checked={trigger === 'after-x-seconds'}
                                                             onChange={(e) => setTrigger(e.target.value)}
-                                                            style={{ marginRight: '8px' }}
+                                                            className="radio-input"
                                                         />
                                                         <Text>After X seconds</Text>
                                                     </label>
                                                     {trigger === 'after-x-seconds' && (
-                                                        <Box style={{ marginLeft: '24px', marginTop: '8px' }}>
+                                                        <Box className="indented-content">
                                                             <TextField
                                                                 label="Seconds"
                                                                 type="number"
@@ -894,19 +894,19 @@ export default function Customize() {
 
                                                 {/* After X pixels */}
                                                 <Box>
-                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                    <label className="radio-label">
                                                         <input
                                                             type="radio"
                                                             name="trigger"
                                                             value="after-x-pixels"
                                                             checked={trigger === 'after-x-pixels'}
                                                             onChange={(e) => setTrigger(e.target.value)}
-                                                            style={{ marginRight: '8px' }}
+                                                            className="radio-input"
                                                         />
                                                         <Text>After scrolling down X pixels</Text>
                                                     </label>
                                                     {trigger === 'after-x-pixels' && (
-                                                        <Box style={{ marginLeft: '24px', marginTop: '8px' }}>
+                                                        <Box className="indented-content">
                                                             <TextField
                                                                 label="Pixels"
                                                                 type="number"
@@ -922,14 +922,14 @@ export default function Customize() {
 
                                                 {/* After product summary */}
                                                 <Box>
-                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                    <label className="radio-label">
                                                         <input
                                                             type="radio"
                                                             name="trigger"
                                                             value="after-summary"
                                                             checked={trigger === 'after-summary'}
                                                             onChange={(e) => setTrigger(e.target.value)}
-                                                            style={{ marginRight: '8px' }}
+                                                            className="radio-input"
                                                         />
                                                         <Text>After product summary</Text>
                                                     </label>
@@ -937,14 +937,14 @@ export default function Customize() {
 
                                                 {/* When add to cart button is out of view */}
                                                 <Box>
-                                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                                    <label className="radio-label">
                                                         <input
                                                             type="radio"
                                                             name="trigger"
                                                             value="out-of-view"
                                                             checked={trigger === 'out-of-view'}
                                                             onChange={(e) => setTrigger(e.target.value)}
-                                                            style={{ marginRight: '8px' }}
+                                                            className="radio-input"
                                                         />
                                                         <Text>When add to cart button is out of view</Text>
                                                     </label>
@@ -980,9 +980,9 @@ export default function Customize() {
                             {appearanceView === 'desktop' && (
                                 <BlockStack gap="400">
                                     <Card>
-                                        <Box style={{ marginBottom: '16px' }}>
+                                        <Box className="section-margin-bottom">
                                             <BlockStack gap="100">
-                                                <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
+                                                <Text variant="headingSm" as="h3" className="form-label-bold">Content display</Text>
                                                 <Text variant="bodySm" tone="subdued">
                                                     Control which product elements are displayed.
                                                 </Text>
@@ -1019,7 +1019,7 @@ export default function Customize() {
                                             </Text>
                                         </BlockStack>
                                         <Box paddingBlock="400">
-                                            <Box style={{ marginBottom: '8px' }}>
+                                            <Box className="form-field-margin">
                                                 <ChoiceList
                                                     title="Width"
                                                     choices={[
@@ -1033,17 +1033,16 @@ export default function Customize() {
                                             </Box>
                                             {barWidth === 'contained' && (
                                                 <>
-                                                    <Box style={{ marginBottom: '8px' }}>
+                                                    <Box className="form-field-margin">
                                                         <BlockStack gap="100">
-                                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
+                                                            <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
                                                             <div className='input-and-unit-wrapper'>
                                                                 <TextField
-                                                                    className='max-width-input-type-number'
+                                                                    className='max-width-input-type-number input-flex'
                                                                     type="number"
                                                                     placeholder="e.g., 600"
                                                                     value={maxWidth}
                                                                     onChange={setMaxWidth}
-                                                                    style={{ flex: 1 }}
                                                                 />
                                                                 <Select
                                                                     options={[
@@ -1052,13 +1051,13 @@ export default function Customize() {
                                                                     ]}
                                                                     onChange={setMaxWidthUnit}
                                                                     value={maxWidthUnit}
-                                                                    style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                    className="input-styled"
                                                                 />
                                                             </div>
                                                             <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
                                                         </BlockStack>
                                                     </Box>
-                                                    <Box style={{ marginBottom: "16px" }}>
+                                                    <Box className="form-field-margin-large">
                                                         <BlockStack gap="100">
                                                             <Text variant="bodySm" as="div">Alignment</Text>
                                                             <Select
@@ -1070,13 +1069,13 @@ export default function Customize() {
                                                                 onChange={setAlignment}
                                                                 value={alignment}
                                                                 name="sticky_alignment"
-                                                                style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                className="input-styled input-full-width"
                                                             />
                                                         </BlockStack>
                                                     </Box>
-                                                    <Box style={{ marginBottom: "16px" }}>
+                                                    <Box className="form-field-margin-large">
                                                         <BlockStack gap="100">
-                                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
+                                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
                                                             <div className='input-and-unit-wrapper'>
                                                                 <input
                                                                     type="hidden"
@@ -1098,7 +1097,7 @@ export default function Customize() {
                                                                     onChange={setOuterSpacingUnit}
                                                                     value={outerSpacingUnit}
                                                                     name="sticky_outer_spacing_unit"
-                                                                    style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                    className="input-styled"
                                                                 />
                                                             </div>
                                                             <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
@@ -1107,7 +1106,7 @@ export default function Customize() {
                                                 </>
                                             )}
                                             <BlockStack gap="100">
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Inner spacing</Text>
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Inner spacing</Text>
                                                 <div className='input-and-unit-wrapper'>
                                                     <input
                                                         type="hidden"
@@ -1129,7 +1128,7 @@ export default function Customize() {
                                                         onChange={setInnerSpacingUnit}
                                                         value={innerSpacingUnit}
                                                         name="sticky_inner_spacing_unit"
-                                                        style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                        className="input-styled"
                                                     />
                                                 </div>
                                                 <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
@@ -1137,25 +1136,21 @@ export default function Customize() {
                                         </Box>
                                         <BlockStack gap="400">
                                             <BlockStack gap="100">
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Background color</Text>
                                                 <Popover
                                                     active={showBackgroundColorPicker}
                                                     activator={
                                                         <div className="color-input-wrapper">
                                                             <div
-                                                                className="color-swatch"
+                                                                className="color-swatch color-picker-preview"
                                                                 style={{
                                                                     backgroundColor: backgroundColor,
-                                                                    border: '1px solid #DFDFDF',
-                                                                    borderRadius: '4px',
-                                                                    width: '20px',
-                                                                    height: '20px',
                                                                     cursor: 'pointer'
                                                                 }}
                                                                 onClick={() => setShowBackgroundColorPicker(true)}
                                                             />
                                                             <input
-                                                                className="color-input-type-color"
+                                                                className="color-input-type-color color-input-text"
                                                                 type="text"
                                                                 value={backgroundColor}
                                                                 onChange={(e) => {
@@ -1167,7 +1162,6 @@ export default function Customize() {
                                                                         setBackgroundColorHSBA(hexToHSBA(newColor));
                                                                     }
                                                                 }}
-                                                                style={{ cursor: 'text' }}
                                                                 placeholder="#FFFFFF"
                                                             />
                                                         </div>
@@ -1189,25 +1183,21 @@ export default function Customize() {
                                                 </Popover>
                                             </BlockStack>
                                             <BlockStack gap="100">
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Border color</Text>
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Border color</Text>
                                                 <Popover
                                                     active={showBorderColorPicker}
                                                     activator={
                                                         <div className="color-input-wrapper">
                                                             <div
-                                                                className="color-swatch"
+                                                                className="color-swatch color-picker-preview"
                                                                 style={{
                                                                     backgroundColor: borderColor,
-                                                                    border: '1px solid #DFDFDF',
-                                                                    borderRadius: '4px',
-                                                                    width: '20px',
-                                                                    height: '20px',
                                                                     cursor: 'pointer'
                                                                 }}
                                                                 onClick={() => setShowBorderColorPicker(true)}
                                                             />
                                                             <input
-                                                                className="color-input-type-color"
+                                                                className="color-input-type-color color-input-text"
                                                                 type="text"
                                                                 value={borderColor}
                                                                 onChange={(e) => {
@@ -1219,7 +1209,6 @@ export default function Customize() {
                                                                         setBorderColorHSBA(hexToHSBA(newColor));
                                                                     }
                                                                 }}
-                                                                style={{ cursor: 'text' }}
                                                                 placeholder="#DFDFDF"
                                                             />
                                                         </div>
@@ -1241,7 +1230,7 @@ export default function Customize() {
                                                 </Popover>
                                             </BlockStack>
                                             <BlockStack gap="100">
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Corner radius</Text>
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Corner radius</Text>
                                                 <div
                                                     className='sy-range-slider-wrapper'
                                                 >
@@ -1254,7 +1243,7 @@ export default function Customize() {
                                                         step={1}
                                                         onChange={value => setBorderRadius(value.toString())}
                                                         name="sticky_border_radius"
-                                                        style={{ flex: 1 }}
+                                                        className="input-flex"
                                                     />
                                                     <div className='sy-range-slider-unit-wrapper'>
                                                         <input
@@ -1283,18 +1272,18 @@ export default function Customize() {
                                             <Divider />
                                         </Box>
                                         <Box>
-                                            <Box style={{ marginBottom: '8px' }}>
+                                            <Box className="form-field-margin">
                                                 <Text as="h4" variant="headingSm">Product name</Text>
                                             </Box>
                                             <Box style={{ marginBottom: '4px' }}>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Color</Text>
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
                                             </Box>
                                             <Popover
                                                 active={showProductNameColorPicker}
                                                 activator={
                                                     <div className="color-input-wrapper">
                                                         <div
-                                                            className="color-swatch"
+                                                            className="color-swatch color-picker-preview"
                                                             style={{
                                                                 backgroundColor: productNameColor,
                                                                 border: '1px solid #DFDFDF',
@@ -1306,7 +1295,7 @@ export default function Customize() {
                                                             onClick={() => setShowProductNameColorPicker(true)}
                                                         />
                                                         <input
-                                                            className="color-input-type-color"
+                                                            className="color-input-type-color color-input-text"
                                                             type="text"
                                                             value={productNameColor}
                                                             onChange={(e) => {
@@ -1318,7 +1307,6 @@ export default function Customize() {
                                                                     setProductNameColorHSBA(hexToHSBA(newColor));
                                                                 }
                                                             }}
-                                                            style={{ cursor: 'text' }}
                                                             placeholder="#141414"
                                                         />
                                                     </div>
@@ -1342,11 +1330,11 @@ export default function Customize() {
                                         <Box style={{ margin: '16px 0' }}>
                                             <Divider />
                                         </Box>
-                                        <Box style={{ marginBottom: 8 }}>
-                                            <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
+                                        <Box className="form-label-bold">
+                                            <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
                                         </Box>
                                         <Box style={{ marginBottom: 4 }}>
-                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
+                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
                                         </Box>
                                         <input
                                             type="hidden"
@@ -1365,19 +1353,19 @@ export default function Customize() {
                                         <Box style={{ margin: '16px 0' }}>
                                             <Divider />
                                         </Box>
-                                        <Box style={{ marginBottom: 8 }}>
-                                            <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Quantity</Text>
+                                        <Box className="form-label-bold">
+                                            <Text variant="headingSm" as="h4" className="form-label-bold">Quantity</Text>
                                         </Box>
                                         <Box style={{ marginBottom: 4 }}>
-                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Color</Text>
+                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
                                         </Box>
-                                        <Box style={{ marginBottom: 8 }}>
+                                        <Box className="form-label-bold">
                                             <Popover
                                                 active={showQuantityColorPicker}
                                                 activator={
                                                     <div className="color-input-wrapper">
                                                         <div
-                                                            className="color-swatch"
+                                                            className="color-swatch color-picker-preview"
                                                             style={{
                                                                 backgroundColor: quantityColor,
                                                                 border: '1px solid #DFDFDF',
@@ -1389,7 +1377,7 @@ export default function Customize() {
                                                             onClick={() => setShowQuantityColorPicker(true)}
                                                         />
                                                         <input
-                                                            className="color-input-type-color"
+                                                            className="color-input-type-color color-input-text"
                                                             type="text"
                                                             value={quantityColor}
                                                             onChange={(e) => {
@@ -1401,7 +1389,6 @@ export default function Customize() {
                                                                     setQuantityColorHSBA(hexToHSBA(newColor));
                                                                 }
                                                             }}
-                                                            style={{ cursor: 'text' }}
                                                             placeholder="#141414"
                                                         />
                                                     </div>
@@ -1423,14 +1410,14 @@ export default function Customize() {
                                             </Popover>
                                         </Box>
                                         <Box style={{ marginBottom: 4 }}>
-                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Border color</Text>
+                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Border color</Text>
                                         </Box>
                                         <Popover
                                             active={showQuantityBorderColorPicker}
                                             activator={
                                                 <div className="color-input-wrapper">
                                                     <div
-                                                        className="color-swatch"
+                                                        className="color-swatch color-picker-preview"
                                                         style={{
                                                             backgroundColor: quantityBorderColor,
                                                             border: '1px solid #DFDFDF',
@@ -1442,7 +1429,7 @@ export default function Customize() {
                                                         onClick={() => setShowQuantityBorderColorPicker(true)}
                                                     />
                                                     <input
-                                                        className="color-input-type-color"
+                                                        className="color-input-type-color color-input-text"
                                                         type="text"
                                                         value={quantityBorderColor}
                                                         onChange={(e) => {
@@ -1454,7 +1441,6 @@ export default function Customize() {
                                                                 setQuantityBorderColorHSBA(hexToHSBA(newColor));
                                                             }
                                                         }}
-                                                        style={{ cursor: 'text' }}
                                                         placeholder="#DFDFDF"
                                                     />
                                                 </div>
@@ -1484,7 +1470,7 @@ export default function Customize() {
                                                 </Text>
                                             </Box>
                                             <Box>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>On click behavior</Text>
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">On click behavior</Text>
                                                 <input
                                                     type="hidden"
                                                     name="sticky_button_behavior"
@@ -1501,7 +1487,7 @@ export default function Customize() {
                                                 />
                                             </Box>
                                             <Box>
-                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text</Text>
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Text</Text>
                                                 <input
                                                     type="hidden"
                                                     name="sticky_button_text"
@@ -1534,7 +1520,7 @@ export default function Customize() {
                                                     onChange={setEnableCartIcon}
                                                 />
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                    <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
+                                                    <Text variant="bodySm" as="span" className="form-label-bold-simple">Show cart icon</Text>
                                                     <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
                                                         Choose whether to display the icon or not
                                                     </Text>
@@ -1542,13 +1528,13 @@ export default function Customize() {
                                             </div>
                                             <Box>
                                                 <BlockStack gap="100">
-                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Text color</Text>
+                                                    <Text variant="bodySm" as="div" className="form-label-bold-simple">Text color</Text>
                                                     <Popover
                                                         active={showButtonTextColorPicker}
                                                         activator={
                                                             <div className="color-input-wrapper">
                                                                 <div
-                                                                    className="color-swatch"
+                                                                    className="color-swatch color-picker-preview"
                                                                     style={{
                                                                         backgroundColor: buttonTextColor,
                                                                         border: '1px solid #DFDFDF',
@@ -1560,7 +1546,7 @@ export default function Customize() {
                                                                     onClick={() => setShowButtonTextColorPicker(true)}
                                                                 />
                                                                 <input
-                                                                    className="color-input-type-color"
+                                                                    className="color-input-type-color color-input-text"
                                                                     type="text"
                                                                     value={buttonTextColor}
                                                                     onChange={(e) => {
@@ -1572,7 +1558,6 @@ export default function Customize() {
                                                                             setButtonTextColorHSBA(hexToHSBA(newColor));
                                                                         }
                                                                     }}
-                                                                    style={{ cursor: 'text' }}
                                                                     placeholder="#FFFFFF"
                                                                 />
                                                             </div>
@@ -1596,13 +1581,13 @@ export default function Customize() {
                                             </Box>
                                             <Box>
                                                 <BlockStack gap="100">
-                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Background color</Text>
+                                                    <Text variant="bodySm" as="div" className="form-label-bold-simple">Background color</Text>
                                                     <Popover
                                                         active={showButtonBgColorPicker}
                                                         activator={
                                                             <div className="color-input-wrapper">
                                                                 <div
-                                                                    className="color-swatch"
+                                                                    className="color-swatch color-picker-preview"
                                                                     style={{
                                                                         backgroundColor: buttonBgColor,
                                                                         border: '1px solid #DFDFDF',
@@ -1614,7 +1599,7 @@ export default function Customize() {
                                                                     onClick={() => setShowButtonBgColorPicker(true)}
                                                                 />
                                                                 <input
-                                                                    className="color-input-type-color"
+                                                                    className="color-input-type-color color-input-text"
                                                                     type="text"
                                                                     value={buttonBgColor}
                                                                     onChange={(e) => {
@@ -1626,7 +1611,6 @@ export default function Customize() {
                                                                             setButtonBgColorHSBA(hexToHSBA(newColor));
                                                                         }
                                                                     }}
-                                                                    style={{ cursor: 'text' }}
                                                                     placeholder="#141414"
                                                                 />
                                                             </div>
@@ -1661,9 +1645,9 @@ export default function Customize() {
                             {appearanceView === 'mobile' && (
                                 <BlockStack gap="400">
                                     <Card>
-                                        <Box style={{ marginBottom: '16px' }}>
+                                        <Box className="section-margin-bottom">
                                             <BlockStack gap="100">
-                                                <Text variant="headingSm" as="h3" style={{ marginBottom: 8 }}>Content display</Text>
+                                                <Text variant="headingSm" as="h3" className="form-label-bold">Content display</Text>
                                                 <Text variant="bodySm" tone="subdued">
                                                     Control which product elements are displayed.
                                                 </Text>
@@ -1725,7 +1709,7 @@ export default function Customize() {
                                                 </Text>
                                             </BlockStack>
                                             <Box>
-                                                <Box style={{ marginBottom: '8px' }}>
+                                                <Box className="form-field-margin">
                                                     <ChoiceList
                                                         title="Width"
                                                         choices={[
@@ -1740,9 +1724,9 @@ export default function Customize() {
                                                 </Box>
                                                 {mobileBarWidth === 'contained' && (
                                                     <>
-                                                        <Box style={{ marginBottom: '8px' }}>
+                                                        <Box className="form-field-margin">
                                                             <BlockStack gap="100">
-                                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginTop: 16, marginBottom: 4 }}>Max width</Text>
+                                                                <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
                                                                 <div className='input-and-unit-wrapper'>
                                                                     <input
                                                                         type="hidden"
@@ -1750,12 +1734,11 @@ export default function Customize() {
                                                                         value={mobileMaxWidth}
                                                                     />
                                                                     <TextField
-                                                                        className='max-width-input-type-number'
+                                                                        className='max-width-input-type-number input-flex'
                                                                         type="number"
                                                                         placeholder="e.g., 600"
                                                                         value={mobileMaxWidth}
                                                                         onChange={setMobileMaxWidth}
-                                                                        style={{ flex: 1 }}
                                                                     />
                                                                     <Select
                                                                         options={[
@@ -1765,13 +1748,13 @@ export default function Customize() {
                                                                         onChange={setMobileMaxWidthUnit}
                                                                         value={mobileMaxWidthUnit}
                                                                         name="sticky_max_width_mobile_unit"
-                                                                        style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                        className="input-styled"
                                                                     />
                                                                 </div>
                                                                 <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
                                                             </BlockStack>
                                                         </Box>
-                                                        <Box style={{ marginBottom: "16px" }}>
+                                                        <Box className="form-field-margin-large">
                                                             <BlockStack gap="100">
                                                                 <Text variant="bodySm" as="div">Alignment</Text>
                                                                 <Select
@@ -1783,13 +1766,13 @@ export default function Customize() {
                                                                     onChange={setMobileAlignment}
                                                                     value={mobileAlignment}
                                                                     name="sticky_alignment_mobile"
-                                                                    style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                    className="input-styled input-full-width"
                                                                 />
                                                             </BlockStack>
                                                         </Box>
-                                                        <Box style={{ marginBottom: "16px" }}>
+                                                        <Box className="form-field-margin-large">
                                                             <BlockStack gap="100">
-                                                                <Text variant="bodySm" as="div" style={{ fontWeight: 500 }}>Outer spacing</Text>
+                                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
                                                                 <div className='input-and-unit-wrapper'>
                                                                     <input
                                                                         type="hidden"
@@ -1811,7 +1794,7 @@ export default function Customize() {
                                                                         onChange={setMobileOuterSpacingUnit}
                                                                         value={mobileOuterSpacingUnit}
                                                                         name="sticky_outer_spacing_mobile_unit"
-                                                                        style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                                        className="input-styled"
                                                                     />
                                                                 </div>
                                                                 <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
@@ -1820,7 +1803,7 @@ export default function Customize() {
                                                     </>
                                                 )}
                                                 <BlockStack gap="100">
-                                                    <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Inner spacing</Text>
+                                                    <Text variant="bodySm" as="div" className="form-label-bold-simple">Inner spacing</Text>
                                                     <div className='input-and-unit-wrapper'>
                                                         <input
                                                             type="hidden"
@@ -1842,7 +1825,7 @@ export default function Customize() {
                                                             onChange={setMobileInnerSpacingUnit}
                                                             value={mobileInnerSpacingUnit}
                                                             name="sticky_inner_spacing_mobile_unit"
-                                                            style={{ padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                                            className="input-styled"
                                                         />
                                                     </div>
                                                     <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
@@ -1860,11 +1843,11 @@ export default function Customize() {
                                         <Box style={{ margin: '16px 0' }}>
                                             <Divider />
                                         </Box>
-                                        <Box style={{ marginBottom: 8 }}>
-                                            <Text variant="headingSm" as="h4" style={{ marginBottom: 8 }}>Image</Text>
+                                        <Box className="form-label-bold">
+                                            <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
                                         </Box>
                                         <Box style={{ marginBottom: 4 }}>
-                                            <Text variant="bodySm" as="div" style={{ fontWeight: 500, marginBottom: 4 }}>Size</Text>
+                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
                                         </Box>
                                         <input
                                             type="hidden"
@@ -1880,7 +1863,7 @@ export default function Customize() {
                                             onChange={setMobileImageSize}
                                             value={mobileImageSize}
                                             name="sticky_image_size_mobile"
-                                            style={{ width: '100%', padding: 8, border: '1px solid #DFDFDF', borderRadius: 8, fontSize: 16 }}
+                                            className="input-styled input-full-width"
                                         />
                                     </Card>
                                     <Card>
@@ -1905,7 +1888,7 @@ export default function Customize() {
                                                         onChange={setEnableMobileCartIcon}
                                                     />
                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                        <Text variant="bodySm" as="span" style={{ fontWeight: 500 }}>Show cart icon</Text>
+                                                        <Text variant="bodySm" as="span" className="form-label-bold-simple">Show cart icon</Text>
                                                         <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
                                                             Choose whether to display the icon or not
                                                         </Text>
@@ -1938,28 +1921,17 @@ export default function Customize() {
                                         Add your own CSS to override or extend the default bar styling.
                                     </Text>
                                 </BlockStack>
-                                <div style={{ display: 'flex', border: '1px solid #DFDFDF', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
-                                    <div style={{ background: '#F6F6F7', color: '#6D7175', fontFamily: 'monospace', fontSize: 14, padding: '8px 4px', textAlign: 'right', userSelect: 'none' }}>
+                                <div className="css-editor-container">
+                                    <div className="css-editor-line-numbers">
                                         {Array.from({ length: customCss.split('\n').length || 1 }, (_, i) => (
-                                            <div key={i} style={{ height: 20 }}>{i + 1}</div>
+                                            <div key={i} className="css-editor-line-number">{i + 1}</div>
                                         ))}
                                     </div>
                                     <textarea
                                         value={customCss}
                                         onChange={e => setCustomCss(e.target.value)}
                                         rows={5}
-                                        style={{
-                                            width: '100%',
-                                            border: 'none',
-                                            outline: 'none',
-                                            fontFamily: 'monospace',
-                                            fontSize: 14,
-                                            color: '#228B22',
-                                            background: '#fff',
-                                            padding: 8,
-                                            resize: 'vertical',
-                                            minHeight: 100,
-                                        }}
+                                        className="css-editor-textarea"
                                         spellCheck={false}
                                     />
                                 </div>
@@ -1967,30 +1939,14 @@ export default function Customize() {
                         </Card>
                     )}
                 </div>
-                <div style={{
-                    position: 'sticky',
-                    top: '16px'
-                }}>
+                <div className="preview-sidebar">
                     <Card>
-                        <div style={{
-                            marginBottom: '16px'
-                        }}>
-                            <Text as="h3" variant="headingMd" style={{
-                                fontWeight: 600,
-                                color: '#202223',
-                                margin: 0
-                            }}>
+                        <div className="section-margin-bottom">
+                            <Text as="h3" variant="headingMd" className="preview-title">
                                 Live preview
                             </Text>
                         </div>
-                        <div style={{
-                            minHeight: appearanceView === 'mobile' ? 560 : 300,
-                            position: 'relative',
-                            borderRadius: '8px',
-                            background: '#f8f9fa',
-                            width: appearanceView === 'mobile' ? '375px' : '100%',
-                            margin: appearanceView === 'mobile' ? '0 auto' : '0'
-                        }}>
+                        <div className={`preview-area ${appearanceView === 'mobile' ? 'preview-area-mobile' : ''}`}>
                             <div
                                 className={getPositioningClasses()}
                                 style={{
