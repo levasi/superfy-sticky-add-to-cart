@@ -1971,7 +1971,18 @@ export default function Customize() {
                     position: 'sticky',
                     top: '16px'
                 }}>
-                    <Card title={appearanceView === 'mobile' ? "Live preview (375px)" : "Live preview"}>
+                    <Card>
+                        <div style={{
+                            marginBottom: '16px'
+                        }}>
+                            <Text as="h3" variant="headingMd" style={{
+                                fontWeight: 600,
+                                color: '#202223',
+                                margin: 0
+                            }}>
+                                Live preview
+                            </Text>
+                        </div>
                         <div style={{
                             minHeight: appearanceView === 'mobile' ? 560 : 300,
                             position: 'relative',
