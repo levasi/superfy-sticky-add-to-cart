@@ -325,7 +325,7 @@
 
 // Section spacing styles
 .section-margin-bottom {
-    margin-bottom: 16px;
+    margin-bottom: var(--p-space-400);
 }
 
 .section-margin-top {
@@ -417,17 +417,11 @@
     }
 }
 
-.preview-title {
-    font-weight: 600;
-    color: var(--p-color-text);
-    margin: 0;
-}
-
 .preview-area {
     min-height: 300px;
     position: relative;
-    border-radius: var(--p-border-radius-2);
-    background: var(--p-color-bg-surface-subdued);
+    border-radius: 8px;
+    background: #F8F8F8;
     width: 100%;
     margin: 0;
 }

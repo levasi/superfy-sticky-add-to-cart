@@ -1942,7 +1942,10 @@ export default function Customize() {
                 <div className="preview-sidebar">
                     <Card>
                         <div className="section-margin-bottom">
-                            <Text as="h3" variant="headingMd" className="preview-title">
+                            <Text as="h3"
+                                variant="headingMd"
+                                marginBlockEnd="400"
+                                className="preview-title">
                                 Live preview
                             </Text>
                         </div>
