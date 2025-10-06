@@ -1934,13 +1934,18 @@ export default function Customize() {
                                 </BlockStack>
                             )}
                             <Card>
-                                <Text as="h3" variant="headingMd">Reset appearance settings</Text>
-                                <Text variant="bodySm" tone="subdued">
-                                    Revert appearance settings to their original defaults.<br />This action cannot be undone.
-                                </Text>
-                                <Button onClick={handleResetClick} >
-                                    Reset to defaults
-                                </Button>
+                                <BlockStack gap="200" marginBlockEnd="100">
+                                    <BlockStack gap="100">
+                                        <Text as="h3" variant="headingMd">Reset appearance settings</Text>
+                                        <Text variant="bodySm" tone="subdued">
+                                            Revert appearance settings to their original defaults.<br />This action cannot be undone.
+                                        </Text>
+                                    </BlockStack>
+
+                                    <Button onClick={handleResetClick} >
+                                        Reset to defaults
+                                    </Button>
+                                </BlockStack>
                             </Card>
 
                         </BlockStack>
