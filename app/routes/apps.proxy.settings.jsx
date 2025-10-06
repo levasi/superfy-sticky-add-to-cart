@@ -69,6 +69,7 @@ export const loader = async ({ request }) => {
             sticky_button_text_color: await getSetting("sticky_button_text_color"),
             sticky_button_bg_color: await getSetting("sticky_button_bg_color"),
             sticky_custom_css: await getSetting("sticky_custom_css"),
+            sticky_bar_status: await getSetting("sticky_bar_status"),
         };
 
         // Convert to a clean settings object with default values
@@ -120,6 +121,7 @@ export const loader = async ({ request }) => {
             sticky_button_text_color: settings.sticky_button_text_color?.value || '#FFFFFF',
             sticky_button_bg_color: settings.sticky_button_bg_color?.value || '#141414',
             sticky_custom_css: settings.sticky_custom_css?.value || '',
+            sticky_bar_status: settings.sticky_bar_status?.value || 'active',
         };
 
         console.log('🔧 APP PROXY DEBUG - Final cleanSettings:');
@@ -203,6 +205,7 @@ export const loader = async ({ request }) => {
                 sticky_button_text_color: await getSetting("sticky_button_text_color"),
                 sticky_button_bg_color: await getSetting("sticky_button_bg_color"),
                 sticky_custom_css: await getSetting("sticky_custom_css"),
+                sticky_bar_status: await getSetting("sticky_bar_status"),
             };
 
             // Convert to a clean settings object with default values
@@ -250,6 +253,7 @@ export const loader = async ({ request }) => {
                 sticky_button_text_color: settings.sticky_button_text_color?.value || '#FFFFFF',
                 sticky_button_bg_color: settings.sticky_button_bg_color?.value || '#141414',
                 sticky_custom_css: settings.sticky_custom_css?.value || '',
+                sticky_bar_status: settings.sticky_bar_status?.value || 'active',
             };
 
             // Return settings with CORS headers for storefront access

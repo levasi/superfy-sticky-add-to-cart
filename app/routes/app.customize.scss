@@ -119,6 +119,14 @@
     font-size: 12px;
 }
 
+.paused-badge {
+    background: var(--p-color-bg-warning-subdued);
+    color: var(--p-color-text-warning);
+    border-radius: var(--p-border-radius-1);
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
 // Section spacing styles
 .section-margin-bottom {
     margin-bottom: var(--p-space-400);

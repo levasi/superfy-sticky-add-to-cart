@@ -84,6 +84,7 @@ export const loader = async ({ request }) => {
     const borderRadiusSetting = await getSetting("sticky_border_radius");
     const triggerSecondsSetting = await getSetting("sticky_trigger_seconds");
     const triggerPixelsSetting = await getSetting("sticky_trigger_pixels");
+    const stickyBarStatusSetting = await getSetting("sticky_bar_status");
     return json({
         sticky_bar_color: barColorSetting?.value || '#fff',
         sticky_visibility: visibilitySetting?.value || 'all',
@@ -128,7 +129,8 @@ export const loader = async ({ request }) => {
         sticky_button_bg_color: buttonBgColorSetting?.value || '#141414',
         sticky_custom_css: customCssSetting?.value || '<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>\n<div>Hello World</div>',
         sticky_trigger_seconds: triggerSecondsSetting?.value || '3',
-        sticky_trigger_pixels: triggerPixelsSetting?.value || '300'
+        sticky_trigger_pixels: triggerPixelsSetting?.value || '300',
+        sticky_bar_status: stickyBarStatusSetting?.value || 'active'
     });
 };
 
@@ -165,6 +167,17 @@ export const action = async ({ request }) => {
 
         // Save to metafields for backward compatibility
         await setShopMetafields(admin, shopId, generalSettings);
+
+        return Response.json({ ok: true });
+    }
+
+    // Handle sticky bar status toggle
+    if (formData.has("sticky_bar_status")) {
+        const stickyBarStatus = formData.get("sticky_bar_status") || "active";
+        await upsertSetting("sticky_bar_status", stickyBarStatus);
+
+        // Save to metafields for backward compatibility
+        await setShopMetafields(admin, shopId, { sticky_bar_status: stickyBarStatus });
 
         return Response.json({ ok: true });
     }
@@ -209,6 +222,7 @@ export default function Customize() {
     const [showButtonBgColorPicker, setShowButtonBgColorPicker] = useState(false);
     const [visibility, setVisibility] = useState(savedSettings.sticky_visibility);
     const [trigger, setTrigger] = useState(savedSettings.sticky_trigger);
+    const [stickyBarStatus, setStickyBarStatus] = useState(savedSettings.sticky_bar_status);
     const [triggerSeconds, setTriggerSeconds] = useState(parseInt(savedSettings.sticky_trigger_seconds) || 3);
     const [triggerPixels, setTriggerPixels] = useState(parseInt(savedSettings.sticky_trigger_pixels) || 300);
     const [imageDisplay, setImageDisplay] = useState(savedSettings.sticky_content_display_image);
@@ -767,6 +781,18 @@ export default function Customize() {
 
     const handleTabChange = useCallback((selectedTabIndex) => setSelectedTab(selectedTabIndex), []);
 
+    // Handle pause/resume sticky bar
+    const handleToggleStickyBar = useCallback(async () => {
+        const newStatus = stickyBarStatus === 'active' ? 'paused' : 'active';
+        setStickyBarStatus(newStatus);
+
+        // Save to database
+        const formData = new FormData();
+        formData.append('sticky_bar_status', newStatus);
+
+        fetcher.submit(formData, { method: 'post' });
+    }, [stickyBarStatus, fetcher]);
+
     const tabs = [
         { id: 'general', content: 'General', panelID: 'general-content' },
         { id: 'appearance', content: 'Appearance', panelID: 'appearance-content' },
@@ -798,10 +824,18 @@ export default function Customize() {
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
                                             <Text variant="headingSm">Sticky Bar
                                                 <span className="live-badge-wrapper">
-                                                    <span className="live-badge">Live</span>
+                                                    <span className={stickyBarStatus === 'active' ? 'live-badge' : 'paused-badge'}>
+                                                        {stickyBarStatus === 'active' ? 'Live' : 'Paused'}
+                                                    </span>
                                                 </span>
                                             </Text>
-                                            <Button tone="critical">Pause</Button>
+                                            <Button
+                                                tone={stickyBarStatus === 'active' ? 'critical' : 'success'}
+                                                onClick={handleToggleStickyBar}
+                                                loading={fetcher.state === 'submitting'}
+                                            >
+                                                {stickyBarStatus === 'active' ? 'Pause' : 'Resume'}
+                                            </Button>
                                         </InlineStack>
                                     </Card>
                                     <Card>
