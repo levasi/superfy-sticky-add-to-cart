@@ -1014,14 +1014,13 @@ export default function Customize() {
                             {appearanceView === 'desktop' && (
                                 <BlockStack gap="400">
                                     <Card>
-                                        <Box className="section-margin-bottom">
-                                            <BlockStack gap="100">
-                                                <Text variant="headingSm" as="h3" className="form-label-bold">Content display</Text>
-                                                <Text variant="bodySm" tone="subdued">
-                                                    Control which product elements are displayed.
-                                                </Text>
-                                            </BlockStack>
-                                        </Box>
+                                        <BlockStack gap="100">
+                                            <Text variant="headingSm" as="h3" className="form-label-bold">Content display</Text>
+                                            <Text variant="bodySm" tone="subdued">
+                                                Control which product elements are displayed.
+                                            </Text>
+                                        </BlockStack>
+
                                         <BlockStack gap="0">
                                             <Checkbox
                                                 label="Show image"
@@ -1046,97 +1045,93 @@ export default function Customize() {
                                         </BlockStack>
                                     </Card>
                                     <Card>
-                                        <BlockStack gap="100">
-                                            <Text as="h3" variant="headingMd">Bar</Text>
-                                            <Text variant="bodySm" tone="subdued">
-                                                Manage layout, spacing, and visual design for the sticky bar container.
-                                            </Text>
-                                        </BlockStack>
-                                        <Box paddingBlock="400">
-                                            <Box className="form-field-margin">
-                                                <ChoiceList
-                                                    title="Width"
-                                                    choices={[
-                                                        { label: 'Full', value: 'full' },
-                                                        { label: 'Contained', value: 'contained' },
-                                                    ]}
-                                                    selected={[barWidth]}
-                                                    onChange={([value]) => setBarWidth(value)}
-                                                    allowMultiple={false}
-                                                />
-                                            </Box>
+                                        <BlockStack gap="200">
+                                            <BlockStack gap="100">
+                                                <Text as="h3" variant="headingMd">Bar</Text>
+                                                <Text variant="bodySm" tone="subdued">
+                                                    Manage layout, spacing, and visual design for the sticky bar container.
+                                                </Text>
+                                            </BlockStack>
+                                            <ChoiceList
+                                                title="Width"
+                                                choices={[
+                                                    { label: 'Full', value: 'full' },
+                                                    { label: 'Contained', value: 'contained' },
+                                                ]}
+                                                selected={[barWidth]}
+                                                onChange={([value]) => setBarWidth(value)}
+                                                allowMultiple={false}
+                                            />
                                             {barWidth === 'contained' && (
                                                 <>
-                                                    <Box className="form-field-margin">
-                                                        <BlockStack gap="100">
-                                                            <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
-                                                            <div className='input-and-unit-wrapper'>
-                                                                <TextField
-                                                                    className='max-width-input-type-number input-flex'
-                                                                    type="number"
-                                                                    placeholder="e.g., 600"
-                                                                    value={maxWidth}
-                                                                    onChange={setMaxWidth}
-                                                                />
-                                                                <Select
-                                                                    options={[
-                                                                        { label: 'px', value: 'px' },
-                                                                        { label: '%', value: '%' }
-                                                                    ]}
-                                                                    onChange={setMaxWidthUnit}
-                                                                    value={maxWidthUnit}
-                                                                    className="input-styled"
-                                                                />
-                                                            </div>
-                                                            <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
-                                                        </BlockStack>
-                                                    </Box>
-                                                    <Box className="form-field-margin-large">
-                                                        <BlockStack gap="100">
-                                                            <Text variant="bodySm" as="div">Alignment</Text>
+                                                    <BlockStack gap="100">
+                                                        <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
+                                                        <InlineStack align="space-between" gap="150"
+                                                            wrap={false}
+                                                        >
+                                                            <TextField
+                                                                fullWidth
+                                                                className='w-100'
+                                                                type="number"
+                                                                placeholder="e.g., 600"
+                                                                value={maxWidth}
+                                                                onChange={setMaxWidth}
+                                                            />
                                                             <Select
                                                                 options={[
-                                                                    { label: 'Left', value: 'left' },
-                                                                    { label: 'Center', value: 'center' },
-                                                                    { label: 'Right', value: 'right' }
+                                                                    { label: 'px', value: 'px' },
+                                                                    { label: '%', value: '%' }
                                                                 ]}
-                                                                onChange={setAlignment}
-                                                                value={alignment}
-                                                                name="sticky_alignment"
-                                                                className="input-styled input-full-width"
+                                                                onChange={setMaxWidthUnit}
+                                                                value={maxWidthUnit}
+                                                                className="input-styled unit-input"
                                                             />
-                                                        </BlockStack>
-                                                    </Box>
-                                                    <Box className="form-field-margin-large">
-                                                        <BlockStack gap="100">
-                                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
-                                                            <div className='input-and-unit-wrapper'>
-                                                                <input
-                                                                    type="hidden"
-                                                                    name="sticky_outer_spacing"
-                                                                    value={outerSpacing}
-                                                                />
-                                                                <TextField
-                                                                    className='outer-spacing-input-type-number'
-                                                                    type="number"
-                                                                    placeholder="e.g., 20"
-                                                                    value={outerSpacing}
-                                                                    onChange={setOuterSpacing}
-                                                                />
-                                                                <Select
-                                                                    options={[
-                                                                        { label: 'px', value: 'px' },
-                                                                        { label: '%', value: '%' }
-                                                                    ]}
-                                                                    onChange={setOuterSpacingUnit}
-                                                                    value={outerSpacingUnit}
-                                                                    name="sticky_outer_spacing_unit"
-                                                                    className="input-styled"
-                                                                />
-                                                            </div>
-                                                            <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
-                                                        </BlockStack>
-                                                    </Box>
+                                                        </InlineStack>
+
+                                                        <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
+                                                    </BlockStack>
+                                                    <BlockStack gap="100">
+                                                        <Text variant="bodySm" as="div">Alignment</Text>
+                                                        <Select
+                                                            options={[
+                                                                { label: 'Left', value: 'left' },
+                                                                { label: 'Center', value: 'center' },
+                                                                { label: 'Right', value: 'right' }
+                                                            ]}
+                                                            onChange={setAlignment}
+                                                            value={alignment}
+                                                            name="sticky_alignment"
+                                                            className="input-styled input-full-width"
+                                                        />
+                                                    </BlockStack>
+                                                    <BlockStack gap="100">
+                                                        <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
+                                                        <div className='input-and-unit-wrapper'>
+                                                            <input
+                                                                type="hidden"
+                                                                name="sticky_outer_spacing"
+                                                                value={outerSpacing}
+                                                            />
+                                                            <TextField
+                                                                className='outer-spacing-input-type-number'
+                                                                type="number"
+                                                                placeholder="e.g., 20"
+                                                                value={outerSpacing}
+                                                                onChange={setOuterSpacing}
+                                                            />
+                                                            <Select
+                                                                options={[
+                                                                    { label: 'px', value: 'px' },
+                                                                    { label: '%', value: '%' }
+                                                                ]}
+                                                                onChange={setOuterSpacingUnit}
+                                                                value={outerSpacingUnit}
+                                                                name="sticky_outer_spacing_unit"
+                                                                className="input-styled unit-input"
+                                                            />
+                                                        </div>
+                                                        <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
+                                                    </BlockStack>
                                                 </>
                                             )}
                                             <BlockStack gap="100">
@@ -1162,13 +1157,11 @@ export default function Customize() {
                                                         onChange={setInnerSpacingUnit}
                                                         value={innerSpacingUnit}
                                                         name="sticky_inner_spacing_unit"
-                                                        className="input-styled"
+                                                        className="input-styled unit-input"
                                                     />
                                                 </div>
                                                 <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                             </BlockStack>
-                                        </Box>
-                                        <BlockStack gap="400">
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">Background color</Text>
                                                 <Popover
@@ -1277,7 +1270,6 @@ export default function Customize() {
                                                         step={1}
                                                         onChange={value => setBorderRadius(value.toString())}
                                                         name="sticky_border_radius"
-                                                        className="input-flex"
                                                     />
                                                     <div className='sy-range-slider-unit-wrapper'>
                                                         <input
@@ -1742,98 +1734,90 @@ export default function Customize() {
                                                     Manage layout, spacing, and visual design for the sticky bar container.
                                                 </Text>
                                             </BlockStack>
-                                            <Box>
-                                                <Box className="form-field-margin">
-                                                    <ChoiceList
-                                                        title="Width"
-                                                        choices={[
-                                                            { label: 'Full', value: 'full' },
-                                                            { label: 'Contained', value: 'contained' },
-                                                        ]}
-                                                        selected={[mobileBarWidth]}
-                                                        onChange={([value]) => setMobileBarWidth(value)}
-                                                        allowMultiple={false}
-                                                        name="sticky_bar_width_mobile"
-                                                    />
-                                                </Box>
+
+                                            <BlockStack>
+                                                <ChoiceList
+                                                    title="Width"
+                                                    choices={[
+                                                        { label: 'Full', value: 'full' },
+                                                        { label: 'Contained', value: 'contained' },
+                                                    ]}
+                                                    selected={[mobileBarWidth]}
+                                                    onChange={([value]) => setMobileBarWidth(value)}
+                                                    allowMultiple={false}
+                                                    name="sticky_bar_width_mobile"
+                                                />
                                                 {mobileBarWidth === 'contained' && (
                                                     <>
-                                                        <Box className="form-field-margin">
-                                                            <BlockStack gap="100">
-                                                                <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
-                                                                <div className='input-and-unit-wrapper'>
-                                                                    <input
-                                                                        type="hidden"
-                                                                        name="sticky_max_width_mobile"
-                                                                        value={mobileMaxWidth}
-                                                                    />
-                                                                    <TextField
-                                                                        className='max-width-input-type-number input-flex'
-                                                                        type="number"
-                                                                        placeholder="e.g., 600"
-                                                                        value={mobileMaxWidth}
-                                                                        onChange={setMobileMaxWidth}
-                                                                    />
-                                                                    <Select
-                                                                        options={[
-                                                                            { label: 'px', value: 'px' },
-                                                                            { label: '%', value: '%' }
-                                                                        ]}
-                                                                        onChange={setMobileMaxWidthUnit}
-                                                                        value={mobileMaxWidthUnit}
-                                                                        name="sticky_max_width_mobile_unit"
-                                                                        className="input-styled"
-                                                                    />
-                                                                </div>
-                                                                <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
-                                                            </BlockStack>
-                                                        </Box>
-                                                        <Box className="form-field-margin-large">
-                                                            <BlockStack gap="100">
-                                                                <Text variant="bodySm" as="div">Alignment</Text>
+                                                        <BlockStack gap="100">
+                                                            <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
+                                                            <input
+                                                                type="hidden"
+                                                                name="sticky_max_width_mobile"
+                                                                value={mobileMaxWidth}
+                                                            />
+                                                            <TextField
+                                                                className='w-100'
+                                                                type="number"
+                                                                placeholder="e.g., 600"
+                                                                value={mobileMaxWidth}
+                                                                onChange={setMobileMaxWidth}
+                                                            />
+                                                            <Select
+                                                                options={[
+                                                                    { label: 'px', value: 'px' },
+                                                                    { label: '%', value: '%' }
+                                                                ]}
+                                                                onChange={setMobileMaxWidthUnit}
+                                                                value={mobileMaxWidthUnit}
+                                                                name="sticky_max_width_mobile_unit"
+                                                                className="input-styled unit-input"
+                                                            />
+                                                            <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
+                                                        </BlockStack>
+                                                        <BlockStack gap="100">
+                                                            <Text variant="bodySm" as="div">Alignment</Text>
+                                                            <Select
+                                                                options={[
+                                                                    { label: 'Left', value: 'left' },
+                                                                    { label: 'Center', value: 'center' },
+                                                                    { label: 'Right', value: 'right' }
+                                                                ]}
+                                                                onChange={setMobileAlignment}
+                                                                value={mobileAlignment}
+                                                                name="sticky_alignment_mobile"
+                                                                className="input-styled input-full-width"
+                                                            />
+                                                        </BlockStack>
+
+                                                        <BlockStack gap="100">
+                                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
+                                                            <div className='input-and-unit-wrapper'>
+                                                                <input
+                                                                    type="hidden"
+                                                                    name="sticky_outer_spacing_mobile"
+                                                                    value={mobileOuterSpacing}
+                                                                />
+                                                                <TextField
+                                                                    className='outer-spacing-input-type-number'
+                                                                    type="number"
+                                                                    placeholder="e.g., 20"
+                                                                    value={mobileOuterSpacing}
+                                                                    onChange={setMobileOuterSpacing}
+                                                                />
                                                                 <Select
                                                                     options={[
-                                                                        { label: 'Left', value: 'left' },
-                                                                        { label: 'Center', value: 'center' },
-                                                                        { label: 'Right', value: 'right' }
+                                                                        { label: 'px', value: 'px' },
+                                                                        { label: '%', value: '%' }
                                                                     ]}
-                                                                    onChange={setMobileAlignment}
-                                                                    value={mobileAlignment}
-                                                                    name="sticky_alignment_mobile"
-                                                                    className="input-styled input-full-width"
+                                                                    onChange={setMobileOuterSpacingUnit}
+                                                                    value={mobileOuterSpacingUnit}
+                                                                    name="sticky_outer_spacing_mobile_unit"
+                                                                    className="input-styled unit-input"
                                                                 />
-                                                            </BlockStack>
-                                                        </Box>
-                                                        <Box className="form-field-margin-large">
-                                                            <BlockStack gap="100">
-                                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
-                                                                <div className='input-and-unit-wrapper'>
-                                                                    <input
-                                                                        type="hidden"
-                                                                        name="sticky_outer_spacing_mobile"
-                                                                        value={mobileOuterSpacing}
-                                                                    />
-                                                                    <TextField
-                                                                        className='outer-spacing-input-type-number'
-                                                                        type="number"
-                                                                        placeholder="e.g., 20"
-                                                                        value={mobileOuterSpacing}
-                                                                        onChange={setMobileOuterSpacing}
-                                                                    />
-                                                                    <Select
-                                                                        options={[
-                                                                            { label: 'px', value: 'px' },
-                                                                            { label: '%', value: '%' }
-                                                                        ]}
-                                                                        onChange={setMobileOuterSpacingUnit}
-                                                                        value={mobileOuterSpacingUnit}
-                                                                        name="sticky_outer_spacing_mobile_unit"
-                                                                        className="input-styled"
-                                                                    />
-                                                                </div>
-                                                                <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
-                                                            </BlockStack>
-                                                        </Box>
+                                                            </div>
+                                                            <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
+                                                        </BlockStack>
                                                     </>
                                                 )}
                                                 <BlockStack gap="100">
@@ -1859,12 +1843,12 @@ export default function Customize() {
                                                             onChange={setMobileInnerSpacingUnit}
                                                             value={mobileInnerSpacingUnit}
                                                             name="sticky_inner_spacing_mobile_unit"
-                                                            className="input-styled"
+                                                            className="input-styled unit-input"
                                                         />
                                                     </div>
                                                     <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                                 </BlockStack>
-                                            </Box>
+                                            </BlockStack>
                                         </BlockStack>
                                     </Card>
                                     <Card>
@@ -2170,36 +2154,38 @@ export default function Customize() {
                 </div>
             </InlineGrid>
 
-            {showResetModal && (
-                <Modal
-                    open={showResetModal}
-                    onClose={handleCloseModal}
-                    title={`Reset ${appearanceView} appearance settings?`}
-                    primaryAction={{
-                        content: "Reset",
-                        onAction: handleResetAppearance,
-                        destructive: true,
-                    }}
-                    secondaryActions={[
-                        {
-                            content: "Cancel",
-                            onAction: handleCloseModal,
-                        },
-                    ]}
-                >
-                    <Modal.Section>
-                        <Text>
-                            This will reset all appearance settings for the {appearanceView.charAt(0).toUpperCase() + appearanceView.slice(1)} view. This action cannot be undone.
-                        </Text>
-                    </Modal.Section>
-                </Modal>
-            )}
+            {
+                showResetModal && (
+                    <Modal
+                        open={showResetModal}
+                        onClose={handleCloseModal}
+                        title={`Reset ${appearanceView} appearance settings?`}
+                        primaryAction={{
+                            content: "Reset",
+                            onAction: handleResetAppearance,
+                            destructive: true,
+                        }}
+                        secondaryActions={[
+                            {
+                                content: "Cancel",
+                                onAction: handleCloseModal,
+                            },
+                        ]}
+                    >
+                        <Modal.Section>
+                            <Text>
+                                This will reset all appearance settings for the {appearanceView.charAt(0).toUpperCase() + appearanceView.slice(1)} view. This action cannot be undone.
+                            </Text>
+                        </Modal.Section>
+                    </Modal>
+                )
+            }
 
             {/* Shopify Save Bar Web Component */}
             <ui-save-bar id="shopify-save-bar">
                 <button variant="primary" onClick={handleSave}>Save</button>
                 <button onClick={handleDiscard}>Discard</button>
             </ui-save-bar>
-        </Page>
+        </Page >
     );
 }
