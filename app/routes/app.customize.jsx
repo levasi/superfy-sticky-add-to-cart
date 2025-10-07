@@ -1087,7 +1087,6 @@ export default function Customize() {
                                                                 className="input-styled unit-input"
                                                             />
                                                         </InlineStack>
-
                                                         <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
                                                     </BlockStack>
                                                     <BlockStack gap="100">
@@ -1106,7 +1105,9 @@ export default function Customize() {
                                                     </BlockStack>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
-                                                        <div className='input-and-unit-wrapper'>
+                                                        <InlineStack align="space-between" gap="150"
+                                                            wrap={false}
+                                                        >
                                                             <input
                                                                 type="hidden"
                                                                 name="sticky_outer_spacing"
@@ -1129,14 +1130,16 @@ export default function Customize() {
                                                                 name="sticky_outer_spacing_unit"
                                                                 className="input-styled unit-input"
                                                             />
-                                                        </div>
+                                                        </InlineStack>
                                                         <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
                                                     </BlockStack>
                                                 </>
                                             )}
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">Inner spacing</Text>
-                                                <div className='input-and-unit-wrapper'>
+                                                <InlineStack align="space-between" gap="150"
+                                                    wrap={false}
+                                                >
                                                     <input
                                                         type="hidden"
                                                         name="sticky_inner_spacing"
@@ -1159,7 +1162,7 @@ export default function Customize() {
                                                         name="sticky_inner_spacing_unit"
                                                         className="input-styled unit-input"
                                                     />
-                                                </div>
+                                                </InlineStack>
                                                 <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                             </BlockStack>
                                             <BlockStack gap="100">
@@ -1288,71 +1291,67 @@ export default function Customize() {
                                         </BlockStack>
                                     </Card>
                                     <Card>
-                                        <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <Text as="h3" variant="headingMd">Content</Text>
-                                            <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                                Customize fonts, colors, and spacing for product content inside the sticky bar.
-                                            </Text>
-                                        </Box>
+                                        <Text as="h3" variant="headingMd">Content</Text>
+                                        <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                            Customize fonts, colors, and spacing for product content inside the sticky bar.
+                                        </Text>
                                         <Box style={{ margin: '16px 0' }}>
                                             <Divider />
                                         </Box>
-                                        <Box>
-                                            <Box className="form-field-margin">
-                                                <Text as="h4" variant="headingSm">Product name</Text>
-                                            </Box>
-                                            <Box style={{ marginBottom: '4px' }}>
-                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
-                                            </Box>
-                                            <Popover
-                                                active={showProductNameColorPicker}
-                                                activator={
-                                                    <div className="color-input-wrapper">
-                                                        <div
-                                                            className="color-swatch color-picker-preview"
-                                                            style={{
-                                                                backgroundColor: productNameColor,
-                                                                border: '1px solid #DFDFDF',
-                                                                borderRadius: '4px',
-                                                                width: '20px',
-                                                                height: '20px',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                            onClick={() => setShowProductNameColorPicker(true)}
-                                                        />
-                                                        <input
-                                                            className="color-input-type-color color-input-text"
-                                                            type="text"
-                                                            value={productNameColor}
-                                                            onChange={(e) => {
-                                                                const newColor = e.target.value;
-                                                                // Allow typing by always updating the input value
-                                                                setProductNameColor(newColor);
-                                                                // Only update HSBA and apply color if it's a valid hex
-                                                                if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
-                                                                    setProductNameColorHSBA(hexToHSBA(newColor));
-                                                                }
-                                                            }}
-                                                            placeholder="#141414"
-                                                        />
-                                                    </div>
-                                                }
-                                                onClose={() => setShowProductNameColorPicker(false)}
-                                                preferredPosition="below"
-                                                preferredAlignment="left"
-                                                fullWidth={false}
-                                                sectioned={false}
-                                            >
-                                                <ColorPicker
-                                                    onChange={(color) => {
-                                                        setProductNameColorHSBA(color);
-                                                        setProductNameColor(hsbaToHex(color));
-                                                    }}
-                                                    color={productNameColorHSBA}
-                                                    allowAlpha={false}
-                                                />
-                                            </Popover>
+                                        <Box className="form-field-margin">
+                                            <Text as="h4" variant="headingSm">Product name</Text>
                                         </Box>
+                                        <Box style={{ marginBottom: '4px' }}>
+                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
+                                        </Box>
+                                        <Popover
+                                            active={showProductNameColorPicker}
+                                            activator={
+                                                <div className="color-input-wrapper">
+                                                    <div
+                                                        className="color-swatch color-picker-preview"
+                                                        style={{
+                                                            backgroundColor: productNameColor,
+                                                            border: '1px solid #DFDFDF',
+                                                            borderRadius: '4px',
+                                                            width: '20px',
+                                                            height: '20px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setShowProductNameColorPicker(true)}
+                                                    />
+                                                    <input
+                                                        className="color-input-type-color color-input-text"
+                                                        type="text"
+                                                        value={productNameColor}
+                                                        onChange={(e) => {
+                                                            const newColor = e.target.value;
+                                                            // Allow typing by always updating the input value
+                                                            setProductNameColor(newColor);
+                                                            // Only update HSBA and apply color if it's a valid hex
+                                                            if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                setProductNameColorHSBA(hexToHSBA(newColor));
+                                                            }
+                                                        }}
+                                                        placeholder="#141414"
+                                                    />
+                                                </div>
+                                            }
+                                            onClose={() => setShowProductNameColorPicker(false)}
+                                            preferredPosition="below"
+                                            preferredAlignment="left"
+                                            fullWidth={false}
+                                            sectioned={false}
+                                        >
+                                            <ColorPicker
+                                                onChange={(color) => {
+                                                    setProductNameColorHSBA(color);
+                                                    setProductNameColor(hsbaToHex(color));
+                                                }}
+                                                color={productNameColorHSBA}
+                                                allowAlpha={false}
+                                            />
+                                        </Popover>
                                         <Box style={{ margin: '16px 0' }}>
                                             <Divider />
                                         </Box>
@@ -1379,123 +1378,123 @@ export default function Customize() {
                                         <Box style={{ margin: '16px 0' }}>
                                             <Divider />
                                         </Box>
-                                        <Box className="form-label-bold">
-                                            <Text variant="headingSm" as="h4" className="form-label-bold">Quantity</Text>
-                                        </Box>
-                                        <Box style={{ marginBottom: 4 }}>
-                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
-                                        </Box>
-                                        <Box className="form-label-bold">
-                                            <Popover
-                                                active={showQuantityColorPicker}
-                                                activator={
-                                                    <div className="color-input-wrapper">
-                                                        <div
-                                                            className="color-swatch color-picker-preview"
-                                                            style={{
-                                                                backgroundColor: quantityColor,
-                                                                border: '1px solid #DFDFDF',
-                                                                borderRadius: '4px',
-                                                                width: '20px',
-                                                                height: '20px',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                            onClick={() => setShowQuantityColorPicker(true)}
-                                                        />
-                                                        <input
-                                                            className="color-input-type-color color-input-text"
-                                                            type="text"
-                                                            value={quantityColor}
-                                                            onChange={(e) => {
-                                                                const newColor = e.target.value;
-                                                                // Allow typing by always updating the input value
-                                                                setQuantityColor(newColor);
-                                                                // Only update HSBA and apply color if it's a valid hex
-                                                                if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
-                                                                    setQuantityColorHSBA(hexToHSBA(newColor));
-                                                                }
-                                                            }}
-                                                            placeholder="#141414"
-                                                        />
-                                                    </div>
-                                                }
-                                                onClose={() => setShowQuantityColorPicker(false)}
-                                                preferredPosition="below"
-                                                preferredAlignment="left"
-                                                fullWidth={false}
-                                                sectioned={false}
-                                            >
-                                                <ColorPicker
-                                                    onChange={(color) => {
-                                                        setQuantityColorHSBA(color);
-                                                        setQuantityColor(hsbaToHex(color));
-                                                    }}
-                                                    color={quantityColorHSBA}
-                                                    allowAlpha={false}
-                                                />
-                                            </Popover>
-                                        </Box>
-                                        <Box style={{ marginBottom: 4 }}>
-                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Border color</Text>
-                                        </Box>
-                                        <Popover
-                                            active={showQuantityBorderColorPicker}
-                                            activator={
-                                                <div className="color-input-wrapper">
-                                                    <div
-                                                        className="color-swatch color-picker-preview"
-                                                        style={{
-                                                            backgroundColor: quantityBorderColor,
-                                                            border: '1px solid #DFDFDF',
-                                                            borderRadius: '4px',
-                                                            width: '20px',
-                                                            height: '20px',
-                                                            cursor: 'pointer'
+                                        <BlockStack gap="200">
+                                            <Box>
+                                                <Text variant="headingSm" as="h4" className="form-label-bold">Quantity</Text>
+                                            </Box>
+                                            <BlockStack gap="100">
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
+                                                <Popover
+                                                    active={showQuantityColorPicker}
+                                                    activator={
+                                                        <div className="color-input-wrapper">
+                                                            <div
+                                                                className="color-swatch color-picker-preview"
+                                                                style={{
+                                                                    backgroundColor: quantityColor,
+                                                                    border: '1px solid #DFDFDF',
+                                                                    borderRadius: '4px',
+                                                                    width: '20px',
+                                                                    height: '20px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={() => setShowQuantityColorPicker(true)}
+                                                            />
+                                                            <input
+                                                                className="color-input-type-color color-input-text"
+                                                                type="text"
+                                                                value={quantityColor}
+                                                                onChange={(e) => {
+                                                                    const newColor = e.target.value;
+                                                                    // Allow typing by always updating the input value
+                                                                    setQuantityColor(newColor);
+                                                                    // Only update HSBA and apply color if it's a valid hex
+                                                                    if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                        setQuantityColorHSBA(hexToHSBA(newColor));
+                                                                    }
+                                                                }}
+                                                                placeholder="#141414"
+                                                            />
+                                                        </div>
+                                                    }
+                                                    onClose={() => setShowQuantityColorPicker(false)}
+                                                    preferredPosition="below"
+                                                    preferredAlignment="left"
+                                                    fullWidth={false}
+                                                    sectioned={false}
+                                                >
+                                                    <ColorPicker
+                                                        onChange={(color) => {
+                                                            setQuantityColorHSBA(color);
+                                                            setQuantityColor(hsbaToHex(color));
                                                         }}
-                                                        onClick={() => setShowQuantityBorderColorPicker(true)}
+                                                        color={quantityColorHSBA}
+                                                        allowAlpha={false}
                                                     />
-                                                    <input
-                                                        className="color-input-type-color color-input-text"
-                                                        type="text"
-                                                        value={quantityBorderColor}
-                                                        onChange={(e) => {
-                                                            const newColor = e.target.value;
-                                                            // Allow typing by always updating the input value
-                                                            setQuantityBorderColor(newColor);
-                                                            // Only update HSBA and apply color if it's a valid hex
-                                                            if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
-                                                                setQuantityBorderColorHSBA(hexToHSBA(newColor));
-                                                            }
+                                                </Popover>
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Border color</Text>
+                                                <Popover
+                                                    active={showQuantityBorderColorPicker}
+                                                    activator={
+                                                        <div className="color-input-wrapper">
+                                                            <div
+                                                                className="color-swatch color-picker-preview"
+                                                                style={{
+                                                                    backgroundColor: quantityBorderColor,
+                                                                    border: '1px solid #DFDFDF',
+                                                                    borderRadius: '4px',
+                                                                    width: '20px',
+                                                                    height: '20px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={() => setShowQuantityBorderColorPicker(true)}
+                                                            />
+                                                            <input
+                                                                className="color-input-type-color color-input-text"
+                                                                type="text"
+                                                                value={quantityBorderColor}
+                                                                onChange={(e) => {
+                                                                    const newColor = e.target.value;
+                                                                    // Allow typing by always updating the input value
+                                                                    setQuantityBorderColor(newColor);
+                                                                    // Only update HSBA and apply color if it's a valid hex
+                                                                    if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                        setQuantityBorderColorHSBA(hexToHSBA(newColor));
+                                                                    }
+                                                                }}
+                                                                placeholder="#DFDFDF"
+                                                            />
+                                                        </div>
+                                                    }
+                                                    onClose={() => setShowQuantityBorderColorPicker(false)}
+                                                    preferredPosition="below"
+                                                    preferredAlignment="left"
+                                                    fullWidth={false}
+                                                    sectioned={false}
+                                                >
+                                                    <ColorPicker
+                                                        onChange={(color) => {
+                                                            setQuantityBorderColorHSBA(color);
+                                                            setQuantityBorderColor(hsbaToHex(color));
                                                         }}
-                                                        placeholder="#DFDFDF"
+                                                        color={quantityBorderColorHSBA}
+                                                        allowAlpha={false}
                                                     />
-                                                </div>
-                                            }
-                                            onClose={() => setShowQuantityBorderColorPicker(false)}
-                                            preferredPosition="below"
-                                            preferredAlignment="left"
-                                            fullWidth={false}
-                                            sectioned={false}
-                                        >
-                                            <ColorPicker
-                                                onChange={(color) => {
-                                                    setQuantityBorderColorHSBA(color);
-                                                    setQuantityBorderColor(hsbaToHex(color));
-                                                }}
-                                                color={quantityBorderColorHSBA}
-                                                allowAlpha={false}
-                                            />
-                                        </Popover>
+                                                </Popover>
+                                            </BlockStack>
+                                        </BlockStack>
                                     </Card>
                                     <Card>
                                         <BlockStack gap="400">
-                                            <Box>
-                                                <Text as="h3" variant="headingMd" style={{ marginBottom: 4 }}>Button</Text>
+                                            <BlockStack gap="100">
+                                                <Text as="h3" variant="headingMd" >Button</Text>
                                                 <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
                                                     Customize the look and behavior of "Add to cart" button inside the sticky bar.
                                                 </Text>
-                                            </Box>
-                                            <Box>
+                                            </BlockStack>
+                                            <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">On click behavior</Text>
                                                 <input
                                                     type="hidden"
@@ -1511,8 +1510,8 @@ export default function Customize() {
                                                     onChange={setButtonBehavior}
                                                     value={buttonBehavior}
                                                 />
-                                            </Box>
-                                            <Box>
+                                            </BlockStack>
+                                            <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">Text</Text>
                                                 <input
                                                     type="hidden"
@@ -1532,7 +1531,7 @@ export default function Customize() {
                                                 <Text variant="bodySm" tone="subdued">
                                                     To add the price inline, use {'{price}'} token
                                                 </Text>
-                                            </Box>
+                                            </BlockStack>
                                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
                                                 <input
                                                     type="hidden"
@@ -1552,7 +1551,7 @@ export default function Customize() {
                                                     </Text>
                                                 </div>
                                             </div>
-                                            <Box>
+                                            <BlockStack gap="100">
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" className="form-label-bold-simple">Text color</Text>
                                                     <Popover
@@ -1604,7 +1603,7 @@ export default function Customize() {
                                                         />
                                                     </Popover>
                                                 </BlockStack>
-                                            </Box>
+                                            </BlockStack>
                                             <Box>
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" className="form-label-bold-simple">Background color</Text>
@@ -1658,15 +1657,14 @@ export default function Customize() {
                                                     </Popover>
                                                 </BlockStack>
                                             </Box>
-                                            <Box background="bg-surface-secondary" padding="200" borderRadius="200">
+                                            <BlockStack background="bg-surface-secondary" padding="200" borderRadius="200">
                                                 <Text variant="bodySm" tone="subdued">
                                                     Hover styles apply a slight opacity to the background automatically.
                                                 </Text>
-                                            </Box>
+                                            </BlockStack>
                                         </BlockStack>
                                     </Card>
                                 </BlockStack>
-
                             )}
                             {appearanceView === 'mobile' && (
                                 <BlockStack gap="400">
@@ -1789,10 +1787,11 @@ export default function Customize() {
                                                                 className="input-styled input-full-width"
                                                             />
                                                         </BlockStack>
-
                                                         <BlockStack gap="100">
                                                             <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
-                                                            <div className='input-and-unit-wrapper'>
+                                                            <InlineStack align="space-between" gap="150"
+                                                                wrap={false}
+                                                            >
                                                                 <input
                                                                     type="hidden"
                                                                     name="sticky_outer_spacing_mobile"
@@ -1815,14 +1814,16 @@ export default function Customize() {
                                                                     name="sticky_outer_spacing_mobile_unit"
                                                                     className="input-styled unit-input"
                                                                 />
-                                                            </div>
+                                                            </InlineStack>
                                                             <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
                                                         </BlockStack>
                                                     </>
                                                 )}
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" className="form-label-bold-simple">Inner spacing</Text>
-                                                    <div className='input-and-unit-wrapper'>
+                                                    <InlineStack align="space-between" gap="150"
+                                                        wrap={false}
+                                                    >
                                                         <input
                                                             type="hidden"
                                                             name="sticky_inner_spacing_mobile"
@@ -1845,7 +1846,7 @@ export default function Customize() {
                                                             name="sticky_inner_spacing_mobile_unit"
                                                             className="input-styled unit-input"
                                                         />
-                                                    </div>
+                                                    </InlineStack>
                                                     <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                                 </BlockStack>
                                             </BlockStack>
