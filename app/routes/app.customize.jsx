@@ -1041,7 +1041,7 @@ export default function Customize() {
                                         </BlockStack>
                                     </Card>
                                     <Card>
-                                        <BlockStack gap="200">
+                                        <BlockStack gap="400">
                                             <BlockStack gap="100">
                                                 <Text as="h3" variant="headingMd">Bar</Text>
                                                 <Text variant="bodySm" tone="subdued">Manage layout, spacing, and visual design for the sticky bar container.</Text>
