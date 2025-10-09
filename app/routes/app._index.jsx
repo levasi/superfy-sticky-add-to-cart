@@ -279,6 +279,7 @@ export default function Index() {
 
   return (
     <Polaris.Page fullWidth>
+      <TitleBar title="Superfy sticky buy" />
       <Polaris.Layout>
         <Polaris.Layout.Section>
           {/* Setup Guide */}
@@ -318,7 +319,7 @@ export default function Index() {
                     <Polaris.BlockStack gap="100">
                       <Polaris.InlineStack gap="200">
                         <Polaris.Text variant="headingSm">App embed</Polaris.Text>
-                        <Polaris.Badge status="success">Active</Polaris.Badge>
+                        <Polaris.Badge tone="success">Active</Polaris.Badge>
                       </Polaris.InlineStack>
                       <Polaris.Text>Controls whether the app can inject the sticky bar into your theme.</Polaris.Text>
                     </Polaris.BlockStack>
@@ -335,7 +336,7 @@ export default function Index() {
                     <Polaris.BlockStack gap="100">
                       <Polaris.InlineStack gap="200">
                         <Polaris.Text variant="headingSm">Sticky bar</Polaris.Text>
-                        <Polaris.Badge status={stickyBarStatus === 'active' ? 'success' : 'warning'}>
+                        <Polaris.Badge tone={stickyBarStatus === 'active' ? 'success' : 'warning'}>
                           {stickyBarStatus === 'active' ? 'Live' : 'Paused'}
                         </Polaris.Badge>
                       </Polaris.InlineStack>

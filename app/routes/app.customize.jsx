@@ -22,6 +22,7 @@ import {
     RangeSlider,
     Popover
 } from '@shopify/polaris';
+import { TitleBar } from '@shopify/app-bridge-react';
 import {
     ArrowLeftIcon,
     DesktopIcon,
@@ -801,6 +802,7 @@ export default function Customize() {
 
     return (
         <Page fullWidth>
+            <TitleBar title="Superfy sticky buy - Customize" />
             <Box paddingBlockEnd="400">
                 <InlineStack align="space-between" gap="400">
                     <InlineStack gap="200" blockAlign="center">
@@ -822,13 +824,12 @@ export default function Customize() {
                                 <BlockStack gap="400">
                                     <Card>
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
-                                            <Text variant="headingSm">Sticky Bar
-                                                <span className="live-badge-wrapper">
-                                                    <span className={stickyBarStatus === 'active' ? 'live-badge' : 'paused-badge'}>
-                                                        {stickyBarStatus === 'active' ? 'Live' : 'Paused'}
-                                                    </span>
-                                                </span>
-                                            </Text>
+                                            <InlineStack gap="150">
+                                                <Text variant="headingSm">Sticky Bar</Text>
+                                                <Badge tone={stickyBarStatus === 'active' ? 'success' : 'warning'}>
+                                                    {stickyBarStatus === 'active' ? 'Live' : 'Paused'}
+                                                </Badge>
+                                            </InlineStack>
                                             <Button
                                                 tone={stickyBarStatus === 'active' ? 'critical' : 'success'}
                                                 onClick={handleToggleStickyBar}
@@ -862,12 +863,10 @@ export default function Customize() {
                                             <Divider />
                                         </Box>
                                         <BlockStack >
-                                            <Box className="section-margin-bottom">
-                                                <Text variant="headingSm" as="h3">Trigger</Text>
-                                            </Box>
+                                            <Text variant="headingSm" as="h3">Trigger</Text>
+
                                             <BlockStack gap="200">
                                                 <Text variant="bodyMd" as="p" fontWeight="medium">Display trigger</Text>
-
                                                 {/* Always visible */}
                                                 <Box>
                                                     <label className="radio-label">
