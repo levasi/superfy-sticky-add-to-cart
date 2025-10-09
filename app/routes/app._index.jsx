@@ -3,6 +3,8 @@ import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import * as Polaris from "@shopify/polaris";
 
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
+import createApp from '@shopify/app-bridge';
+import { Redirect } from '@shopify/app-bridge/actions';
 import { authenticate } from "../shopify.server";
 import { getSetting, upsertSetting } from "../models/settings.server";
 import { setShopMetafields } from "../utils/metafields.server";
@@ -12,12 +14,15 @@ import { NeedHelp } from "../components/NeedHelp";
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
-  // Fetch sticky bar color and position from settings
+  // Fetch sticky bar color, position, and status from settings
   const colorSetting = await getSetting("sticky_bar_color");
   const positionSetting = await getSetting("sticky_bar_position");
+  const statusSetting = await getSetting("sticky_bar_status");
   return Response.json({
     stickyBarColor: colorSetting?.value || "#fff",
     stickyBarPosition: positionSetting?.value || "bottom",
+    stickyBarStatus: statusSetting?.value || "active",
+    apiKey: process.env.SHOPIFY_API_KEY || "",
   });
 };
 
@@ -27,6 +32,22 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const color = formData.get("stickyColor");
   const position = formData.get("stickyPosition");
+  const status = formData.get("stickyBarStatus");
+
+  // Handle sticky bar status toggle
+  if (status) {
+    await upsertSetting("sticky_bar_status", status);
+
+    // Get the shop GID
+    const shopIdResponse = await admin.graphql(`query { shop { id } }`);
+    const { data: { shop: { id: shopId } } } = await shopIdResponse.json();
+
+    await setShopMetafields(admin, shopId, { sticky_bar_status: status });
+
+    return Response.json({ ok: true });
+  }
+
+  // Handle color and position updates
   if (typeof color !== "string" || typeof position !== "string") return Response.json({ ok: false });
 
   await upsertSetting("sticky_bar_color", color);
@@ -63,7 +84,7 @@ const SETUP_ITEMS = [
       content: "Learn more",
       props: {
         url: "https://help.shopify.com/en/manual/apps/app-embed",
-        external: true,
+        external: "true",
       },
     },
   },
@@ -108,15 +129,41 @@ export default function Index() {
   const loaderData = useLoaderData();
   const shopify = useAppBridge();
   const navigate = useNavigate();
+
+  // Function to create App Bridge v2 redirect instance
+  const createRedirectInstance = () => {
+    if (typeof window === 'undefined') return null;
+
+    try {
+      // Get shop origin and API key from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const shopOrigin = urlParams.get('shop') || shopify.shopOrigin;
+      const apiKey = urlParams.get('api_key') || loaderData.apiKey;
+      const host = urlParams.get('host');
+
+      if (shopOrigin && host && apiKey) {
+        const app = createApp({
+          apiKey: apiKey,
+          shopOrigin: shopOrigin,
+          host: host,
+        });
+
+        return Redirect.create(app);
+      }
+    } catch (error) {
+      console.error('Failed to create App Bridge v2 redirect:', error);
+    }
+
+    return null;
+  };
   const [cartCount, setCartCount] = useState(0);
   const [stickyColor, setStickyColor] = useState(loaderData.stickyBarColor || "#fff");
   const [stickyPosition, setStickyPosition] = useState(loaderData.stickyBarPosition || "bottom");
+  const [stickyBarStatus, setStickyBarStatus] = useState(loaderData.stickyBarStatus || "active");
   const [showGuide, setShowGuide] = useState(true);
 
   const product = fetcher.data?.product;
   const variant = fetcher.data?.variant?.[0];
-
-
 
   const onStepComplete = async (id) => {
     try {
@@ -130,6 +177,54 @@ export default function Index() {
       setSetupItems((prev) => prev.map((item) => (item.id === id ? { ...item, complete: !item.complete } : item)));
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  // Handle sticky bar status toggle
+  const handleToggleStickyBar = async () => {
+    const newStatus = stickyBarStatus === 'active' ? 'paused' : 'active';
+    setStickyBarStatus(newStatus);
+
+    // Save to database
+    const formData = new FormData();
+    formData.append('stickyBarStatus', newStatus);
+
+    fetcher.submit(formData, { method: 'post' });
+  };
+
+  // Handle preview in theme button
+  const handlePreviewInTheme = () => {
+    try {
+      // Create App Bridge v2 redirect instance on demand
+      const redirectInstance = createRedirectInstance();
+
+      if (redirectInstance) {
+        console.log('Attempting App Bridge v2 redirect...');
+        // Use App Bridge v2 Redirect to navigate to theme customizer in the same page
+        redirectInstance.dispatch(Redirect.Action.ADMIN_PATH, '/themes/current/editor?context=apps');
+        console.log('App Bridge v2 redirect dispatched successfully');
+      } else {
+        // Fallback: Use window.open to avoid X-Frame-Options issues
+        const urlParams = new URLSearchParams(window.location.search);
+        const shop = urlParams.get('shop');
+
+        if (shop) {
+          const themeEditorUrl = `https://${shop}/admin/themes/current/editor?context=apps`;
+          window.open(themeEditorUrl, '_blank');
+        } else {
+          console.log('No shop parameter found for fallback navigation');
+        }
+      }
+    } catch (error) {
+      console.error('App Bridge v2 redirect failed:', error);
+      // Fallback to window.open
+      const urlParams = new URLSearchParams(window.location.search);
+      const shop = urlParams.get('shop');
+
+      if (shop) {
+        const themeEditorUrl = `https://${shop}/admin/themes/current/editor?context=apps`;
+        window.open(themeEditorUrl, '_blank');
+      }
     }
   };
 
@@ -150,6 +245,7 @@ export default function Index() {
   });
 
   const [setupItems, setSetupItems] = useState(setupItemsWithNavigation);
+
 
   const changelogItems = [
     {
@@ -227,7 +323,7 @@ export default function Index() {
                       <Polaris.Text>Controls whether the app can inject the sticky bar into your theme.</Polaris.Text>
                     </Polaris.BlockStack>
                     <Polaris.InlineStack>
-                      <Polaris.Button>Preview in theme</Polaris.Button>
+                      <Polaris.Button onClick={handlePreviewInTheme}>Preview in theme</Polaris.Button>
                     </Polaris.InlineStack>
                   </Polaris.BlockStack>
                 </Polaris.Card>
@@ -239,12 +335,20 @@ export default function Index() {
                     <Polaris.BlockStack gap="100">
                       <Polaris.InlineStack gap="200">
                         <Polaris.Text variant="headingSm">Sticky bar</Polaris.Text>
-                        <Polaris.Badge status="success">Paused</Polaris.Badge>
+                        <Polaris.Badge status={stickyBarStatus === 'active' ? 'success' : 'warning'}>
+                          {stickyBarStatus === 'active' ? 'Live' : 'Paused'}
+                        </Polaris.Badge>
                       </Polaris.InlineStack>
                       <Polaris.Text>Turn the sticky bar on or off without uninstalling the app.</Polaris.Text>
                     </Polaris.BlockStack>
                     <Polaris.InlineStack>
-                      <Polaris.Button>Activate</Polaris.Button>
+                      <Polaris.Button
+                        tone={stickyBarStatus === 'active' ? 'critical' : 'success'}
+                        onClick={handleToggleStickyBar}
+                        loading={fetcher.state === 'submitting'}
+                      >
+                        {stickyBarStatus === 'active' ? 'Pause' : 'Activate'}
+                      </Polaris.Button>
                     </Polaris.InlineStack>
                   </Polaris.BlockStack>
                 </Polaris.Card>

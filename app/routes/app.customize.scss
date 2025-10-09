@@ -1,42 +1,9 @@
-// Border radius container
-.sticky-border-radius-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: space-between;
+.nowrap {
+    white-space: nowrap;
+}
 
-    &>div {
-        width: 100%;
-    }
-
-    .Polaris-RangeSlider {
-        flex: 1;
-    }
-
-    .border-radius-input {
-        display: flex;
-        align-items: center;
-        padding: 8px 12px;
-        border: 1px solid #DFDFDF;
-        border-radius: 12px;
-        background-color: #FFFFFF;
-        width: 80px;
-
-        input {
-            border: none;
-            outline: none;
-            font-size: 16px;
-            text-align: center;
-            width: 40px;
-            background-color: transparent;
-        }
-
-        .unit {
-            color: #6D7175;
-            font-size: 14px;
-            margin-left: 4px;
-        }
-    }
+.w-100 {
+    width: 100%;
 }
 
 .sy-range-slider-wrapper {
@@ -75,7 +42,7 @@
     align-items: center;
     gap: 8px;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: var(--p-border-radius-200);
     padding: 8px;
 
     input {
@@ -85,7 +52,7 @@
     .color-input-type-color {
         width: 100%;
         height: 20px;
-        border-radius: 4px;
+        border-radius: var(--p-border-radius-100);
         cursor: text;
         text-transform: uppercase;
         background-color: transparent;
@@ -127,38 +94,244 @@
     }
 }
 
-// Sticky preview positioning classes
+
+
+
+// Custom tabs styling
+.customize-tabs-wrapper {
+    margin-bottom: 16px;
+
+    .Polaris-Tabs__Outer {
+        &>.Polaris-Box {
+            padding: 0;
+        }
+    }
+}
+
+// Header styles
+.customize-header-title {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+// Live badge styles
+.live-badge-wrapper {
+    margin-left: 8px;
+}
+
+.live-badge {
+    background: var(--p-color-bg-success-subdued);
+    color: var(--p-color-text-success);
+    border-radius: var(--p-border-radius-1);
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
+.paused-badge {
+    background: var(--p-color-bg-warning-subdued);
+    color: var(--p-color-text-warning);
+    border-radius: var(--p-border-radius-1);
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
+// Section spacing styles
+.section-margin-bottom {
+    margin-bottom: var(--p-space-400);
+}
+
+.section-margin-top {
+    margin-top: 4px;
+}
+
+.section-margin-vertical {
+    margin: 16px 0;
+}
+
+.section-margin-small {
+    margin: 4px 0;
+}
+
+// Radio button label styles
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.radio-input {
+    margin-right: 8px;
+}
+
+// Indented content styles
+.indented-content {
+    margin-left: 24px;
+    margin-top: 8px;
+}
+
+// Form field styles
+.form-field-margin {
+    margin-bottom: 8px;
+}
+
+.form-field-margin-large {
+    margin-bottom: 16px;
+}
+
+.form-label-bold {
+    font-weight: 500;
+    margin-top: 16px;
+    margin-bottom: 4px;
+}
+
+.form-label-bold-simple {
+    font-weight: 500;
+}
+
+.input-styled {
+    width: 80px;
+}
+
+.unit-input {
+    width: 80px;
+}
+
+.input-full-width {
+    width: 100%;
+}
+
+// Color input styles
+.color-input-text {
+    cursor: text;
+}
+
+
+.preview-sidebar {
+    position: sticky;
+    top: 16px;
+
+    .Polaris-Card {
+        border: none;
+        box-shadow: none;
+    }
+}
+
+.preview-area {
+    min-height: 300px;
+    position: relative;
+    border-radius: var(--p-border-radius-200); // 8px in Polaris tokens
+    background: #F8F8F8;
+    border: 1px solid #E4E4E4;
+    width: 100%;
+    margin: 0 auto;
+    transition: min-height 0.6s ease-in-out, width 0.6s ease-in-out, border-radius 0.6s ease-in-out;
+}
+
+.preview-area-mobile {
+    min-height: 560px;
+    width: 375px;
+    margin: 0 auto;
+    border-radius: 32px;
+}
+
+
+.color-picker-text-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--p-color-border);
+    border-radius: var(--p-border-radius-2);
+    font-size: 14px;
+    font-family: monospace;
+    text-transform: uppercase;
+    background: var(--p-color-bg-surface);
+    color: var(--p-color-text);
+
+    &:focus {
+        outline: none;
+        border-color: var(--p-color-border-focus);
+        box-shadow: 0 0 0 1px var(--p-color-border-focus);
+    }
+
+    &::placeholder {
+        color: var(--p-color-text-subdued);
+    }
+}
+
+.color-picker-preview {
+    border: 1px solid var(--p-color-border);
+    border-radius: var(--p-border-radius-1);
+    width: 20px;
+    height: 20px;
+}
+
+// CSS Editor styles
+.css-editor-container {
+    display: flex;
+    border: 1px solid var(--p-color-border);
+    border-radius: var(--p-border-radius-2);
+    overflow: hidden;
+    background: var(--p-color-bg-surface);
+}
+
+.css-editor-line-numbers {
+    background: var(--p-color-bg-surface-subdued);
+    color: var(--p-color-text-subdued);
+    font-family: monospace;
+    font-size: 14px;
+    padding: 8px 4px;
+    text-align: right;
+    user-select: none;
+}
+
+.css-editor-line-number {
+    height: 20px;
+}
+
+.css-editor-textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--p-color-text-success);
+    background: var(--p-color-bg-surface);
+    padding: 8px;
+    resize: vertical;
+    min-height: 100px;
+}
+
+// Sticky bar preview styles
 .sy-sticky-add-to-cart-preview {
     position: absolute;
     max-width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--p-color-bg-surface);
+    border: 1px solid var(--p-color-border);
+    border-radius: var(--p-border-radius-2);
+    box-shadow: var(--p-shadow-2);
+    z-index: 3;
+    overflow: hidden;
 }
 
 .sy-sticky-add-to-cart-preview--mobile {
     bottom: 0;
     right: 0;
+    left: 0;
     flex-direction: column;
     gap: 12px;
-
-    .sy-sticky-add-to-cart-preview__button {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-.sy-sticky-add-to-cart-preview__cart-icon,
-.Polaris-Icon {
-    margin: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
 }
 
 .sy-sticky-add-to-cart-preview--desktop {
     bottom: 20px;
-
-    .sy-sticky-add-to-cart-preview__actions {
-        justify-content: flex-end;
-    }
 }
 
-// Desktop positioning
 .sy-sticky-add-to-cart-preview--desktop--full-width {
     right: 20px;
     left: 20px;
@@ -183,7 +356,6 @@
     transform: none;
 }
 
-// Mobile positioning
 .sy-sticky-add-to-cart-preview--mobile--full-width {
     right: 0;
     left: 0;
@@ -208,21 +380,25 @@
     transform: none;
 }
 
-.sy-live-badge {
-    background: #E3F1DF;
-    color: #108043;
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 12px;
+.sy-sticky-add-to-cart-preview__content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+    width: 100%;
 }
 
-.sy-paused-badge {
-    background: #FEF7F0;
-    color: #B95000;
+.sy-sticky-add-to-cart-preview__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+    width: 100%;
 }
 
-.sy-live-badge-wrapper {
-    margin-left: 8px;
+.sy-sticky-add-to-cart-preview--mobile .sy-sticky-add-to-cart-preview__actions {
+    width: 100%;
+    justify-content: space-between;
 }
 
 .sy-sticky-add-to-cart-preview__button {
@@ -236,14 +412,12 @@
     align-items: center;
     gap: 6px;
     white-space: nowrap;
+    padding: 8px 16px;
 }
 
-.sy-sticky-add-to-cart-preview__content {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: space-between;
+.sy-sticky-add-to-cart-preview--mobile .sy-sticky-add-to-cart-preview__button {
     width: 100%;
+    justify-content: center;
 }
 
 .sy-sticky-add-to-cart-preview__quantity-button {
@@ -271,6 +445,11 @@
     justify-content: center;
 }
 
+.sy-sticky-add-to-cart-preview__cart-icon,
+.Polaris-Icon {
+    margin: 0;
+}
+
 .sy-quantity-wrapper {
     display: flex;
     align-items: center;
@@ -283,23 +462,4 @@
     border: 1px solid #DFDFDF;
     padding: 11px;
     justify-content: space-between;
-}
-
-.sy-sticky-add-to-cart-preview__actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: space-between;
-    width: 100%;
-}
-
-// Custom tabs styling
-.customize-tabs-wrapper {
-    margin-bottom: 16px;
-
-    .Polaris-Tabs__Outer {
-        &>.Polaris-Box {
-            padding: 0;
-        }
-    }
 }

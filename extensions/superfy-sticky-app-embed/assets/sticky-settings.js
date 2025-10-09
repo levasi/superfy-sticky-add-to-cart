@@ -287,6 +287,19 @@ class StickyBarSettings {
             return;
         }
 
+        // Check if sticky bar is paused
+        const stickyBarStatus = this.get('sticky_bar_status');
+        console.log('🔧 Sticky bar status:', stickyBarStatus);
+
+        if (stickyBarStatus === 'paused') {
+            console.log('⏸️ Sticky bar is paused - hiding bar');
+            stickyBar.style.display = 'none';
+            return;
+        } else {
+            console.log('▶️ Sticky bar is active - showing bar');
+            stickyBar.style.display = '';
+        }
+
         console.log('✅ Sticky bar element found:', stickyBar);
 
         // Setup variant change detection
