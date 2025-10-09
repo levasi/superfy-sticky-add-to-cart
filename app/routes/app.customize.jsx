@@ -840,11 +840,9 @@ export default function Customize() {
                                         </InlineStack>
                                     </Card>
                                     <Card>
-                                        <Box>
-                                            <div className="section-margin-bottom">
-                                                <Text variant="headingSm" as="h3">Visibility</Text>
-                                            </div>
-                                            <Box className="section-margin-small">
+                                        <BlockStack gap="400">
+                                            <Text variant="headingSm" as="h3">Visibility</Text>
+                                            <BlockStack gap="100">
                                                 <Select
                                                     label="Show on"
                                                     options={[
@@ -854,15 +852,15 @@ export default function Customize() {
                                                     ]}
                                                     value={visibility}
                                                     onChange={setVisibility}
-                                                />
-                                            </Box>
 
-                                            <Text variant="bodySm" tone="subdued" className="section-margin-top">Control where the Sticky Bar is shown.</Text>
-                                        </Box>
+                                                />
+                                                <Text variant="bodySm" tone="subdued" className="section-margin-top">Control where the Sticky Bar is shown.</Text>
+                                            </BlockStack>
+                                        </BlockStack>
                                         <Box className="section-margin-vertical">
                                             <Divider />
                                         </Box>
-                                        <BlockStack >
+                                        <BlockStack gap="400">
                                             <Text variant="headingSm" as="h3">Trigger</Text>
 
                                             <BlockStack gap="200">
@@ -1013,43 +1011,43 @@ export default function Customize() {
                             {appearanceView === 'desktop' && (
                                 <BlockStack gap="400">
                                     <Card>
-                                        <BlockStack gap="100">
-                                            <Text variant="headingSm" as="h3" className="form-label-bold">Content display</Text>
-                                            <Text variant="bodySm" tone="subdued">
-                                                Control which product elements are displayed.
-                                            </Text>
-                                        </BlockStack>
+                                        <BlockStack gap="400">
+                                            <BlockStack gap="100">
+                                                <Text variant="headingSm" as="h3" className="form-label-bold"
+                                                >Content display</Text>
+                                                <Text variant="bodySm" tone="subdued">Control which product elements are displayed.</Text>
+                                            </BlockStack>
 
-                                        <BlockStack gap="0">
-                                            <Checkbox
-                                                label="Show image"
-                                                checked={imageDisplay}
-                                                onChange={(checked) => setImageDisplay(checked)}
-                                            />
-                                            <Checkbox
-                                                label="Show title"
-                                                checked={titleDisplay}
-                                                onChange={(checked) => setTitleDisplay(checked)}
-                                            />
-                                            <Checkbox
-                                                label="Show price"
-                                                checked={priceDisplay}
-                                                onChange={(checked) => setPriceDisplay(checked)}
-                                            />
-                                            <Checkbox
-                                                label="Show quantity selector"
-                                                checked={quantityDisplay}
-                                                onChange={(checked) => setQuantityDisplay(checked)}
-                                            />
+                                            <BlockStack gap="0">
+                                                <Checkbox
+                                                    label="Show image"
+                                                    checked={imageDisplay}
+                                                    onChange={(checked) => setImageDisplay(checked)}
+                                                />
+                                                <Checkbox
+                                                    label="Show title"
+                                                    checked={titleDisplay}
+                                                    onChange={(checked) => setTitleDisplay(checked)}
+                                                />
+                                                <Checkbox
+                                                    label="Show price"
+                                                    checked={priceDisplay}
+                                                    onChange={(checked) => setPriceDisplay(checked)}
+                                                />
+                                                <Checkbox
+                                                    label="Show quantity selector"
+                                                    checked={quantityDisplay}
+                                                    onChange={(checked) => setQuantityDisplay(checked)}
+                                                />
+                                            </BlockStack>
                                         </BlockStack>
                                     </Card>
                                     <Card>
                                         <BlockStack gap="200">
                                             <BlockStack gap="100">
-                                                <Text as="h3" variant="headingMd">Bar</Text>
-                                                <Text variant="bodySm" tone="subdued">
-                                                    Manage layout, spacing, and visual design for the sticky bar container.
-                                                </Text>
+                                                <Text as="h3" variant="headingMd"
+
+                                                >Bar</Text>
                                             </BlockStack>
                                             <ChoiceList
                                                 title="Width"
@@ -1075,18 +1073,19 @@ export default function Customize() {
                                                                 placeholder="e.g., 600"
                                                                 value={maxWidth}
                                                                 onChange={setMaxWidth}
+                                                                connectedRight={<Select
+                                                                    options={[
+                                                                        { label: 'px', value: 'px' },
+                                                                        { label: '%', value: '%' }
+                                                                    ]}
+                                                                    onChange={setMaxWidthUnit}
+                                                                    value={maxWidthUnit}
+                                                                    className="input-styled unit-input"
+                                                                />}
+                                                                helpText="Leave empty for auto"
                                                             />
-                                                            <Select
-                                                                options={[
-                                                                    { label: 'px', value: 'px' },
-                                                                    { label: '%', value: '%' }
-                                                                ]}
-                                                                onChange={setMaxWidthUnit}
-                                                                value={maxWidthUnit}
-                                                                className="input-styled unit-input"
-                                                            />
+
                                                         </InlineStack>
-                                                        <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
                                                     </BlockStack>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div">Alignment</Text>
@@ -1118,19 +1117,20 @@ export default function Customize() {
                                                                 placeholder="e.g., 20"
                                                                 value={outerSpacing}
                                                                 onChange={setOuterSpacing}
+                                                                helpText="Distance between the bar and the screen edges."
+                                                                connectedRight={<Select
+                                                                    options={[
+                                                                        { label: 'px', value: 'px' },
+                                                                        { label: '%', value: '%' }
+                                                                    ]}
+                                                                    onChange={setOuterSpacingUnit}
+                                                                    value={outerSpacingUnit}
+                                                                    name="sticky_outer_spacing_unit"
+                                                                    className="input-styled unit-input"
+                                                                />}
                                                             />
-                                                            <Select
-                                                                options={[
-                                                                    { label: 'px', value: 'px' },
-                                                                    { label: '%', value: '%' }
-                                                                ]}
-                                                                onChange={setOuterSpacingUnit}
-                                                                value={outerSpacingUnit}
-                                                                name="sticky_outer_spacing_unit"
-                                                                className="input-styled unit-input"
-                                                            />
+
                                                         </InlineStack>
-                                                        <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
                                                     </BlockStack>
                                                 </>
                                             )}
@@ -1150,16 +1150,16 @@ export default function Customize() {
                                                         placeholder="e.g., 16"
                                                         value={innerSpacing}
                                                         onChange={setInnerSpacing}
-                                                    />
-                                                    <Select
-                                                        options={[
-                                                            { label: 'px', value: 'px' },
-                                                            { label: '%', value: '%' }
-                                                        ]}
-                                                        onChange={setInnerSpacingUnit}
-                                                        value={innerSpacingUnit}
-                                                        name="sticky_inner_spacing_unit"
-                                                        className="input-styled unit-input"
+                                                        connectedRight={<Select
+                                                            options={[
+                                                                { label: 'px', value: 'px' },
+                                                                { label: '%', value: '%' }
+                                                            ]}
+                                                            onChange={setInnerSpacingUnit}
+                                                            value={innerSpacingUnit}
+                                                            name="sticky_inner_spacing_unit"
+                                                            className="input-styled unit-input"
+                                                        />}
                                                     />
                                                 </InlineStack>
                                                 <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
@@ -1291,9 +1291,7 @@ export default function Customize() {
                                     </Card>
                                     <Card>
                                         <Text as="h3" variant="headingMd">Content</Text>
-                                        <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                            Customize fonts, colors, and spacing for product content inside the sticky bar.
-                                        </Text>
+                                        <Text variant="bodySm" tone="subdued">Customize fonts, colors, and spacing for product content inside the sticky bar.</Text>
                                         <Box style={{ margin: '16px 0' }}>
                                             <Divider />
                                         </Box>
@@ -1668,58 +1666,57 @@ export default function Customize() {
                             {appearanceView === 'mobile' && (
                                 <BlockStack gap="400">
                                     <Card>
-                                        <Box className="section-margin-bottom">
+                                        <BlockStack gap="400">
                                             <BlockStack gap="100">
                                                 <Text variant="headingSm" as="h3" className="form-label-bold">Content display</Text>
-                                                <Text variant="bodySm" tone="subdued">
-                                                    Control which product elements are displayed.
-                                                </Text>
+                                                <Text variant="bodySm" tone="subdued">Control which product elements are displayed.</Text>
                                             </BlockStack>
-                                        </Box>
-                                        <BlockStack gap="0">
-                                            <input
-                                                type="hidden"
-                                                name="sticky_content_display_mobile_image"
-                                                value={mobileImageDisplay ? 'on' : 'off'}
-                                            />
-                                            <Checkbox
-                                                label="Show image"
-                                                checked={mobileImageDisplay}
-                                                onChange={(checked) => setMobileImageDisplay(checked)}
-                                            />
 
-                                            <input
-                                                type="hidden"
-                                                name="sticky_content_display_mobile_title"
-                                                value={mobileTitleDisplay ? 'on' : 'off'}
-                                            />
-                                            <Checkbox
-                                                label="Show title"
-                                                checked={mobileTitleDisplay}
-                                                onChange={(checked) => setMobileTitleDisplay(checked)}
-                                            />
+                                            <BlockStack gap="0">
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_image"
+                                                    value={mobileImageDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show image"
+                                                    checked={mobileImageDisplay}
+                                                    onChange={(checked) => setMobileImageDisplay(checked)}
+                                                />
 
-                                            <input
-                                                type="hidden"
-                                                name="sticky_content_display_mobile_price"
-                                                value={mobilePriceDisplay ? 'on' : 'off'}
-                                            />
-                                            <Checkbox
-                                                label="Show price"
-                                                checked={mobilePriceDisplay}
-                                                onChange={(checked) => setMobilePriceDisplay(checked)}
-                                            />
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_title"
+                                                    value={mobileTitleDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show title"
+                                                    checked={mobileTitleDisplay}
+                                                    onChange={(checked) => setMobileTitleDisplay(checked)}
+                                                />
 
-                                            <input
-                                                type="hidden"
-                                                name="sticky_content_display_mobile_quantity"
-                                                value={mobileQuantityDisplay ? 'on' : 'off'}
-                                            />
-                                            <Checkbox
-                                                label="Show quantity selector"
-                                                checked={mobileQuantityDisplay}
-                                                onChange={(checked) => setMobileQuantityDisplay(checked)}
-                                            />
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_price"
+                                                    value={mobilePriceDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show price"
+                                                    checked={mobilePriceDisplay}
+                                                    onChange={(checked) => setMobilePriceDisplay(checked)}
+                                                />
+
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_quantity"
+                                                    value={mobileQuantityDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show quantity selector"
+                                                    checked={mobileQuantityDisplay}
+                                                    onChange={(checked) => setMobileQuantityDisplay(checked)}
+                                                />
+                                            </BlockStack>
                                         </BlockStack>
                                     </Card>
 
@@ -1759,18 +1756,19 @@ export default function Customize() {
                                                                 placeholder="e.g., 600"
                                                                 value={mobileMaxWidth}
                                                                 onChange={setMobileMaxWidth}
+                                                                connectedRight={<Select
+                                                                    options={[
+                                                                        { label: 'px', value: 'px' },
+                                                                        { label: '%', value: '%' }
+                                                                    ]}
+                                                                    onChange={setMobileMaxWidthUnit}
+                                                                    value={mobileMaxWidthUnit}
+                                                                    name="sticky_max_width_mobile_unit"
+                                                                    className="input-styled unit-input"
+                                                                />}
+                                                                helpText="Leave empty for auto"
                                                             />
-                                                            <Select
-                                                                options={[
-                                                                    { label: 'px', value: 'px' },
-                                                                    { label: '%', value: '%' }
-                                                                ]}
-                                                                onChange={setMobileMaxWidthUnit}
-                                                                value={mobileMaxWidthUnit}
-                                                                name="sticky_max_width_mobile_unit"
-                                                                className="input-styled unit-input"
-                                                            />
-                                                            <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
+
                                                         </BlockStack>
                                                         <BlockStack gap="100">
                                                             <Text variant="bodySm" as="div">Alignment</Text>
@@ -1802,17 +1800,18 @@ export default function Customize() {
                                                                     placeholder="e.g., 20"
                                                                     value={mobileOuterSpacing}
                                                                     onChange={setMobileOuterSpacing}
+                                                                    connectedRight={<Select
+                                                                        options={[
+                                                                            { label: 'px', value: 'px' },
+                                                                            { label: '%', value: '%' }
+                                                                        ]}
+                                                                        onChange={setMobileOuterSpacingUnit}
+                                                                        value={mobileOuterSpacingUnit}
+                                                                        name="sticky_outer_spacing_mobile_unit"
+                                                                        className="input-styled unit-input"
+                                                                    />}
                                                                 />
-                                                                <Select
-                                                                    options={[
-                                                                        { label: 'px', value: 'px' },
-                                                                        { label: '%', value: '%' }
-                                                                    ]}
-                                                                    onChange={setMobileOuterSpacingUnit}
-                                                                    value={mobileOuterSpacingUnit}
-                                                                    name="sticky_outer_spacing_mobile_unit"
-                                                                    className="input-styled unit-input"
-                                                                />
+
                                                             </InlineStack>
                                                             <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
                                                         </BlockStack>
@@ -1834,17 +1833,18 @@ export default function Customize() {
                                                             placeholder="e.g., 16"
                                                             value={mobileInnerSpacing}
                                                             onChange={setMobileInnerSpacing}
+                                                            connectedRight={<Select
+                                                                options={[
+                                                                    { label: 'px', value: 'px' },
+                                                                    { label: '%', value: '%' }
+                                                                ]}
+                                                                onChange={setMobileInnerSpacingUnit}
+                                                                value={mobileInnerSpacingUnit}
+                                                                name="sticky_inner_spacing_mobile_unit"
+                                                                className="input-styled unit-input"
+                                                            />}
                                                         />
-                                                        <Select
-                                                            options={[
-                                                                { label: 'px', value: 'px' },
-                                                                { label: '%', value: '%' }
-                                                            ]}
-                                                            onChange={setMobileInnerSpacingUnit}
-                                                            value={mobileInnerSpacingUnit}
-                                                            name="sticky_inner_spacing_mobile_unit"
-                                                            className="input-styled unit-input"
-                                                        />
+
                                                     </InlineStack>
                                                     <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                                 </BlockStack>
@@ -1852,21 +1852,21 @@ export default function Customize() {
                                         </BlockStack>
                                     </Card>
                                     <Card>
-                                        <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <BlockStack gap="100">
                                             <Text as="h3" variant="headingMd">Content</Text>
-                                            <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                            <Text variant="bodySm" tone="subdued">
                                                 Customize fonts, colors, and spacing for product content inside the sticky bar.
                                             </Text>
-                                        </Box>
-                                        <Box style={{ margin: '16px 0' }}>
+                                        </BlockStack>
+                                        <BlockStack gap="100">
                                             <Divider />
-                                        </Box>
-                                        <Box className="form-label-bold">
+                                        </BlockStack>
+                                        <BlockStack gap="100">
                                             <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
-                                        </Box>
-                                        <Box style={{ marginBottom: 4 }}>
+                                        </BlockStack>
+                                        <BlockStack gap="100">
                                             <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
-                                        </Box>
+                                        </BlockStack>
                                         <input
                                             type="hidden"
                                             name="sticky_image_size_mobile"
@@ -1905,12 +1905,12 @@ export default function Customize() {
                                                         checked={enableMobileCartIcon}
                                                         onChange={setEnableMobileCartIcon}
                                                     />
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                    <BlockStack gap="100">
                                                         <Text variant="bodySm" as="span" className="form-label-bold-simple">Show cart icon</Text>
                                                         <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
                                                             Choose whether to display the icon or not
                                                         </Text>
-                                                    </div>
+                                                    </BlockStack>
                                                 </div>
                                             </BlockStack>
                                         </BlockStack>
@@ -1962,6 +1962,7 @@ export default function Customize() {
                         </Card>
                     )}
                 </div>
+
                 <div className="preview-sidebar">
                     <Card>
                         <div className="section-margin-bottom">
