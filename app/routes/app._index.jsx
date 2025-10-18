@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
-import * as Polaris from "@shopify/polaris";
+import {
+  Page,
+  Layout,
+  Card,
+  Text,
+  Button,
+  BlockStack,
+  InlineStack,
+  Grid,
+  Badge
+} from "@shopify/polaris";
 
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import createApp from '@shopify/app-bridge';
@@ -278,10 +288,10 @@ export default function Index() {
   }, [fetcher.data, shopify]);
 
   return (
-    <Polaris.Page fullWidth>
+    <Page fullWidth>
       <TitleBar title="Superfy sticky buy" />
-      <Polaris.Layout>
-        <Polaris.Layout.Section>
+      <Layout>
+        <Layout.Section>
           {/* Setup Guide */}
           {showGuide ? (
             <SetupGuide
@@ -293,81 +303,81 @@ export default function Index() {
               items={setupItems}
             />
           ) : (
-            <Polaris.Card>
+            <Card>
               <div style={{ padding: '24px', textAlign: 'center' }}>
-                <Polaris.Text variant="headingMd" style={{ marginBottom: '16px' }}>
+                <Text variant="headingMd" style={{ marginBottom: '16px' }}>
                   Setup guide hidden
-                </Polaris.Text>
-                <Polaris.Button onClick={() => setShowGuide(true)}>
+                </Text>
+                <Button onClick={() => setShowGuide(true)}>
                   Show Setup Guide
-                </Polaris.Button>
+                </Button>
               </div>
-            </Polaris.Card>
+            </Card>
           )}
-        </Polaris.Layout.Section>
-        <Polaris.Layout.Section>
-          <Polaris.BlockStack gap="200">
-            <Polaris.Text variant="headingMd" as="h6">
+        </Layout.Section>
+        <Layout.Section>
+          <BlockStack gap="200">
+            <Text variant="headingMd" as="h6">
               Quick status
-            </Polaris.Text>
+            </Text>
 
             {/* Quick Status */}
-            <Polaris.Grid columns={{ xs: 2, sm: 2, md: 2, lg: 2, xl: 2 }}>
-              <Polaris.Grid.Cell columnSpan={{ xs: 2, md: 1 }}>
-                <Polaris.Card>
-                  <Polaris.BlockStack gap="200">
-                    <Polaris.BlockStack gap="100">
-                      <Polaris.InlineStack gap="200">
-                        <Polaris.Text variant="headingSm">App embed</Polaris.Text>
-                        <Polaris.Badge tone="success">Active</Polaris.Badge>
-                      </Polaris.InlineStack>
-                      <Polaris.Text>Controls whether the app can inject the sticky bar into your theme.</Polaris.Text>
-                    </Polaris.BlockStack>
-                    <Polaris.InlineStack>
-                      <Polaris.Button onClick={handlePreviewInTheme}>Preview in theme</Polaris.Button>
-                    </Polaris.InlineStack>
-                  </Polaris.BlockStack>
-                </Polaris.Card>
-              </Polaris.Grid.Cell>
+            <Grid columns={{ xs: 2, sm: 2, md: 2, lg: 2, xl: 2 }}>
+              <Grid.Cell columnSpan={{ xs: 2, md: 1 }}>
+                <Card>
+                  <BlockStack gap="200">
+                    <BlockStack gap="100">
+                      <InlineStack gap="200">
+                        <Text variant="headingSm">App embed</Text>
+                        <Badge tone="success">Active</Badge>
+                      </InlineStack>
+                      <Text>Controls whether the app can inject the sticky bar into your theme.</Text>
+                    </BlockStack>
+                    <InlineStack>
+                      <Button onClick={handlePreviewInTheme}>Preview in theme</Button>
+                    </InlineStack>
+                  </BlockStack>
+                </Card>
+              </Grid.Cell>
 
-              <Polaris.Grid.Cell columnSpan={{ xs: 2, md: 1 }}>
-                <Polaris.Card>
-                  <Polaris.BlockStack gap="200">
-                    <Polaris.BlockStack gap="100">
-                      <Polaris.InlineStack gap="200">
-                        <Polaris.Text variant="headingSm">Sticky bar</Polaris.Text>
-                        <Polaris.Badge tone={stickyBarStatus === 'active' ? 'success' : 'warning'}>
+              <Grid.Cell columnSpan={{ xs: 2, md: 1 }}>
+                <Card>
+                  <BlockStack gap="200">
+                    <BlockStack gap="100">
+                      <InlineStack gap="200">
+                        <Text variant="headingSm">Sticky bar</Text>
+                        <Badge tone={stickyBarStatus === 'active' ? 'success' : 'warning'}>
                           {stickyBarStatus === 'active' ? 'Live' : 'Paused'}
-                        </Polaris.Badge>
-                      </Polaris.InlineStack>
-                      <Polaris.Text>Turn the sticky bar on or off without uninstalling the app.</Polaris.Text>
-                    </Polaris.BlockStack>
-                    <Polaris.InlineStack>
-                      <Polaris.Button
+                        </Badge>
+                      </InlineStack>
+                      <Text>Turn the sticky bar on or off without uninstalling the app.</Text>
+                    </BlockStack>
+                    <InlineStack>
+                      <Button
                         tone={stickyBarStatus === 'active' ? 'critical' : 'success'}
                         onClick={handleToggleStickyBar}
                         loading={fetcher.state === 'submitting'}
                       >
                         {stickyBarStatus === 'active' ? 'Pause' : 'Activate'}
-                      </Polaris.Button>
-                    </Polaris.InlineStack>
-                  </Polaris.BlockStack>
-                </Polaris.Card>
-              </Polaris.Grid.Cell>
-            </Polaris.Grid>
-          </Polaris.BlockStack>
-        </Polaris.Layout.Section>
+                      </Button>
+                    </InlineStack>
+                  </BlockStack>
+                </Card>
+              </Grid.Cell>
+            </Grid>
+          </BlockStack>
+        </Layout.Section>
 
-        <Polaris.Layout.Section>
+        <Layout.Section>
           {/* What's New Section */}
           <Changelog items={changelogItems} />
-        </Polaris.Layout.Section>
+        </Layout.Section>
 
-        <Polaris.Layout.Section>
+        <Layout.Section>
           {/* Need Help */}
           <NeedHelp />
-        </Polaris.Layout.Section>
-      </Polaris.Layout>
+        </Layout.Section>
+      </Layout>
 
 
       {product && (
@@ -390,30 +400,30 @@ export default function Index() {
           }}
         >
           <div>
-            <Polaris.Text as="span" variant="headingMd">
+            <Text as="span" variant="headingMd">
               {product.title}
-            </Polaris.Text>
+            </Text>
             {variant && (
-              <Polaris.Text as="span" variant="bodyMd" style={{ marginLeft: 16 }}>
+              <Text as="span" variant="bodyMd" style={{ marginLeft: 16 }}>
                 ${variant.price}
-              </Polaris.Text>
+              </Text>
             )}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <Polaris.Button
+            <Button
               primary
               onClick={() => setCartCount((c) => c + 1)}
             >
               Add to Cart
-            </Polaris.Button>
+            </Button>
             {cartCount > 0 && (
-              <Polaris.Text as="span" variant="bodyMd">
+              <Text as="span" variant="bodyMd">
                 In cart: {cartCount}
-              </Polaris.Text>
+              </Text>
             )}
           </div>
         </div>
       )}
-    </Polaris.Page>
+    </Page>
   );
 }
