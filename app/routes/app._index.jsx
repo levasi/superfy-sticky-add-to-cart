@@ -289,7 +289,7 @@ export default function Index() {
 
   return (
     <Page fullWidth>
-      <TitleBar title="Superfy sticky buy" />
+      <TitleBar title="Sticky buy" />
       <Layout>
         <Layout.Section>
           {/* Setup Guide */}

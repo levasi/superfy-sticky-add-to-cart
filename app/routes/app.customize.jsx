@@ -891,7 +891,7 @@ export default function Customize() {
 
     return (
         <Page fullWidth>
-            <TitleBar title="Superfy sticky buy - Customize" />
+            <TitleBar title="Sticky buy - Customize" />
             <InlineStack align="space-between" gap="400">
                 <InlineStack gap="200" blockAlign="center">
                     <Button icon={ArrowLeftIcon} variant="tertiary" onClick={handleBack} />
@@ -1368,121 +1368,51 @@ export default function Customize() {
                                         </BlockStack>
                                     </Card>
                                     <Card>
-                                        <BlockStack gap="100">
-                                            <Text as="h3" variant="headingMd">Content</Text>
-                                            <Text variant="bodySm" tone="subdued">Customize fonts, colors, and spacing for product content inside the sticky bar.</Text>
-                                        </BlockStack>
-                                        <Divider />
-                                        <Box className="form-field-margin">
-                                            <Text as="h4" variant="headingSm">Product name</Text>
-                                        </Box>
-                                        <Box style={{ marginBottom: '4px' }}>
-                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
-                                        </Box>
-                                        <Popover
-                                            active={showProductNameColorPicker}
-                                            activator={
-                                                <div className="color-input-wrapper">
-                                                    <div
-                                                        className="color-swatch color-picker-preview"
-                                                        style={{
-                                                            backgroundColor: productNameColor,
-                                                            border: '1px solid #DFDFDF',
-                                                            borderRadius: '4px',
-                                                            width: '20px',
-                                                            height: '20px',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                        onClick={() => setShowProductNameColorPicker(true)}
-                                                    />
-                                                    <input
-                                                        className="color-input-type-color color-input-text"
-                                                        type="text"
-                                                        value={productNameColor}
-                                                        onChange={(e) => {
-                                                            const newColor = e.target.value;
-                                                            // Allow typing by always updating the input value
-                                                            setProductNameColor(newColor);
-                                                            // Only update HSBA and apply color if it's a valid hex
-                                                            if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
-                                                                setProductNameColorHSBA(hexToHSBA(newColor));
-                                                            }
-                                                        }}
-                                                        placeholder="#141414"
-                                                    />
-                                                </div>
-                                            }
-                                            onClose={() => setShowProductNameColorPicker(false)}
-                                            preferredPosition="below"
-                                            preferredAlignment="left"
-                                            fullWidth={false}
-                                            sectioned={false}
-                                        >
-                                            <ColorPicker
-                                                onChange={(color) => {
-                                                    setProductNameColorHSBA(color);
-                                                    setProductNameColor(hsbaToHex(color));
-                                                }}
-                                                color={productNameColorHSBA}
-                                                allowAlpha={false}
-                                            />
-                                        </Popover>
-                                        <Divider />
-                                        <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
-                                        <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
-                                        <input
-                                            type="hidden"
-                                            name="sticky_image_size"
-                                            value={imageSize}
-                                        />
-                                        <Select
-                                            options={[
-                                                { label: 'Small', value: 'small' },
-                                                { label: 'Medium', value: 'medium' },
-                                                { label: 'Large', value: 'large' }
-                                            ]}
-                                            onChange={setImageSize}
-                                            value={imageSize}
-                                        />
-                                        <Divider />
-                                        <BlockStack gap="200">
-                                            <Text variant="headingSm" as="h4" className="form-label-bold">Quantity</Text>
+                                        <BlockStack gap="400">
                                             <BlockStack gap="100">
+                                                <Text as="h3" variant="headingMd">Content</Text>
+                                                <Text variant="bodySm" tone="subdued">Customize fonts, colors, and spacing for product content inside the sticky bar.</Text>
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Divider />
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Text as="h4" variant="headingSm">Product name</Text>
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
                                                 <Popover
-                                                    active={showQuantityColorPicker}
+                                                    active={showProductNameColorPicker}
                                                     activator={
                                                         <div className="color-input-wrapper">
                                                             <div
                                                                 className="color-swatch color-picker-preview"
                                                                 style={{
-                                                                    backgroundColor: quantityColor,
+                                                                    backgroundColor: productNameColor,
                                                                     border: '1px solid #DFDFDF',
                                                                     borderRadius: '4px',
                                                                     width: '20px',
                                                                     height: '20px',
                                                                     cursor: 'pointer'
                                                                 }}
-                                                                onClick={() => setShowQuantityColorPicker(true)}
+                                                                onClick={() => setShowProductNameColorPicker(true)}
                                                             />
                                                             <input
                                                                 className="color-input-type-color color-input-text"
                                                                 type="text"
-                                                                value={quantityColor}
+                                                                value={productNameColor}
                                                                 onChange={(e) => {
                                                                     const newColor = e.target.value;
                                                                     // Allow typing by always updating the input value
-                                                                    setQuantityColor(newColor);
+                                                                    setProductNameColor(newColor);
                                                                     // Only update HSBA and apply color if it's a valid hex
                                                                     if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
-                                                                        setQuantityColorHSBA(hexToHSBA(newColor));
+                                                                        setProductNameColorHSBA(hexToHSBA(newColor));
                                                                     }
                                                                 }}
                                                                 placeholder="#141414"
                                                             />
                                                         </div>
                                                     }
-                                                    onClose={() => setShowQuantityColorPicker(false)}
+                                                    onClose={() => setShowProductNameColorPicker(false)}
                                                     preferredPosition="below"
                                                     preferredAlignment="left"
                                                     fullWidth={false}
@@ -1490,64 +1420,142 @@ export default function Customize() {
                                                 >
                                                     <ColorPicker
                                                         onChange={(color) => {
-                                                            setQuantityColorHSBA(color);
-                                                            setQuantityColor(hsbaToHex(color));
+                                                            setProductNameColorHSBA(color);
+                                                            setProductNameColor(hsbaToHex(color));
                                                         }}
-                                                        color={quantityColorHSBA}
+                                                        color={productNameColorHSBA}
                                                         allowAlpha={false}
                                                     />
                                                 </Popover>
                                             </BlockStack>
                                             <BlockStack gap="100">
-                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Border color</Text>
-                                                <Popover
-                                                    active={showQuantityBorderColorPicker}
-                                                    activator={
-                                                        <div className="color-input-wrapper">
-                                                            <div
-                                                                className="color-swatch color-picker-preview"
-                                                                style={{
-                                                                    backgroundColor: quantityBorderColor,
-                                                                    border: '1px solid #DFDFDF',
-                                                                    borderRadius: '4px',
-                                                                    width: '20px',
-                                                                    height: '20px',
-                                                                    cursor: 'pointer'
-                                                                }}
-                                                                onClick={() => setShowQuantityBorderColorPicker(true)}
-                                                            />
-                                                            <input
-                                                                className="color-input-type-color color-input-text"
-                                                                type="text"
-                                                                value={quantityBorderColor}
-                                                                onChange={(e) => {
-                                                                    const newColor = e.target.value;
-                                                                    // Allow typing by always updating the input value
-                                                                    setQuantityBorderColor(newColor);
-                                                                    // Only update HSBA and apply color if it's a valid hex
-                                                                    if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
-                                                                        setQuantityBorderColorHSBA(hexToHSBA(newColor));
-                                                                    }
-                                                                }}
-                                                                placeholder="#DFDFDF"
-                                                            />
-                                                        </div>
-                                                    }
-                                                    onClose={() => setShowQuantityBorderColorPicker(false)}
-                                                    preferredPosition="below"
-                                                    preferredAlignment="left"
-                                                    fullWidth={false}
-                                                    sectioned={false}
-                                                >
-                                                    <ColorPicker
-                                                        onChange={(color) => {
-                                                            setQuantityBorderColorHSBA(color);
-                                                            setQuantityBorderColor(hsbaToHex(color));
-                                                        }}
-                                                        color={quantityBorderColorHSBA}
-                                                        allowAlpha={false}
-                                                    />
-                                                </Popover>
+                                                <Divider />
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_image_size"
+                                                    value={imageSize}
+                                                />
+                                                <Select
+                                                    options={[
+                                                        { label: 'Small', value: 'small' },
+                                                        { label: 'Medium', value: 'medium' },
+                                                        { label: 'Large', value: 'large' }
+                                                    ]}
+                                                    onChange={setImageSize}
+                                                    value={imageSize}
+                                                />
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Divider />
+                                            </BlockStack>
+                                            <BlockStack gap="200">
+                                                <Text variant="headingSm" as="h4" className="form-label-bold">Quantity</Text>
+                                                <BlockStack gap="100">
+                                                    <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
+                                                    <Popover
+                                                        active={showQuantityColorPicker}
+                                                        activator={
+                                                            <div className="color-input-wrapper">
+                                                                <div
+                                                                    className="color-swatch color-picker-preview"
+                                                                    style={{
+                                                                        backgroundColor: quantityColor,
+                                                                        border: '1px solid #DFDFDF',
+                                                                        borderRadius: '4px',
+                                                                        width: '20px',
+                                                                        height: '20px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => setShowQuantityColorPicker(true)}
+                                                                />
+                                                                <input
+                                                                    className="color-input-type-color color-input-text"
+                                                                    type="text"
+                                                                    value={quantityColor}
+                                                                    onChange={(e) => {
+                                                                        const newColor = e.target.value;
+                                                                        // Allow typing by always updating the input value
+                                                                        setQuantityColor(newColor);
+                                                                        // Only update HSBA and apply color if it's a valid hex
+                                                                        if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                            setQuantityColorHSBA(hexToHSBA(newColor));
+                                                                        }
+                                                                    }}
+                                                                    placeholder="#141414"
+                                                                />
+                                                            </div>
+                                                        }
+                                                        onClose={() => setShowQuantityColorPicker(false)}
+                                                        preferredPosition="below"
+                                                        preferredAlignment="left"
+                                                        fullWidth={false}
+                                                        sectioned={false}
+                                                    >
+                                                        <ColorPicker
+                                                            onChange={(color) => {
+                                                                setQuantityColorHSBA(color);
+                                                                setQuantityColor(hsbaToHex(color));
+                                                            }}
+                                                            color={quantityColorHSBA}
+                                                            allowAlpha={false}
+                                                        />
+                                                    </Popover>
+                                                </BlockStack>
+                                                <BlockStack gap="100">
+                                                    <Text variant="bodySm" as="div" className="form-label-bold-simple">Border color</Text>
+                                                    <Popover
+                                                        active={showQuantityBorderColorPicker}
+                                                        activator={
+                                                            <div className="color-input-wrapper">
+                                                                <div
+                                                                    className="color-swatch color-picker-preview"
+                                                                    style={{
+                                                                        backgroundColor: quantityBorderColor,
+                                                                        border: '1px solid #DFDFDF',
+                                                                        borderRadius: '4px',
+                                                                        width: '20px',
+                                                                        height: '20px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => setShowQuantityBorderColorPicker(true)}
+                                                                />
+                                                                <input
+                                                                    className="color-input-type-color color-input-text"
+                                                                    type="text"
+                                                                    value={quantityBorderColor}
+                                                                    onChange={(e) => {
+                                                                        const newColor = e.target.value;
+                                                                        // Allow typing by always updating the input value
+                                                                        setQuantityBorderColor(newColor);
+                                                                        // Only update HSBA and apply color if it's a valid hex
+                                                                        if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                            setQuantityBorderColorHSBA(hexToHSBA(newColor));
+                                                                        }
+                                                                    }}
+                                                                    placeholder="#DFDFDF"
+                                                                />
+                                                            </div>
+                                                        }
+                                                        onClose={() => setShowQuantityBorderColorPicker(false)}
+                                                        preferredPosition="below"
+                                                        preferredAlignment="left"
+                                                        fullWidth={false}
+                                                        sectioned={false}
+                                                    >
+                                                        <ColorPicker
+                                                            onChange={(color) => {
+                                                                setQuantityBorderColorHSBA(color);
+                                                                setQuantityBorderColor(hsbaToHex(color));
+                                                            }}
+                                                            color={quantityBorderColorHSBA}
+                                                            allowAlpha={false}
+                                                        />
+                                                    </Popover>
+                                                </BlockStack>
                                             </BlockStack>
                                         </BlockStack>
                                     </Card>
@@ -1913,37 +1921,37 @@ export default function Customize() {
                                         </BlockStack>
                                     </Card>
                                     <Card>
-                                        <BlockStack gap="100">
-                                            <Text as="h3" variant="headingMd">Content</Text>
-                                            <Text variant="bodySm" tone="subdued">
-                                                Customize fonts, colors, and spacing for product content inside the sticky bar.
-                                            </Text>
+                                        <BlockStack gap="400">
+                                            <BlockStack gap="100">
+                                                <Text as="h3" variant="headingMd">Content</Text>
+                                                <Text variant="bodySm" tone="subdued">
+                                                    Customize fonts, colors, and spacing for product content inside the sticky bar.
+                                                </Text>
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Divider />
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_image_size_mobile"
+                                                    value={mobileImageSize}
+                                                />
+                                                <Select
+                                                    options={[
+                                                        { label: 'Small', value: 'small' },
+                                                        { label: 'Medium', value: 'medium' },
+                                                        { label: 'Large', value: 'large' }
+                                                    ]}
+                                                    onChange={setMobileImageSize}
+                                                    value={mobileImageSize}
+                                                    name="sticky_image_size_mobile"
+                                                    className="input-styled input-full-width"
+                                                />
+                                            </BlockStack>
                                         </BlockStack>
-                                        <BlockStack gap="100">
-                                            <Divider />
-                                        </BlockStack>
-                                        <BlockStack gap="100">
-                                            <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
-                                        </BlockStack>
-                                        <BlockStack gap="100">
-                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
-                                        </BlockStack>
-                                        <input
-                                            type="hidden"
-                                            name="sticky_image_size_mobile"
-                                            value={mobileImageSize}
-                                        />
-                                        <Select
-                                            options={[
-                                                { label: 'Small', value: 'small' },
-                                                { label: 'Medium', value: 'medium' },
-                                                { label: 'Large', value: 'large' }
-                                            ]}
-                                            onChange={setMobileImageSize}
-                                            value={mobileImageSize}
-                                            name="sticky_image_size_mobile"
-                                            className="input-styled input-full-width"
-                                        />
                                     </Card>
                                     <Card>
                                         <BlockStack gap="400">
