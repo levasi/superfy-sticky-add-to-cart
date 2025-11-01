@@ -45,7 +45,7 @@ export default function Settings() {
                                 {/* Original Settings Sections */}
                                 <div>
                                     {/* General Settings Section */}
-                                    <RemixLink to="/app/settings-general" style={{ textDecoration: 'none' }}>
+                                    <RemixLink to="/app/settings" style={{ textDecoration: 'none' }}>
                                         <Box
                                             as="div"
                                             className="settings-section"

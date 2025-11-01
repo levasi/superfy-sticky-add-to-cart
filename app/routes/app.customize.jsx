@@ -1728,11 +1728,11 @@ export default function Customize() {
                                                     />
                                                 </Popover>
                                             </BlockStack>
-                                            <BlockStack background="bg-surface-secondary" padding="200" borderRadius="200">
+                                            <Box background="bg-surface-secondary" padding="200" style={{ borderRadius: 'var(--p-border-radius-200)' }}>
                                                 <Text variant="bodySm" tone="subdued">
                                                     Hover styles apply a slight opacity to the background automatically.
                                                 </Text>
-                                            </BlockStack>
+                                            </Box>
                                         </BlockStack>
                                     </Card>
                                 </BlockStack>
@@ -1985,7 +1985,7 @@ export default function Customize() {
                                 </BlockStack>
                             )}
                             <Card>
-                                <BlockStack gap="200" marginBlockEnd="100">
+                                <BlockStack gap="200" style={{ marginBlockEnd: 'var(--p-space-100)' }}>
                                     <BlockStack gap="100">
                                         <Text as="h3" variant="headingMd">Reset appearance settings</Text>
                                         <Text variant="bodySm" tone="subdued">
@@ -2024,8 +2024,8 @@ export default function Customize() {
                         <div className="section-margin-bottom">
                             <Text as="h3"
                                 variant="headingMd"
-                                marginBlockEnd="400"
-                                className="preview-title">
+                                className="preview-title"
+                                style={{ marginBlockEnd: 'var(--p-space-400)' }}>
                                 Live preview
                             </Text>
                         </div>

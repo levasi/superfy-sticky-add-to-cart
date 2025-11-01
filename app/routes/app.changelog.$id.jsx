@@ -72,7 +72,7 @@ export default function ChangelogDetail() {
                     <div style={{ padding: '24px', textAlign: 'center' }}>
                         <Text variant="headingMd">Changelog entry not found</Text>
                         <div style={{ marginTop: '16px' }}>
-                            <Button onClick={() => navigate('/app/settings-general')}>
+                            <Button onClick={() => navigate('/app/settings')}>
                                 Back to General Settings
                             </Button>
                         </div>

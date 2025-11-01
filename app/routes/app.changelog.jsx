@@ -87,7 +87,7 @@ export default function Changelog() {
                             Stay up to date with the latest features and improvements
                         </Text>
                     </div>
-                    <Button onClick={() => navigate('/app/settings-general')} variant="plain">
+                    <Button onClick={() => navigate('/app/settings')} variant="plain">
                         Back to Settings
                     </Button>
                 </div>
