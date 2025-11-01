@@ -8,7 +8,7 @@ import { json } from "@remix-run/node";
 export const loader = async ({ request }) => {
   const url = new URL(request.url);
 
-  // API endpoint for sticky bar color
+  // API endpoint for sticky buy color
   if (url.pathname === "/api/sticky-bar-color") {
     const setting = await prisma.setting.findUnique({ where: { key: "sticky_bar_color" } });
     return json({ color: setting?.value || "#fff" });

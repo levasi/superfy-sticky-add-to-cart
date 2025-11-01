@@ -26,7 +26,7 @@ export const loader = async ({ request }) => {
         // Import the getSetting function
         const { getSetting } = await import("../models/settings.server");
 
-        // Load all sticky bar settings from database
+        // Load all sticky buy settings from database
         const settings = {
             sticky_bar_color: await getSetting("sticky_bar_color"),
             sticky_visibility: await getSetting("sticky_visibility"),
@@ -163,7 +163,7 @@ export const loader = async ({ request }) => {
             // Import the getSetting function
             const { getSetting } = await import("../models/settings.server");
 
-            // Load all sticky bar settings from database
+            // Load all sticky buy settings from database
             const settings = {
                 sticky_bar_color: await getSetting("sticky_bar_color"),
                 sticky_visibility: await getSetting("sticky_visibility"),

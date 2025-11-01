@@ -1,6 +1,6 @@
 /**
- * Sticky Bar Settings Loader
- * Fetches settings from the app proxy and applies them to the sticky bar
+ * Sticky Buy Settings Loader
+ * Fetches settings from the app proxy and applies them to the sticky buy
  * Updated: App Embed Version - v58
  */
 

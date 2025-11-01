@@ -175,7 +175,7 @@ export const action = async ({ request }) => {
         return Response.json({ ok: true });
     }
 
-    // Handle sticky bar status toggle
+    // Handle sticky buy status toggle
     if (formData.has("sticky_bar_status")) {
         const stickyBarStatus = formData.get("sticky_bar_status") || "active";
         await upsertSetting("sticky_bar_status", stickyBarStatus);
@@ -638,7 +638,7 @@ export default function Customize() {
 
     useEffect(() => {
         if (fetcher.data?.ok) {
-            shopify.toast.show("Sticky bar settings saved!");
+            shopify.toast.show("Sticky buy settings saved!");
             hideSaveBar();
         }
     }, [fetcher.data, shopify, hideSaveBar]);
@@ -871,7 +871,7 @@ export default function Customize() {
 
     const handleTabChange = useCallback((selectedTabIndex) => setSelectedTab(selectedTabIndex), []);
 
-    // Handle pause/resume sticky bar
+    // Handle pause/resume sticky buy
     const handleToggleStickyBar = useCallback(async () => {
         const newStatus = stickyBarStatus === 'active' ? 'paused' : 'active';
         setStickyBarStatus(newStatus);
@@ -912,7 +912,7 @@ export default function Customize() {
                                     <Card>
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
                                             <InlineStack gap="150">
-                                                <Text variant="headingSm">Sticky Bar</Text>
+                                                <Text variant="headingSm">Sticky Buy</Text>
                                                 <Badge tone={stickyBarStatus === 'active' ? 'success' : 'warning'}>
                                                     {stickyBarStatus === 'active' ? 'Live' : 'Paused'}
                                                 </Badge>
@@ -942,7 +942,7 @@ export default function Customize() {
                                                         onChange={setVisibility}
 
                                                     />
-                                                    <Text variant="bodySm" tone="subdued">Control where the Sticky Bar is shown.</Text>
+                                                    <Text variant="bodySm" tone="subdued">Control where the Sticky Buy is shown.</Text>
                                                 </BlockStack>
                                             </BlockStack>
                                             <Divider />
@@ -1133,7 +1133,7 @@ export default function Customize() {
                                         <BlockStack gap="400">
                                             <BlockStack gap="100">
                                                 <Text as="h3" variant="headingMd">Bar</Text>
-                                                <Text variant="bodySm" tone="subdued">Manage layout, spacing, and visual design for the sticky bar container.</Text>
+                                                <Text variant="bodySm" tone="subdued">Manage layout, spacing, and visual design for the sticky buy container.</Text>
                                             </BlockStack>
 
                                             <ChoiceList
@@ -1240,7 +1240,7 @@ export default function Customize() {
                                                         className="input-styled unit-input"
                                                     />}
                                                 />
-                                                <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
+                                                <Text variant="bodySm" tone="subdued">Padding inside the sticky buy</Text>
                                             </BlockStack>
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">Background color</Text>
@@ -1371,7 +1371,7 @@ export default function Customize() {
                                         <BlockStack gap="400">
                                             <BlockStack gap="100">
                                                 <Text as="h3" variant="headingMd">Content</Text>
-                                                <Text variant="bodySm" tone="subdued">Customize fonts, colors, and spacing for product content inside the sticky bar.</Text>
+                                                <Text variant="bodySm" tone="subdued">Customize fonts, colors, and spacing for product content inside the sticky buy.</Text>
                                             </BlockStack>
                                             <BlockStack gap="100">
                                                 <Divider />
@@ -1564,7 +1564,7 @@ export default function Customize() {
                                             <BlockStack gap="100">
                                                 <Text as="h3" variant="headingMd" >Button</Text>
                                                 <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                                    Customize the look and behavior of "Add to cart" button inside the sticky bar.
+                                                    Customize the look and behavior of "Add to cart" button inside the sticky buy.
                                                 </Text>
                                             </BlockStack>
                                             <BlockStack gap="100">
@@ -1799,7 +1799,7 @@ export default function Customize() {
                                             <BlockStack gap="100">
                                                 <Text as="h3" variant="headingMd">Bar</Text>
                                                 <Text variant="bodySm" tone="subdued">
-                                                    Manage layout, spacing, and visual design for the sticky bar container.
+                                                    Manage layout, spacing, and visual design for the sticky buy container.
                                                 </Text>
                                             </BlockStack>
 
@@ -1916,7 +1916,7 @@ export default function Customize() {
                                                         className="input-styled unit-input"
                                                     />}
                                                 />
-                                                <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
+                                                <Text variant="bodySm" tone="subdued">Padding inside the sticky buy</Text>
                                             </BlockStack>
                                         </BlockStack>
                                     </Card>
@@ -1925,7 +1925,7 @@ export default function Customize() {
                                             <BlockStack gap="100">
                                                 <Text as="h3" variant="headingMd">Content</Text>
                                                 <Text variant="bodySm" tone="subdued">
-                                                    Customize fonts, colors, and spacing for product content inside the sticky bar.
+                                                    Customize fonts, colors, and spacing for product content inside the sticky buy.
                                                 </Text>
                                             </BlockStack>
                                             <BlockStack gap="100">

@@ -246,7 +246,7 @@
         font-size: 13px;
     }
 
-    /* Ensure sticky bar doesn't interfere with mobile cart drawer */
+    /* Ensure sticky buy doesn't interfere with mobile cart drawer */
     .sfy-sb {
         z-index: 1000;
         /* Keep below cart drawer on mobile too */

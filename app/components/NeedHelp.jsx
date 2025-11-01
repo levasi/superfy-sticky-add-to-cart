@@ -46,7 +46,7 @@ export const NeedHelp = () => {
                                     </Text>
                                 </InlineStack>
                                 <Text variant="bodySm" tone="subdued" className="help-description">
-                                    All you need to get the sticky bar working on your store.
+                                    All you need to get the sticky buy working on your store.
                                 </Text>
                             </div>
                             <div className="help-actions">
