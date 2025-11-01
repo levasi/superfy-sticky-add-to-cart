@@ -212,6 +212,21 @@
     }
 }
 
+// Customize layout using Polaris components with custom overrides
+// Override Polaris InlineGrid to achieve the flexible width behavior
+// First column: 1/3 width but max 360px, Second column: takes remaining space
+.Polaris-InlineGrid {
+    @media (min-width: 768px) {
+        // Override grid template to use flexible columns
+        grid-template-columns: minmax(0, min(33.333%, 360px)) 1fr !important;
+
+        // Ensure Box inside first column respects max-width
+        >*:first-child {
+            max-width: 360px;
+        }
+    }
+}
+
 .preview-area {
     min-height: 300px;
     position: relative;

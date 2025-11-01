@@ -903,8 +903,8 @@ export default function Customize() {
                 <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange} />
             </div>
 
-            <InlineGrid columns={['oneThird', 'twoThirds']} alignItems="start" gap="400">
-                <div>
+            <InlineGrid columns={{ xs: 1, md: ['oneThird', 'twoThirds'] }} gap="400" alignItems="start">
+                <Box maxWidth="360px">
                     {selectedTab === 0 && (
                         <Layout>
                             <Layout.Section>
@@ -1150,31 +1150,25 @@ export default function Customize() {
                                                 <>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
-                                                        <Box width="100%">
-                                                            <InlineStack align="space-between" gap="150"
-                                                                wrap={false}
-                                                            >
-                                                                <TextField
-                                                                    fullWidth
-                                                                    className='w-100'
-                                                                    type="number"
-                                                                    placeholder="e.g., 600"
-                                                                    value={maxWidth}
-                                                                    onChange={setMaxWidth}
-                                                                    connectedRight={<Select
-                                                                        options={[
-                                                                            { label: 'px', value: 'px' },
-                                                                            { label: '%', value: '%' }
-                                                                        ]}
-                                                                        onChange={setMaxWidthUnit}
-                                                                        value={maxWidthUnit}
-                                                                        className="input-styled unit-input"
-                                                                    />}
-                                                                    helpText="Leave empty for auto"
-                                                                />
-
-                                                            </InlineStack>
-                                                        </Box>
+                                                        <TextField
+                                                            labelHidden
+                                                            fullWidth
+                                                            type="number"
+                                                            placeholder="e.g., 600"
+                                                            value={maxWidth}
+                                                            onChange={setMaxWidth}
+                                                            connectedRight={<Select
+                                                                labelHidden
+                                                                options={[
+                                                                    { label: 'px', value: 'px' },
+                                                                    { label: '%', value: '%' }
+                                                                ]}
+                                                                onChange={setMaxWidthUnit}
+                                                                value={maxWidthUnit}
+                                                                className="input-styled unit-input"
+                                                            />}
+                                                            helpText="Leave empty for auto"
+                                                        />
                                                     </BlockStack>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div">Alignment</Text>
@@ -1192,65 +1186,60 @@ export default function Customize() {
                                                     </BlockStack>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
-                                                        <InlineStack align="space-between" gap="150"
-                                                            wrap={false}
-                                                        >
-                                                            <input
-                                                                type="hidden"
-                                                                name="sticky_outer_spacing"
-                                                                value={outerSpacing}
-                                                            />
-                                                            <TextField
-                                                                className='outer-spacing-input-type-number'
-                                                                type="number"
-                                                                placeholder="e.g., 20"
-                                                                value={outerSpacing}
-                                                                onChange={setOuterSpacing}
-                                                                helpText="Distance between the bar and the screen edges."
-                                                                connectedRight={<Select
-                                                                    options={[
-                                                                        { label: 'px', value: 'px' },
-                                                                        { label: '%', value: '%' }
-                                                                    ]}
-                                                                    onChange={setOuterSpacingUnit}
-                                                                    value={outerSpacingUnit}
-                                                                    name="sticky_outer_spacing_unit"
-                                                                    className="input-styled unit-input"
-                                                                />}
-                                                            />
-
-                                                        </InlineStack>
+                                                        <input
+                                                            type="hidden"
+                                                            name="sticky_outer_spacing"
+                                                            value={outerSpacing}
+                                                        />
+                                                        <TextField
+                                                            labelHidden
+                                                            className='outer-spacing-input-type-number'
+                                                            type="number"
+                                                            placeholder="e.g., 20"
+                                                            value={outerSpacing}
+                                                            onChange={setOuterSpacing}
+                                                            helpText="Distance between the bar and the screen edges."
+                                                            connectedRight={<Select
+                                                                labelHidden
+                                                                options={[
+                                                                    { label: 'px', value: 'px' },
+                                                                    { label: '%', value: '%' }
+                                                                ]}
+                                                                onChange={setOuterSpacingUnit}
+                                                                value={outerSpacingUnit}
+                                                                name="sticky_outer_spacing_unit"
+                                                                className="input-styled unit-input"
+                                                            />}
+                                                        />
                                                     </BlockStack>
                                                 </>
                                             )}
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">Inner spacing</Text>
-                                                <InlineStack align="space-between" gap="150"
-                                                    wrap={false}
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="sticky_inner_spacing"
-                                                        value={innerSpacing}
-                                                    />
-                                                    <TextField
-                                                        className='inner-spacing-input-type-number'
-                                                        type="number"
-                                                        placeholder="e.g., 16"
-                                                        value={innerSpacing}
-                                                        onChange={setInnerSpacing}
-                                                        connectedRight={<Select
-                                                            options={[
-                                                                { label: 'px', value: 'px' },
-                                                                { label: '%', value: '%' }
-                                                            ]}
-                                                            onChange={setInnerSpacingUnit}
-                                                            value={innerSpacingUnit}
-                                                            name="sticky_inner_spacing_unit"
-                                                            className="input-styled unit-input"
-                                                        />}
-                                                    />
-                                                </InlineStack>
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_inner_spacing"
+                                                    value={innerSpacing}
+                                                />
+                                                <TextField
+                                                    labelHidden
+                                                    className='inner-spacing-input-type-number'
+                                                    type="number"
+                                                    placeholder="e.g., 16"
+                                                    value={innerSpacing}
+                                                    onChange={setInnerSpacing}
+                                                    connectedRight={<Select
+                                                        labelHidden
+                                                        options={[
+                                                            { label: 'px', value: 'px' },
+                                                            { label: '%', value: '%' }
+                                                        ]}
+                                                        onChange={setInnerSpacingUnit}
+                                                        value={innerSpacingUnit}
+                                                        name="sticky_inner_spacing_unit"
+                                                        className="input-styled unit-input"
+                                                    />}
+                                                />
                                                 <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                             </BlockStack>
                                             <BlockStack gap="100">
@@ -1820,7 +1809,7 @@ export default function Customize() {
                                                 />
                                                 {mobileBarWidth === 'contained' && (
                                                     <>
-                                                        <BlockStack gap="100" className='w-100 asdasdasd'>
+                                                        <BlockStack gap="100">
                                                             <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
                                                             <input
                                                                 type="hidden"
@@ -1828,12 +1817,14 @@ export default function Customize() {
                                                                 value={mobileMaxWidth}
                                                             />
                                                             <TextField
-                                                                className='w-100'
+                                                                labelHidden
+                                                                fullWidth
                                                                 type="number"
                                                                 placeholder="e.g., 600"
                                                                 value={mobileMaxWidth}
                                                                 onChange={setMobileMaxWidth}
                                                                 connectedRight={<Select
+                                                                    labelHidden
                                                                     options={[
                                                                         { label: 'px', value: 'px' },
                                                                         { label: '%', value: '%' }
@@ -1845,7 +1836,6 @@ export default function Customize() {
                                                                 />}
                                                                 helpText="Leave empty for auto"
                                                             />
-
                                                         </BlockStack>
                                                         <BlockStack gap="100">
                                                             <Text variant="bodySm" as="div">Alignment</Text>
@@ -1863,33 +1853,30 @@ export default function Customize() {
                                                         </BlockStack>
                                                         <BlockStack gap="100">
                                                             <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
-                                                            <InlineStack align="space-between" gap="150"
-                                                                wrap={false}
-                                                            >
-                                                                <input
-                                                                    type="hidden"
-                                                                    name="sticky_outer_spacing_mobile"
-                                                                    value={mobileOuterSpacing}
-                                                                />
-                                                                <TextField
-                                                                    className='outer-spacing-input-type-number'
-                                                                    type="number"
-                                                                    placeholder="e.g., 20"
-                                                                    value={mobileOuterSpacing}
-                                                                    onChange={setMobileOuterSpacing}
-                                                                    connectedRight={<Select
-                                                                        options={[
-                                                                            { label: 'px', value: 'px' },
-                                                                            { label: '%', value: '%' }
-                                                                        ]}
-                                                                        onChange={setMobileOuterSpacingUnit}
-                                                                        value={mobileOuterSpacingUnit}
-                                                                        name="sticky_outer_spacing_mobile_unit"
-                                                                        className="input-styled unit-input"
-                                                                    />}
-                                                                />
-
-                                                            </InlineStack>
+                                                            <input
+                                                                type="hidden"
+                                                                name="sticky_outer_spacing_mobile"
+                                                                value={mobileOuterSpacing}
+                                                            />
+                                                            <TextField
+                                                                labelHidden
+                                                                className='outer-spacing-input-type-number'
+                                                                type="number"
+                                                                placeholder="e.g., 20"
+                                                                value={mobileOuterSpacing}
+                                                                onChange={setMobileOuterSpacing}
+                                                                connectedRight={<Select
+                                                                    labelHidden
+                                                                    options={[
+                                                                        { label: 'px', value: 'px' },
+                                                                        { label: '%', value: '%' }
+                                                                    ]}
+                                                                    onChange={setMobileOuterSpacingUnit}
+                                                                    value={mobileOuterSpacingUnit}
+                                                                    name="sticky_outer_spacing_mobile_unit"
+                                                                    className="input-styled unit-input"
+                                                                />}
+                                                            />
                                                             <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
                                                         </BlockStack>
                                                     </>
@@ -1897,33 +1884,30 @@ export default function Customize() {
                                             </BlockStack>
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">Inner spacing</Text>
-                                                <InlineStack align="space-between" gap="150"
-                                                    wrap={false}
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="sticky_inner_spacing_mobile"
-                                                        value={mobileInnerSpacing}
-                                                    />
-                                                    <TextField
-                                                        className='inner-spacing-input-type-number'
-                                                        type="number"
-                                                        placeholder="e.g., 16"
-                                                        value={mobileInnerSpacing}
-                                                        onChange={setMobileInnerSpacing}
-                                                        connectedRight={<Select
-                                                            options={[
-                                                                { label: 'px', value: 'px' },
-                                                                { label: '%', value: '%' }
-                                                            ]}
-                                                            onChange={setMobileInnerSpacingUnit}
-                                                            value={mobileInnerSpacingUnit}
-                                                            name="sticky_inner_spacing_mobile_unit"
-                                                            className="input-styled unit-input"
-                                                        />}
-                                                    />
-
-                                                </InlineStack>
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_inner_spacing_mobile"
+                                                    value={mobileInnerSpacing}
+                                                />
+                                                <TextField
+                                                    labelHidden
+                                                    className='inner-spacing-input-type-number'
+                                                    type="number"
+                                                    placeholder="e.g., 16"
+                                                    value={mobileInnerSpacing}
+                                                    onChange={setMobileInnerSpacing}
+                                                    connectedRight={<Select
+                                                        labelHidden
+                                                        options={[
+                                                            { label: 'px', value: 'px' },
+                                                            { label: '%', value: '%' }
+                                                        ]}
+                                                        onChange={setMobileInnerSpacingUnit}
+                                                        value={mobileInnerSpacingUnit}
+                                                        name="sticky_inner_spacing_mobile_unit"
+                                                        className="input-styled unit-input"
+                                                    />}
+                                                />
                                                 <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                             </BlockStack>
                                         </BlockStack>
@@ -2025,9 +2009,9 @@ export default function Customize() {
                             </BlockStack>
                         </Card>
                     )}
-                </div>
+                </Box>
 
-                <div className="preview-sidebar">
+                <Box className="preview-sidebar">
                     <Card>
                         <div className="section-margin-bottom">
                             <Text as="h3"
@@ -2216,8 +2200,8 @@ export default function Customize() {
                             </div>
                         </div>
                     </Card>
-                </div>
-            </InlineGrid >
+                </Box>
+            </InlineGrid>
 
             {
                 showResetModal && (
