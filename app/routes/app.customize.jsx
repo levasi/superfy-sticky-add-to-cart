@@ -22,6 +22,7 @@ import {
     RangeSlider,
     Popover
 } from '@shopify/polaris';
+import { TitleBar } from '@shopify/app-bridge-react';
 import {
     ArrowLeftIcon,
     DesktopIcon,
@@ -36,6 +37,9 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { getSetting } from "../models/settings.server";
 import "./app.customize.scss";
+import { EditorView, basicSetup } from 'codemirror';
+import { EditorState } from '@codemirror/state';
+import { css } from '@codemirror/lang-css';
 
 export const loader = async ({ request }) => {
     await authenticate.admin(request);
@@ -350,6 +354,11 @@ export default function Customize() {
     const [isInitialized, setIsInitialized] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+    const cssEditorRef = useRef(null);
+    const cssEditorViewRef = useRef(null);
+    const previewAreaRef = useRef(null);
+    const previewStyleRef = useRef(null);
+
     const shopify = useAppBridge();
     const fetcher = useFetcher();
     const navigate = useNavigate();
@@ -646,6 +655,87 @@ export default function Customize() {
         }
     }, [isInitialized, checkForChanges]);
 
+    // Initialize CodeMirror editor for CSS
+    useEffect(() => {
+        // Only initialize when CSS tab (tab 2) is selected and editor ref is available
+        if (selectedTab !== 2 || !cssEditorRef.current || cssEditorViewRef.current) return;
+
+        const startState = EditorState.create({
+            doc: customCss,
+            extensions: [
+                basicSetup,
+                css(),
+                EditorView.updateListener.of((update) => {
+                    if (update.docChanged) {
+                        const newValue = update.state.doc.toString();
+                        setCustomCss(newValue);
+                    }
+                }),
+                EditorView.theme({
+                    '&': {
+                        height: '300px',
+                        fontSize: '14px',
+                    },
+                }),
+            ],
+        });
+
+        const view = new EditorView({
+            state: startState,
+            parent: cssEditorRef.current,
+        });
+
+        cssEditorViewRef.current = view;
+
+        return () => {
+            if (cssEditorViewRef.current) {
+                cssEditorViewRef.current.destroy();
+                cssEditorViewRef.current = null;
+            }
+        };
+    }, [selectedTab]); // Initialize when tab is selected
+
+    // Update editor when customCss changes externally (but not from editor itself)
+    useEffect(() => {
+        if (cssEditorViewRef.current && customCss !== cssEditorViewRef.current.state.doc.toString()) {
+            const transaction = cssEditorViewRef.current.state.update({
+                changes: {
+                    from: 0,
+                    to: cssEditorViewRef.current.state.doc.length,
+                    insert: customCss,
+                },
+            });
+            cssEditorViewRef.current.dispatch(transaction);
+        }
+    }, [customCss]);
+
+    // Apply custom CSS to preview area
+    useEffect(() => {
+        if (!previewAreaRef.current) return;
+
+        // Remove existing custom CSS style tag
+        if (previewStyleRef.current) {
+            previewStyleRef.current.remove();
+            previewStyleRef.current = null;
+        }
+
+        // Add custom CSS if provided
+        if (customCss && customCss.trim()) {
+            const styleElement = document.createElement('style');
+            styleElement.id = 'preview-custom-css';
+            styleElement.textContent = customCss;
+            previewAreaRef.current.insertBefore(styleElement, previewAreaRef.current.firstChild);
+            previewStyleRef.current = styleElement;
+        }
+
+        return () => {
+            if (previewStyleRef.current) {
+                previewStyleRef.current.remove();
+                previewStyleRef.current = null;
+            }
+        };
+    }, [customCss]);
+
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
     }, []);
@@ -801,34 +891,32 @@ export default function Customize() {
 
     return (
         <Page fullWidth>
-            <Box paddingBlockEnd="400">
-                <InlineStack align="space-between" gap="400">
-                    <InlineStack gap="200" blockAlign="center">
-                        <Button icon={ArrowLeftIcon} variant="tertiary" onClick={handleBack} />
-                        <span className="customize-header-title">Customize</span>
-                    </InlineStack>
+            <TitleBar title="Superfy sticky buy - Customize" />
+            <InlineStack align="space-between" gap="400">
+                <InlineStack gap="200" blockAlign="center">
+                    <Button icon={ArrowLeftIcon} variant="tertiary" onClick={handleBack} />
+                    <span className="customize-header-title">Customize</span>
                 </InlineStack>
-            </Box>
+            </InlineStack>
 
             <div className="customize-tabs-wrapper">
                 <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange} />
             </div>
 
-            <InlineGrid columns={['oneThird', 'twoThirds']} alignItems="start" gap="400">
-                <div>
+            <InlineGrid columns={{ xs: 1, md: ['oneThird', 'twoThirds'] }} gap="400" alignItems="start">
+                <Box maxWidth="360px">
                     {selectedTab === 0 && (
                         <Layout>
                             <Layout.Section>
                                 <BlockStack gap="400">
                                     <Card>
                                         <InlineStack gap="400" align="space-between" blockAlign="center">
-                                            <Text variant="headingSm">Sticky Bar
-                                                <span className="live-badge-wrapper">
-                                                    <span className={stickyBarStatus === 'active' ? 'live-badge' : 'paused-badge'}>
-                                                        {stickyBarStatus === 'active' ? 'Live' : 'Paused'}
-                                                    </span>
-                                                </span>
-                                            </Text>
+                                            <InlineStack gap="150">
+                                                <Text variant="headingSm">Sticky Bar</Text>
+                                                <Badge tone={stickyBarStatus === 'active' ? 'success' : 'warning'}>
+                                                    {stickyBarStatus === 'active' ? 'Live' : 'Paused'}
+                                                </Badge>
+                                            </InlineStack>
                                             <Button
                                                 tone={stickyBarStatus === 'active' ? 'critical' : 'success'}
                                                 onClick={handleToggleStickyBar}
@@ -839,150 +927,146 @@ export default function Customize() {
                                         </InlineStack>
                                     </Card>
                                     <Card>
-                                        <Box>
-                                            <div className="section-margin-bottom">
+                                        <BlockStack gap="400">
+                                            <BlockStack gap="400">
                                                 <Text variant="headingSm" as="h3">Visibility</Text>
-                                            </div>
-                                            <Box className="section-margin-small">
-                                                <Select
-                                                    label="Show on"
-                                                    options={[
-                                                        { label: 'All devices', value: 'all' },
-                                                        { label: 'Desktop only', value: 'desktop' },
-                                                        { label: 'Mobile only', value: 'mobile' },
-                                                    ]}
-                                                    value={visibility}
-                                                    onChange={setVisibility}
-                                                />
-                                            </Box>
+                                                <BlockStack gap="100">
+                                                    <Select
+                                                        label="Show on"
+                                                        options={[
+                                                            { label: 'All devices', value: 'all' },
+                                                            { label: 'Desktop only', value: 'desktop' },
+                                                            { label: 'Mobile only', value: 'mobile' },
+                                                        ]}
+                                                        value={visibility}
+                                                        onChange={setVisibility}
 
-                                            <Text variant="bodySm" tone="subdued" className="section-margin-top">Control where the Sticky Bar is shown.</Text>
-                                        </Box>
-                                        <Box className="section-margin-vertical">
+                                                    />
+                                                    <Text variant="bodySm" tone="subdued">Control where the Sticky Bar is shown.</Text>
+                                                </BlockStack>
+                                            </BlockStack>
                                             <Divider />
-                                        </Box>
-                                        <BlockStack >
-                                            <Box className="section-margin-bottom">
+                                            <BlockStack gap="400">
                                                 <Text variant="headingSm" as="h3">Trigger</Text>
-                                            </Box>
-                                            <BlockStack gap="200">
-                                                <Text variant="bodyMd" as="p" fontWeight="medium">Display trigger</Text>
 
-                                                {/* Always visible */}
-                                                <Box>
-                                                    <label className="radio-label">
-                                                        <input
-                                                            type="radio"
-                                                            name="trigger"
-                                                            value="always"
-                                                            checked={trigger === 'always'}
-                                                            onChange={(e) => setTrigger(e.target.value)}
-                                                            className="radio-input"
-                                                        />
-                                                        <Text>Always visible</Text>
-                                                    </label>
-                                                </Box>
-
-                                                {/* On scroll up */}
-                                                <Box>
-                                                    <label className="radio-label">
-                                                        <input
-                                                            type="radio"
-                                                            name="trigger"
-                                                            value="scroll-up"
-                                                            checked={trigger === 'scroll-up'}
-                                                            onChange={(e) => setTrigger(e.target.value)}
-                                                            className="radio-input"
-                                                        />
-                                                        <Text>On scroll up</Text>
-                                                    </label>
-                                                </Box>
-
-                                                {/* After X seconds */}
-                                                <Box>
-                                                    <label className="radio-label">
-                                                        <input
-                                                            type="radio"
-                                                            name="trigger"
-                                                            value="after-x-seconds"
-                                                            checked={trigger === 'after-x-seconds'}
-                                                            onChange={(e) => setTrigger(e.target.value)}
-                                                            className="radio-input"
-                                                        />
-                                                        <Text>After X seconds</Text>
-                                                    </label>
-                                                    {trigger === 'after-x-seconds' && (
-                                                        <Box className="indented-content">
-                                                            <TextField
-                                                                label="Seconds"
-                                                                type="number"
-                                                                value={triggerSeconds.toString()}
-                                                                onChange={(value) => setTriggerSeconds(parseInt(value) || 3)}
-                                                                min="1"
-                                                                max="60"
-                                                                suffix="seconds"
+                                                <BlockStack gap="200">
+                                                    <Text variant="bodyMd" as="p" fontWeight="medium">Display trigger</Text>
+                                                    {/* Always visible */}
+                                                    <Box>
+                                                        <label className="radio-label">
+                                                            <input
+                                                                type="radio"
+                                                                name="trigger"
+                                                                value="always"
+                                                                checked={trigger === 'always'}
+                                                                onChange={(e) => setTrigger(e.target.value)}
+                                                                className="radio-input"
                                                             />
-                                                        </Box>
-                                                    )}
-                                                </Box>
+                                                            <Text>Always visible</Text>
+                                                        </label>
+                                                    </Box>
 
-                                                {/* After X pixels */}
-                                                <Box>
-                                                    <label className="radio-label">
-                                                        <input
-                                                            type="radio"
-                                                            name="trigger"
-                                                            value="after-x-pixels"
-                                                            checked={trigger === 'after-x-pixels'}
-                                                            onChange={(e) => setTrigger(e.target.value)}
-                                                            className="radio-input"
-                                                        />
-                                                        <Text>After scrolling down X pixels</Text>
-                                                    </label>
-                                                    {trigger === 'after-x-pixels' && (
-                                                        <Box className="indented-content">
-                                                            <TextField
-                                                                label="Pixels"
-                                                                type="number"
-                                                                value={triggerPixels.toString()}
-                                                                onChange={(value) => setTriggerPixels(parseInt(value) || 300)}
-                                                                min="50"
-                                                                max="2000"
-                                                                suffix="pixels"
+                                                    {/* On scroll up */}
+                                                    <Box>
+                                                        <label className="radio-label">
+                                                            <input
+                                                                type="radio"
+                                                                name="trigger"
+                                                                value="scroll-up"
+                                                                checked={trigger === 'scroll-up'}
+                                                                onChange={(e) => setTrigger(e.target.value)}
+                                                                className="radio-input"
                                                             />
-                                                        </Box>
-                                                    )}
-                                                </Box>
+                                                            <Text>On scroll up</Text>
+                                                        </label>
+                                                    </Box>
 
-                                                {/* After product summary */}
-                                                <Box>
-                                                    <label className="radio-label">
-                                                        <input
-                                                            type="radio"
-                                                            name="trigger"
-                                                            value="after-summary"
-                                                            checked={trigger === 'after-summary'}
-                                                            onChange={(e) => setTrigger(e.target.value)}
-                                                            className="radio-input"
-                                                        />
-                                                        <Text>After product summary</Text>
-                                                    </label>
-                                                </Box>
+                                                    {/* After X seconds */}
+                                                    <Box>
+                                                        <label className="radio-label">
+                                                            <input
+                                                                type="radio"
+                                                                name="trigger"
+                                                                value="after-x-seconds"
+                                                                checked={trigger === 'after-x-seconds'}
+                                                                onChange={(e) => setTrigger(e.target.value)}
+                                                                className="radio-input"
+                                                            />
+                                                            <Text>After X seconds</Text>
+                                                        </label>
+                                                        {trigger === 'after-x-seconds' && (
+                                                            <Box className="indented-content">
+                                                                <TextField
+                                                                    label="Seconds"
+                                                                    type="number"
+                                                                    value={triggerSeconds.toString()}
+                                                                    onChange={(value) => setTriggerSeconds(parseInt(value) || 3)}
+                                                                    min="1"
+                                                                    max="60"
+                                                                    suffix="seconds"
+                                                                />
+                                                            </Box>
+                                                        )}
+                                                    </Box>
 
-                                                {/* When add to cart button is out of view */}
-                                                <Box>
-                                                    <label className="radio-label">
-                                                        <input
-                                                            type="radio"
-                                                            name="trigger"
-                                                            value="out-of-view"
-                                                            checked={trigger === 'out-of-view'}
-                                                            onChange={(e) => setTrigger(e.target.value)}
-                                                            className="radio-input"
-                                                        />
-                                                        <Text>When add to cart button is out of view</Text>
-                                                    </label>
-                                                </Box>
+                                                    {/* After X pixels */}
+                                                    <Box>
+                                                        <label className="radio-label">
+                                                            <input
+                                                                type="radio"
+                                                                name="trigger"
+                                                                value="after-x-pixels"
+                                                                checked={trigger === 'after-x-pixels'}
+                                                                onChange={(e) => setTrigger(e.target.value)}
+                                                                className="radio-input"
+                                                            />
+                                                            <Text>After scrolling down X pixels</Text>
+                                                        </label>
+                                                        {trigger === 'after-x-pixels' && (
+                                                            <Box className="indented-content">
+                                                                <TextField
+                                                                    label="Pixels"
+                                                                    type="number"
+                                                                    value={triggerPixels.toString()}
+                                                                    onChange={(value) => setTriggerPixels(parseInt(value) || 300)}
+                                                                    min="50"
+                                                                    max="2000"
+                                                                    suffix="pixels"
+                                                                />
+                                                            </Box>
+                                                        )}
+                                                    </Box>
+
+                                                    {/* After product summary */}
+                                                    <Box>
+                                                        <label className="radio-label">
+                                                            <input
+                                                                type="radio"
+                                                                name="trigger"
+                                                                value="after-summary"
+                                                                checked={trigger === 'after-summary'}
+                                                                onChange={(e) => setTrigger(e.target.value)}
+                                                                className="radio-input"
+                                                            />
+                                                            <Text>After product summary</Text>
+                                                        </label>
+                                                    </Box>
+
+                                                    {/* When add to cart button is out of view */}
+                                                    <Box>
+                                                        <label className="radio-label">
+                                                            <input
+                                                                type="radio"
+                                                                name="trigger"
+                                                                value="out-of-view"
+                                                                checked={trigger === 'out-of-view'}
+                                                                onChange={(e) => setTrigger(e.target.value)}
+                                                                className="radio-input"
+                                                            />
+                                                            <Text>When add to cart button is out of view</Text>
+                                                        </label>
+                                                    </Box>
+                                                </BlockStack>
                                             </BlockStack>
                                         </BlockStack>
                                     </Card>
@@ -1014,44 +1098,44 @@ export default function Customize() {
                             {appearanceView === 'desktop' && (
                                 <BlockStack gap="400">
                                     <Card>
-                                        <BlockStack gap="100">
-                                            <Text variant="headingSm" as="h3" className="form-label-bold">Content display</Text>
-                                            <Text variant="bodySm" tone="subdued">
-                                                Control which product elements are displayed.
-                                            </Text>
-                                        </BlockStack>
+                                        <BlockStack gap="400">
+                                            <BlockStack gap="100">
+                                                <Text variant="headingSm" as="h3" className="form-label-bold"
+                                                >Content display</Text>
+                                                <Text variant="bodySm" tone="subdued">Control which product elements are displayed.</Text>
+                                            </BlockStack>
 
-                                        <BlockStack gap="0">
-                                            <Checkbox
-                                                label="Show image"
-                                                checked={imageDisplay}
-                                                onChange={(checked) => setImageDisplay(checked)}
-                                            />
-                                            <Checkbox
-                                                label="Show title"
-                                                checked={titleDisplay}
-                                                onChange={(checked) => setTitleDisplay(checked)}
-                                            />
-                                            <Checkbox
-                                                label="Show price"
-                                                checked={priceDisplay}
-                                                onChange={(checked) => setPriceDisplay(checked)}
-                                            />
-                                            <Checkbox
-                                                label="Show quantity selector"
-                                                checked={quantityDisplay}
-                                                onChange={(checked) => setQuantityDisplay(checked)}
-                                            />
+                                            <BlockStack gap="0">
+                                                <Checkbox
+                                                    label="Show image"
+                                                    checked={imageDisplay}
+                                                    onChange={(checked) => setImageDisplay(checked)}
+                                                />
+                                                <Checkbox
+                                                    label="Show title"
+                                                    checked={titleDisplay}
+                                                    onChange={(checked) => setTitleDisplay(checked)}
+                                                />
+                                                <Checkbox
+                                                    label="Show price"
+                                                    checked={priceDisplay}
+                                                    onChange={(checked) => setPriceDisplay(checked)}
+                                                />
+                                                <Checkbox
+                                                    label="Show quantity selector"
+                                                    checked={quantityDisplay}
+                                                    onChange={(checked) => setQuantityDisplay(checked)}
+                                                />
+                                            </BlockStack>
                                         </BlockStack>
                                     </Card>
                                     <Card>
-                                        <BlockStack gap="200">
+                                        <BlockStack gap="400">
                                             <BlockStack gap="100">
                                                 <Text as="h3" variant="headingMd">Bar</Text>
-                                                <Text variant="bodySm" tone="subdued">
-                                                    Manage layout, spacing, and visual design for the sticky bar container.
-                                                </Text>
+                                                <Text variant="bodySm" tone="subdued">Manage layout, spacing, and visual design for the sticky bar container.</Text>
                                             </BlockStack>
+
                                             <ChoiceList
                                                 title="Width"
                                                 choices={[
@@ -1066,18 +1150,15 @@ export default function Customize() {
                                                 <>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
-                                                        <InlineStack align="space-between" gap="150"
-                                                            wrap={false}
-                                                        >
-                                                            <TextField
-                                                                fullWidth
-                                                                className='w-100'
-                                                                type="number"
-                                                                placeholder="e.g., 600"
-                                                                value={maxWidth}
-                                                                onChange={setMaxWidth}
-                                                            />
-                                                            <Select
+                                                        <TextField
+                                                            labelHidden
+                                                            fullWidth
+                                                            type="number"
+                                                            placeholder="e.g., 600"
+                                                            value={maxWidth}
+                                                            onChange={setMaxWidth}
+                                                            connectedRight={<Select
+                                                                labelHidden
                                                                 options={[
                                                                     { label: 'px', value: 'px' },
                                                                     { label: '%', value: '%' }
@@ -1085,9 +1166,9 @@ export default function Customize() {
                                                                 onChange={setMaxWidthUnit}
                                                                 value={maxWidthUnit}
                                                                 className="input-styled unit-input"
-                                                            />
-                                                        </InlineStack>
-                                                        <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
+                                                            />}
+                                                            helpText="Leave empty for auto"
+                                                        />
                                                     </BlockStack>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div">Alignment</Text>
@@ -1105,22 +1186,21 @@ export default function Customize() {
                                                     </BlockStack>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
-                                                        <InlineStack align="space-between" gap="150"
-                                                            wrap={false}
-                                                        >
-                                                            <input
-                                                                type="hidden"
-                                                                name="sticky_outer_spacing"
-                                                                value={outerSpacing}
-                                                            />
-                                                            <TextField
-                                                                className='outer-spacing-input-type-number'
-                                                                type="number"
-                                                                placeholder="e.g., 20"
-                                                                value={outerSpacing}
-                                                                onChange={setOuterSpacing}
-                                                            />
-                                                            <Select
+                                                        <input
+                                                            type="hidden"
+                                                            name="sticky_outer_spacing"
+                                                            value={outerSpacing}
+                                                        />
+                                                        <TextField
+                                                            labelHidden
+                                                            className='outer-spacing-input-type-number'
+                                                            type="number"
+                                                            placeholder="e.g., 20"
+                                                            value={outerSpacing}
+                                                            onChange={setOuterSpacing}
+                                                            helpText="Distance between the bar and the screen edges."
+                                                            connectedRight={<Select
+                                                                labelHidden
                                                                 options={[
                                                                     { label: 'px', value: 'px' },
                                                                     { label: '%', value: '%' }
@@ -1129,30 +1209,27 @@ export default function Customize() {
                                                                 value={outerSpacingUnit}
                                                                 name="sticky_outer_spacing_unit"
                                                                 className="input-styled unit-input"
-                                                            />
-                                                        </InlineStack>
-                                                        <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
+                                                            />}
+                                                        />
                                                     </BlockStack>
                                                 </>
                                             )}
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">Inner spacing</Text>
-                                                <InlineStack align="space-between" gap="150"
-                                                    wrap={false}
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="sticky_inner_spacing"
-                                                        value={innerSpacing}
-                                                    />
-                                                    <TextField
-                                                        className='inner-spacing-input-type-number'
-                                                        type="number"
-                                                        placeholder="e.g., 16"
-                                                        value={innerSpacing}
-                                                        onChange={setInnerSpacing}
-                                                    />
-                                                    <Select
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_inner_spacing"
+                                                    value={innerSpacing}
+                                                />
+                                                <TextField
+                                                    labelHidden
+                                                    className='inner-spacing-input-type-number'
+                                                    type="number"
+                                                    placeholder="e.g., 16"
+                                                    value={innerSpacing}
+                                                    onChange={setInnerSpacing}
+                                                    connectedRight={<Select
+                                                        labelHidden
                                                         options={[
                                                             { label: 'px', value: 'px' },
                                                             { label: '%', value: '%' }
@@ -1161,8 +1238,8 @@ export default function Customize() {
                                                         value={innerSpacingUnit}
                                                         name="sticky_inner_spacing_unit"
                                                         className="input-styled unit-input"
-                                                    />
-                                                </InlineStack>
+                                                    />}
+                                                />
                                                 <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                             </BlockStack>
                                             <BlockStack gap="100">
@@ -1291,13 +1368,11 @@ export default function Customize() {
                                         </BlockStack>
                                     </Card>
                                     <Card>
-                                        <Text as="h3" variant="headingMd">Content</Text>
-                                        <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
-                                            Customize fonts, colors, and spacing for product content inside the sticky bar.
-                                        </Text>
-                                        <Box style={{ margin: '16px 0' }}>
-                                            <Divider />
-                                        </Box>
+                                        <BlockStack gap="100">
+                                            <Text as="h3" variant="headingMd">Content</Text>
+                                            <Text variant="bodySm" tone="subdued">Customize fonts, colors, and spacing for product content inside the sticky bar.</Text>
+                                        </BlockStack>
+                                        <Divider />
                                         <Box className="form-field-margin">
                                             <Text as="h4" variant="headingSm">Product name</Text>
                                         </Box>
@@ -1352,15 +1427,9 @@ export default function Customize() {
                                                 allowAlpha={false}
                                             />
                                         </Popover>
-                                        <Box style={{ margin: '16px 0' }}>
-                                            <Divider />
-                                        </Box>
-                                        <Box className="form-label-bold">
-                                            <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
-                                        </Box>
-                                        <Box style={{ marginBottom: 4 }}>
-                                            <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
-                                        </Box>
+                                        <Divider />
+                                        <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
+                                        <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
                                         <input
                                             type="hidden"
                                             name="sticky_image_size"
@@ -1375,13 +1444,9 @@ export default function Customize() {
                                             onChange={setImageSize}
                                             value={imageSize}
                                         />
-                                        <Box style={{ margin: '16px 0' }}>
-                                            <Divider />
-                                        </Box>
+                                        <Divider />
                                         <BlockStack gap="200">
-                                            <Box>
-                                                <Text variant="headingSm" as="h4" className="form-label-bold">Quantity</Text>
-                                            </Box>
+                                            <Text variant="headingSm" as="h4" className="form-label-bold">Quantity</Text>
                                             <BlockStack gap="100">
                                                 <Text variant="bodySm" as="div" className="form-label-bold-simple">Color</Text>
                                                 <Popover
@@ -1532,7 +1597,7 @@ export default function Customize() {
                                                     To add the price inline, use {'{price}'} token
                                                 </Text>
                                             </BlockStack>
-                                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                            <InlineStack gap="200">
                                                 <input
                                                     type="hidden"
                                                     name="sticky_enable_cart_icon"
@@ -1550,7 +1615,7 @@ export default function Customize() {
                                                         Choose whether to display the icon or not
                                                     </Text>
                                                 </div>
-                                            </div>
+                                            </InlineStack>
                                             <BlockStack gap="100">
                                                 <BlockStack gap="100">
                                                     <Text variant="bodySm" as="div" className="form-label-bold-simple">Text color</Text>
@@ -1604,59 +1669,57 @@ export default function Customize() {
                                                     </Popover>
                                                 </BlockStack>
                                             </BlockStack>
-                                            <Box>
-                                                <BlockStack gap="100">
-                                                    <Text variant="bodySm" as="div" className="form-label-bold-simple">Background color</Text>
-                                                    <Popover
-                                                        active={showButtonBgColorPicker}
-                                                        activator={
-                                                            <div className="color-input-wrapper">
-                                                                <div
-                                                                    className="color-swatch color-picker-preview"
-                                                                    style={{
-                                                                        backgroundColor: buttonBgColor,
-                                                                        border: '1px solid #DFDFDF',
-                                                                        borderRadius: '4px',
-                                                                        width: '20px',
-                                                                        height: '20px',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                    onClick={() => setShowButtonBgColorPicker(true)}
-                                                                />
-                                                                <input
-                                                                    className="color-input-type-color color-input-text"
-                                                                    type="text"
-                                                                    value={buttonBgColor}
-                                                                    onChange={(e) => {
-                                                                        const newColor = e.target.value;
-                                                                        // Allow typing by always updating the input value
-                                                                        setButtonBgColor(newColor);
-                                                                        // Only update HSBA and apply color if it's a valid hex
-                                                                        if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
-                                                                            setButtonBgColorHSBA(hexToHSBA(newColor));
-                                                                        }
-                                                                    }}
-                                                                    placeholder="#141414"
-                                                                />
-                                                            </div>
-                                                        }
-                                                        onClose={() => setShowButtonBgColorPicker(false)}
-                                                        preferredPosition="below"
-                                                        preferredAlignment="left"
-                                                        fullWidth={false}
-                                                        sectioned={false}
-                                                    >
-                                                        <ColorPicker
-                                                            onChange={(color) => {
-                                                                setButtonBgColorHSBA(color);
-                                                                setButtonBgColor(hsbaToHex(color));
-                                                            }}
-                                                            color={buttonBgColorHSBA}
-                                                            allowAlpha={false}
-                                                        />
-                                                    </Popover>
-                                                </BlockStack>
-                                            </Box>
+                                            <BlockStack gap="100">
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Background color</Text>
+                                                <Popover
+                                                    active={showButtonBgColorPicker}
+                                                    activator={
+                                                        <div className="color-input-wrapper">
+                                                            <div
+                                                                className="color-swatch color-picker-preview"
+                                                                style={{
+                                                                    backgroundColor: buttonBgColor,
+                                                                    border: '1px solid #DFDFDF',
+                                                                    borderRadius: '4px',
+                                                                    width: '20px',
+                                                                    height: '20px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={() => setShowButtonBgColorPicker(true)}
+                                                            />
+                                                            <input
+                                                                className="color-input-type-color color-input-text"
+                                                                type="text"
+                                                                value={buttonBgColor}
+                                                                onChange={(e) => {
+                                                                    const newColor = e.target.value;
+                                                                    // Allow typing by always updating the input value
+                                                                    setButtonBgColor(newColor);
+                                                                    // Only update HSBA and apply color if it's a valid hex
+                                                                    if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                                                                        setButtonBgColorHSBA(hexToHSBA(newColor));
+                                                                    }
+                                                                }}
+                                                                placeholder="#141414"
+                                                            />
+                                                        </div>
+                                                    }
+                                                    onClose={() => setShowButtonBgColorPicker(false)}
+                                                    preferredPosition="below"
+                                                    preferredAlignment="left"
+                                                    fullWidth={false}
+                                                    sectioned={false}
+                                                >
+                                                    <ColorPicker
+                                                        onChange={(color) => {
+                                                            setButtonBgColorHSBA(color);
+                                                            setButtonBgColor(hsbaToHex(color));
+                                                        }}
+                                                        color={buttonBgColorHSBA}
+                                                        allowAlpha={false}
+                                                    />
+                                                </Popover>
+                                            </BlockStack>
                                             <BlockStack background="bg-surface-secondary" padding="200" borderRadius="200">
                                                 <Text variant="bodySm" tone="subdued">
                                                     Hover styles apply a slight opacity to the background automatically.
@@ -1669,58 +1732,57 @@ export default function Customize() {
                             {appearanceView === 'mobile' && (
                                 <BlockStack gap="400">
                                     <Card>
-                                        <Box className="section-margin-bottom">
+                                        <BlockStack gap="400">
                                             <BlockStack gap="100">
                                                 <Text variant="headingSm" as="h3" className="form-label-bold">Content display</Text>
-                                                <Text variant="bodySm" tone="subdued">
-                                                    Control which product elements are displayed.
-                                                </Text>
+                                                <Text variant="bodySm" tone="subdued">Control which product elements are displayed.</Text>
                                             </BlockStack>
-                                        </Box>
-                                        <BlockStack gap="0">
-                                            <input
-                                                type="hidden"
-                                                name="sticky_content_display_mobile_image"
-                                                value={mobileImageDisplay ? 'on' : 'off'}
-                                            />
-                                            <Checkbox
-                                                label="Show image"
-                                                checked={mobileImageDisplay}
-                                                onChange={(checked) => setMobileImageDisplay(checked)}
-                                            />
 
-                                            <input
-                                                type="hidden"
-                                                name="sticky_content_display_mobile_title"
-                                                value={mobileTitleDisplay ? 'on' : 'off'}
-                                            />
-                                            <Checkbox
-                                                label="Show title"
-                                                checked={mobileTitleDisplay}
-                                                onChange={(checked) => setMobileTitleDisplay(checked)}
-                                            />
+                                            <BlockStack gap="0">
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_image"
+                                                    value={mobileImageDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show image"
+                                                    checked={mobileImageDisplay}
+                                                    onChange={(checked) => setMobileImageDisplay(checked)}
+                                                />
 
-                                            <input
-                                                type="hidden"
-                                                name="sticky_content_display_mobile_price"
-                                                value={mobilePriceDisplay ? 'on' : 'off'}
-                                            />
-                                            <Checkbox
-                                                label="Show price"
-                                                checked={mobilePriceDisplay}
-                                                onChange={(checked) => setMobilePriceDisplay(checked)}
-                                            />
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_title"
+                                                    value={mobileTitleDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show title"
+                                                    checked={mobileTitleDisplay}
+                                                    onChange={(checked) => setMobileTitleDisplay(checked)}
+                                                />
 
-                                            <input
-                                                type="hidden"
-                                                name="sticky_content_display_mobile_quantity"
-                                                value={mobileQuantityDisplay ? 'on' : 'off'}
-                                            />
-                                            <Checkbox
-                                                label="Show quantity selector"
-                                                checked={mobileQuantityDisplay}
-                                                onChange={(checked) => setMobileQuantityDisplay(checked)}
-                                            />
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_price"
+                                                    value={mobilePriceDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show price"
+                                                    checked={mobilePriceDisplay}
+                                                    onChange={(checked) => setMobilePriceDisplay(checked)}
+                                                />
+
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_content_display_mobile_quantity"
+                                                    value={mobileQuantityDisplay ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show quantity selector"
+                                                    checked={mobileQuantityDisplay}
+                                                    onChange={(checked) => setMobileQuantityDisplay(checked)}
+                                                />
+                                            </BlockStack>
                                         </BlockStack>
                                     </Card>
 
@@ -1733,7 +1795,7 @@ export default function Customize() {
                                                 </Text>
                                             </BlockStack>
 
-                                            <BlockStack>
+                                            <BlockStack gap="100">
                                                 <ChoiceList
                                                     title="Width"
                                                     choices={[
@@ -1755,23 +1817,25 @@ export default function Customize() {
                                                                 value={mobileMaxWidth}
                                                             />
                                                             <TextField
-                                                                className='w-100'
+                                                                labelHidden
+                                                                fullWidth
                                                                 type="number"
                                                                 placeholder="e.g., 600"
                                                                 value={mobileMaxWidth}
                                                                 onChange={setMobileMaxWidth}
+                                                                connectedRight={<Select
+                                                                    labelHidden
+                                                                    options={[
+                                                                        { label: 'px', value: 'px' },
+                                                                        { label: '%', value: '%' }
+                                                                    ]}
+                                                                    onChange={setMobileMaxWidthUnit}
+                                                                    value={mobileMaxWidthUnit}
+                                                                    name="sticky_max_width_mobile_unit"
+                                                                    className="input-styled unit-input"
+                                                                />}
+                                                                helpText="Leave empty for auto"
                                                             />
-                                                            <Select
-                                                                options={[
-                                                                    { label: 'px', value: 'px' },
-                                                                    { label: '%', value: '%' }
-                                                                ]}
-                                                                onChange={setMobileMaxWidthUnit}
-                                                                value={mobileMaxWidthUnit}
-                                                                name="sticky_max_width_mobile_unit"
-                                                                className="input-styled unit-input"
-                                                            />
-                                                            <Text variant="bodySm" tone="subdued">Leave empty for auto</Text>
                                                         </BlockStack>
                                                         <BlockStack gap="100">
                                                             <Text variant="bodySm" as="div">Alignment</Text>
@@ -1789,22 +1853,20 @@ export default function Customize() {
                                                         </BlockStack>
                                                         <BlockStack gap="100">
                                                             <Text variant="bodySm" as="div" className="form-label-bold-simple">Outer spacing</Text>
-                                                            <InlineStack align="space-between" gap="150"
-                                                                wrap={false}
-                                                            >
-                                                                <input
-                                                                    type="hidden"
-                                                                    name="sticky_outer_spacing_mobile"
-                                                                    value={mobileOuterSpacing}
-                                                                />
-                                                                <TextField
-                                                                    className='outer-spacing-input-type-number'
-                                                                    type="number"
-                                                                    placeholder="e.g., 20"
-                                                                    value={mobileOuterSpacing}
-                                                                    onChange={setMobileOuterSpacing}
-                                                                />
-                                                                <Select
+                                                            <input
+                                                                type="hidden"
+                                                                name="sticky_outer_spacing_mobile"
+                                                                value={mobileOuterSpacing}
+                                                            />
+                                                            <TextField
+                                                                labelHidden
+                                                                className='outer-spacing-input-type-number'
+                                                                type="number"
+                                                                placeholder="e.g., 20"
+                                                                value={mobileOuterSpacing}
+                                                                onChange={setMobileOuterSpacing}
+                                                                connectedRight={<Select
+                                                                    labelHidden
                                                                     options={[
                                                                         { label: 'px', value: 'px' },
                                                                         { label: '%', value: '%' }
@@ -1813,61 +1875,59 @@ export default function Customize() {
                                                                     value={mobileOuterSpacingUnit}
                                                                     name="sticky_outer_spacing_mobile_unit"
                                                                     className="input-styled unit-input"
-                                                                />
-                                                            </InlineStack>
+                                                                />}
+                                                            />
                                                             <Text variant="bodySm" tone="subdued">Distance between the bar and the screen edges.</Text>
                                                         </BlockStack>
                                                     </>
                                                 )}
-                                                <BlockStack gap="100">
-                                                    <Text variant="bodySm" as="div" className="form-label-bold-simple">Inner spacing</Text>
-                                                    <InlineStack align="space-between" gap="150"
-                                                        wrap={false}
-                                                    >
-                                                        <input
-                                                            type="hidden"
-                                                            name="sticky_inner_spacing_mobile"
-                                                            value={mobileInnerSpacing}
-                                                        />
-                                                        <TextField
-                                                            className='inner-spacing-input-type-number'
-                                                            type="number"
-                                                            placeholder="e.g., 16"
-                                                            value={mobileInnerSpacing}
-                                                            onChange={setMobileInnerSpacing}
-                                                        />
-                                                        <Select
-                                                            options={[
-                                                                { label: 'px', value: 'px' },
-                                                                { label: '%', value: '%' }
-                                                            ]}
-                                                            onChange={setMobileInnerSpacingUnit}
-                                                            value={mobileInnerSpacingUnit}
-                                                            name="sticky_inner_spacing_mobile_unit"
-                                                            className="input-styled unit-input"
-                                                        />
-                                                    </InlineStack>
-                                                    <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
-                                                </BlockStack>
+                                            </BlockStack>
+                                            <BlockStack gap="100">
+                                                <Text variant="bodySm" as="div" className="form-label-bold-simple">Inner spacing</Text>
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_inner_spacing_mobile"
+                                                    value={mobileInnerSpacing}
+                                                />
+                                                <TextField
+                                                    labelHidden
+                                                    className='inner-spacing-input-type-number'
+                                                    type="number"
+                                                    placeholder="e.g., 16"
+                                                    value={mobileInnerSpacing}
+                                                    onChange={setMobileInnerSpacing}
+                                                    connectedRight={<Select
+                                                        labelHidden
+                                                        options={[
+                                                            { label: 'px', value: 'px' },
+                                                            { label: '%', value: '%' }
+                                                        ]}
+                                                        onChange={setMobileInnerSpacingUnit}
+                                                        value={mobileInnerSpacingUnit}
+                                                        name="sticky_inner_spacing_mobile_unit"
+                                                        className="input-styled unit-input"
+                                                    />}
+                                                />
+                                                <Text variant="bodySm" tone="subdued">Padding inside the sticky bar</Text>
                                             </BlockStack>
                                         </BlockStack>
                                     </Card>
                                     <Card>
-                                        <Box style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <BlockStack gap="100">
                                             <Text as="h3" variant="headingMd">Content</Text>
-                                            <Text variant="bodySm" tone="subdued" style={{ marginBottom: 16 }}>
+                                            <Text variant="bodySm" tone="subdued">
                                                 Customize fonts, colors, and spacing for product content inside the sticky bar.
                                             </Text>
-                                        </Box>
-                                        <Box style={{ margin: '16px 0' }}>
+                                        </BlockStack>
+                                        <BlockStack gap="100">
                                             <Divider />
-                                        </Box>
-                                        <Box className="form-label-bold">
+                                        </BlockStack>
+                                        <BlockStack gap="100">
                                             <Text variant="headingSm" as="h4" className="form-label-bold">Image</Text>
-                                        </Box>
-                                        <Box style={{ marginBottom: 4 }}>
+                                        </BlockStack>
+                                        <BlockStack gap="100">
                                             <Text variant="bodySm" as="div" className="form-label-bold-simple">Size</Text>
-                                        </Box>
+                                        </BlockStack>
                                         <input
                                             type="hidden"
                                             name="sticky_image_size_mobile"
@@ -1893,27 +1953,25 @@ export default function Customize() {
                                                     Configure the appearance and behavior of the add to cart button.
                                                 </Text>
                                             </BlockStack>
-                                            <BlockStack gap="200">
-                                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
-                                                    <input
-                                                        type="hidden"
-                                                        name="sticky_enable_mobile_cart_icon"
-                                                        value={enableMobileCartIcon ? 'on' : 'off'}
-                                                    />
-                                                    <Checkbox
-                                                        label="Show cart icon"
-                                                        labelHidden
-                                                        checked={enableMobileCartIcon}
-                                                        onChange={setEnableMobileCartIcon}
-                                                    />
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                        <Text variant="bodySm" as="span" className="form-label-bold-simple">Show cart icon</Text>
-                                                        <Text variant="bodySm" tone="subdued" style={{ marginLeft: 8 }}>
-                                                            Choose whether to display the icon or not
-                                                        </Text>
-                                                    </div>
-                                                </div>
-                                            </BlockStack>
+                                            <InlineStack gap="200">
+                                                <input
+                                                    type="hidden"
+                                                    name="sticky_enable_mobile_cart_icon"
+                                                    value={enableMobileCartIcon ? 'on' : 'off'}
+                                                />
+                                                <Checkbox
+                                                    label="Show cart icon"
+                                                    labelHidden
+                                                    checked={enableMobileCartIcon}
+                                                    onChange={setEnableMobileCartIcon}
+                                                />
+                                                <BlockStack gap="100">
+                                                    <Text variant="bodySm" as="span" className="form-label-bold-simple">Show cart icon</Text>
+                                                    <Text variant="bodySm" tone="subdued">
+                                                        Choose whether to display the icon or not
+                                                    </Text>
+                                                </BlockStack>
+                                            </InlineStack>
                                         </BlockStack>
                                     </Card>
                                 </BlockStack>
@@ -1946,24 +2004,14 @@ export default function Customize() {
                                     </Text>
                                 </BlockStack>
                                 <div className="css-editor-container">
-                                    <div className="css-editor-line-numbers">
-                                        {Array.from({ length: customCss.split('\n').length || 1 }, (_, i) => (
-                                            <div key={i} className="css-editor-line-number">{i + 1}</div>
-                                        ))}
-                                    </div>
-                                    <textarea
-                                        value={customCss}
-                                        onChange={e => setCustomCss(e.target.value)}
-                                        rows={5}
-                                        className="css-editor-textarea"
-                                        spellCheck={false}
-                                    />
+                                    <div ref={cssEditorRef} className="css-editor-codemirror"></div>
                                 </div>
                             </BlockStack>
                         </Card>
                     )}
-                </div>
-                <div className="preview-sidebar">
+                </Box>
+
+                <Box className="preview-sidebar">
                     <Card>
                         <div className="section-margin-bottom">
                             <Text as="h3"
@@ -1973,7 +2021,7 @@ export default function Customize() {
                                 Live preview
                             </Text>
                         </div>
-                        <div className={`preview-area ${appearanceView === 'mobile' ? 'preview-area-mobile' : ''}`}>
+                        <div ref={previewAreaRef} className={`preview-area ${appearanceView === 'mobile' ? 'preview-area-mobile' : ''}`}>
                             <div
                                 className={getPositioningClasses()}
                                 style={{
@@ -2152,7 +2200,7 @@ export default function Customize() {
                             </div>
                         </div>
                     </Card>
-                </div>
+                </Box>
             </InlineGrid>
 
             {

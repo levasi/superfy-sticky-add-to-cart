@@ -25,12 +25,6 @@ export const loader = async ({ request }) => {
 
 export default function Settings() {
     const navigate = useNavigate();
-
-    const handleGeneralSettings = () => {
-        console.log("General settings clicked - navigating to /app/settings-general");
-        navigate("/app/settings-general");
-    };
-
     const handleTranslations = () => {
         console.log("Navigate to translations");
     };
