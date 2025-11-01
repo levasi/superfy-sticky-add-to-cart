@@ -37,6 +37,9 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { getSetting } from "../models/settings.server";
 import "./app.customize.scss";
+import { EditorView, basicSetup } from 'codemirror';
+import { EditorState } from '@codemirror/state';
+import { css } from '@codemirror/lang-css';
 
 export const loader = async ({ request }) => {
     await authenticate.admin(request);
@@ -351,6 +354,11 @@ export default function Customize() {
     const [isInitialized, setIsInitialized] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+    const cssEditorRef = useRef(null);
+    const cssEditorViewRef = useRef(null);
+    const previewAreaRef = useRef(null);
+    const previewStyleRef = useRef(null);
+
     const shopify = useAppBridge();
     const fetcher = useFetcher();
     const navigate = useNavigate();
@@ -646,6 +654,87 @@ export default function Customize() {
             checkForChanges();
         }
     }, [isInitialized, checkForChanges]);
+
+    // Initialize CodeMirror editor for CSS
+    useEffect(() => {
+        // Only initialize when CSS tab (tab 2) is selected and editor ref is available
+        if (selectedTab !== 2 || !cssEditorRef.current || cssEditorViewRef.current) return;
+
+        const startState = EditorState.create({
+            doc: customCss,
+            extensions: [
+                basicSetup,
+                css(),
+                EditorView.updateListener.of((update) => {
+                    if (update.docChanged) {
+                        const newValue = update.state.doc.toString();
+                        setCustomCss(newValue);
+                    }
+                }),
+                EditorView.theme({
+                    '&': {
+                        height: '300px',
+                        fontSize: '14px',
+                    },
+                }),
+            ],
+        });
+
+        const view = new EditorView({
+            state: startState,
+            parent: cssEditorRef.current,
+        });
+
+        cssEditorViewRef.current = view;
+
+        return () => {
+            if (cssEditorViewRef.current) {
+                cssEditorViewRef.current.destroy();
+                cssEditorViewRef.current = null;
+            }
+        };
+    }, [selectedTab]); // Initialize when tab is selected
+
+    // Update editor when customCss changes externally (but not from editor itself)
+    useEffect(() => {
+        if (cssEditorViewRef.current && customCss !== cssEditorViewRef.current.state.doc.toString()) {
+            const transaction = cssEditorViewRef.current.state.update({
+                changes: {
+                    from: 0,
+                    to: cssEditorViewRef.current.state.doc.length,
+                    insert: customCss,
+                },
+            });
+            cssEditorViewRef.current.dispatch(transaction);
+        }
+    }, [customCss]);
+
+    // Apply custom CSS to preview area
+    useEffect(() => {
+        if (!previewAreaRef.current) return;
+
+        // Remove existing custom CSS style tag
+        if (previewStyleRef.current) {
+            previewStyleRef.current.remove();
+            previewStyleRef.current = null;
+        }
+
+        // Add custom CSS if provided
+        if (customCss && customCss.trim()) {
+            const styleElement = document.createElement('style');
+            styleElement.id = 'preview-custom-css';
+            styleElement.textContent = customCss;
+            previewAreaRef.current.insertBefore(styleElement, previewAreaRef.current.firstChild);
+            previewStyleRef.current = styleElement;
+        }
+
+        return () => {
+            if (previewStyleRef.current) {
+                previewStyleRef.current.remove();
+                previewStyleRef.current = null;
+            }
+        };
+    }, [customCss]);
 
     const handleQuantityIncrease = useCallback(() => {
         setPreviewQuantity(prev => Math.min(prev + 1, 99));
@@ -1061,29 +1150,31 @@ export default function Customize() {
                                                 <>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
-                                                        <InlineStack align="space-between" gap="150"
-                                                            wrap={false}
-                                                        >
-                                                            <TextField
-                                                                fullWidth
-                                                                className='w-100'
-                                                                type="number"
-                                                                placeholder="e.g., 600"
-                                                                value={maxWidth}
-                                                                onChange={setMaxWidth}
-                                                                connectedRight={<Select
-                                                                    options={[
-                                                                        { label: 'px', value: 'px' },
-                                                                        { label: '%', value: '%' }
-                                                                    ]}
-                                                                    onChange={setMaxWidthUnit}
-                                                                    value={maxWidthUnit}
-                                                                    className="input-styled unit-input"
-                                                                />}
-                                                                helpText="Leave empty for auto"
-                                                            />
+                                                        <Box width="100%">
+                                                            <InlineStack align="space-between" gap="150"
+                                                                wrap={false}
+                                                            >
+                                                                <TextField
+                                                                    fullWidth
+                                                                    className='w-100'
+                                                                    type="number"
+                                                                    placeholder="e.g., 600"
+                                                                    value={maxWidth}
+                                                                    onChange={setMaxWidth}
+                                                                    connectedRight={<Select
+                                                                        options={[
+                                                                            { label: 'px', value: 'px' },
+                                                                            { label: '%', value: '%' }
+                                                                        ]}
+                                                                        onChange={setMaxWidthUnit}
+                                                                        value={maxWidthUnit}
+                                                                        className="input-styled unit-input"
+                                                                    />}
+                                                                    helpText="Leave empty for auto"
+                                                                />
 
-                                                        </InlineStack>
+                                                            </InlineStack>
+                                                        </Box>
                                                     </BlockStack>
                                                     <BlockStack gap="100">
                                                         <Text variant="bodySm" as="div">Alignment</Text>
@@ -1729,7 +1820,7 @@ export default function Customize() {
                                                 />
                                                 {mobileBarWidth === 'contained' && (
                                                     <>
-                                                        <BlockStack gap="100">
+                                                        <BlockStack gap="100" className='w-100 asdasdasd'>
                                                             <Text variant="bodySm" as="div" className="form-label-bold">Max width</Text>
                                                             <input
                                                                 type="hidden"
@@ -1929,18 +2020,7 @@ export default function Customize() {
                                     </Text>
                                 </BlockStack>
                                 <div className="css-editor-container">
-                                    <div className="css-editor-line-numbers">
-                                        {Array.from({ length: customCss.split('\n').length || 1 }, (_, i) => (
-                                            <div key={i} className="css-editor-line-number">{i + 1}</div>
-                                        ))}
-                                    </div>
-                                    <textarea
-                                        value={customCss}
-                                        onChange={e => setCustomCss(e.target.value)}
-                                        rows={5}
-                                        className="css-editor-textarea"
-                                        spellCheck={false}
-                                    />
+                                    <div ref={cssEditorRef} className="css-editor-codemirror"></div>
                                 </div>
                             </BlockStack>
                         </Card>
@@ -1957,7 +2037,7 @@ export default function Customize() {
                                 Live preview
                             </Text>
                         </div>
-                        <div className={`preview-area ${appearanceView === 'mobile' ? 'preview-area-mobile' : ''}`}>
+                        <div ref={previewAreaRef} className={`preview-area ${appearanceView === 'mobile' ? 'preview-area-mobile' : ''}`}>
                             <div
                                 className={getPositioningClasses()}
                                 style={{

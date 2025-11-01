@@ -262,38 +262,44 @@
 
 // CSS Editor styles
 .css-editor-container {
-    display: flex;
     border: 1px solid var(--p-color-border);
     border-radius: var(--p-border-radius-2);
     overflow: hidden;
     background: var(--p-color-bg-surface);
 }
 
-.css-editor-line-numbers {
-    background: var(--p-color-bg-surface-subdued);
-    color: var(--p-color-text-subdued);
-    font-family: monospace;
-    font-size: 14px;
-    padding: 8px 4px;
-    text-align: right;
-    user-select: none;
-}
+.css-editor-codemirror {
+    :global(.cm-editor) {
+        height: 300px;
+        font-size: 14px;
+    }
 
-.css-editor-line-number {
-    height: 20px;
-}
+    :global(.cm-scroller) {
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    }
 
-.css-editor-textarea {
-    width: 100%;
-    border: none;
-    outline: none;
-    font-family: monospace;
-    font-size: 14px;
-    color: var(--p-color-text-success);
-    background: var(--p-color-bg-surface);
-    padding: 8px;
-    resize: vertical;
-    min-height: 100px;
+    :global(.cm-content) {
+        padding: 12px;
+        min-height: 276px;
+    }
+
+    :global(.cm-focused) {
+        outline: none;
+    }
+
+    :global(.cm-gutters) {
+        background-color: var(--p-color-bg-surface-subdued);
+        border-right: 1px solid var(--p-color-border);
+        color: var(--p-color-text-subdued);
+    }
+
+    :global(.cm-lineNumbers) {
+        color: var(--p-color-text-subdued);
+    }
+
+    :global(.cm-activeLineGutter) {
+        background-color: var(--p-color-bg-surface-subdued);
+    }
 }
 
 // Sticky bar preview styles
